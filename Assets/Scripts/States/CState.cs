@@ -6,12 +6,15 @@ public abstract class CState
     {
         public MonoBehaviour pOwner;
     }
-    public CState(ref CSTATEDESC refOwner) {
+    public CState(CSTATEDESC refOwner) {
         Owner = refOwner.pOwner;
     }
     public MonoBehaviour Owner = null;
     public abstract void Enter();
-    public abstract void Update();
+
+    public abstract void Fixed_Update_State();
+    public abstract void Update_State();
+    public abstract void Late_Update_State();
     public abstract void Exit();
 
 }

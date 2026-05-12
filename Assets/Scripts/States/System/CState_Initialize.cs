@@ -6,7 +6,7 @@ public class CState_Initialize : CState
     {
 
     }
-    public CState_Initialize(ref STATE_INITIALIZE_DESC tStateDesc) : base(tStateDesc)
+    public CState_Initialize(STATE_INITIALIZE_DESC tStateDesc) : base(tStateDesc)
     {
         
     }
@@ -14,7 +14,15 @@ public class CState_Initialize : CState
     {
 
     }
-    public override void Update()
+    public override void Fixed_Update_State()
+    {
+
+    }
+    public override void Update_State()
+    {
+
+    }
+    public override void Late_Update_State()
     {
 
     }
