@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 namespace ENGINESTATES
 {
@@ -18,6 +19,25 @@ class CFSM : MonoBehaviour
     CState currState = null;
     CState prevState = null;
 
+    /// <summary>상태 없을 때도 null이 아니게 두어 틱에서 NRE가 나지 않게 한다.</summary>
+    static void EmptyTick() { }
+
+    Action onFixedUpdateTick = EmptyTick;
+    Action onUpdateTick = EmptyTick;
+    Action onLateUpdateTick = EmptyTick;
+
+    void ResubscribeStateTicks(CState next)
+    {
+        onFixedUpdateTick = EmptyTick;
+        onUpdateTick = EmptyTick;
+        onLateUpdateTick = EmptyTick;
+        if (next == null)
+            return;
+        onFixedUpdateTick += next.Fixed_Update_State;
+        onUpdateTick += next.Update_State;
+        onLateUpdateTick += next.Late_Update_State;
+    }
+
     public void Change_State(CState newState)
     {
         if (null != currState)
@@ -26,6 +46,7 @@ class CFSM : MonoBehaviour
             prevState = currState;
         }
         currState = newState;
+        ResubscribeStateTicks(currState);
         if (null != currState)
         {
             currState.Enter();
@@ -33,25 +54,16 @@ class CFSM : MonoBehaviour
     }
     public void Fixed_Update_State()
     {
-        if (null != currState)
-        {
-            currState.Fixed_Update_State();
-        }
+        onFixedUpdateTick();
     }
 
     public void Update_State()
     {
-        if (null != currState)
-        {
-            currState.Update_State();
-        }
+        onUpdateTick();
     }
     public void Late_Update_State()
     {
-        if (null != currState)
-        {
-            currState.Late_Update_State();
-        }
+        onLateUpdateTick();
     }
     public CState Get_PrevState()
     {

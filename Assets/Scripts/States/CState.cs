@@ -11,7 +11,6 @@ public abstract class CState
     }
     public MonoBehaviour Owner = null;
     public abstract void Enter();
-
     public abstract void Fixed_Update_State();
     public abstract void Update_State();
     public abstract void Late_Update_State();
