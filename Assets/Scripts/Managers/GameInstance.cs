@@ -13,12 +13,12 @@ public class CGameInstance : MonoBehaviour
 
     
     [SerializeField] CardDocuments cardDocuments = null;
-
+    [SerializeField] List<CardInitialSet> cardInitialSets = null;
     DeckManager deckManager = null;
     ContentUpdater contentUpdater = null;
     AsyncOperationHandle<IList<CardDocuments>> cardDocumentsHandle;
+    AsyncOperationHandle<IList<CardInitialSet>> cardInitialSetsHandle;
     public CardDocuments CardDocuments => cardDocuments;
-
     static private void Init()
     {
         if (null == s_pInstance)
@@ -63,8 +63,51 @@ public class CGameInstance : MonoBehaviour
             Debug.LogError("CardDocuments not found via Addressables label 'CardDocuments'.");
             return;
         }
-
+        
         cardDocuments = cardDocumentsHandle.Result[0];
+    }
+    async Task LoadCardInitialSetAsync()
+    {
+        if (null == cardInitialSets)
+        {
+            LoadAssetsByLabel<CardInitialSet> loader = new LoadAssetsByLabel<CardInitialSet>("CardInitialSets");
+            cardInitialSetsHandle = await loader.LoadAsync();
+            if (false == cardInitialSetsHandle.IsValid() ||
+             null == cardInitialSetsHandle.Result ||
+              0 == cardInitialSetsHandle.Result.Count)
+            {
+                Debug.LogError("CardInitialSets not found via Addressables label 'CardInitialSets'.");
+                return;
+            }
+
+            cardInitialSets = new List<CardInitialSet>(cardInitialSetsHandle.Result);
+        }
+
+        InitializeCardInitialSets();
+    }
+
+    void InitializeCardInitialSets()
+    {
+        if (null == cardDocuments)
+        {
+            Debug.LogError("Cannot initialize CardInitialSets: CardDocuments is null.");
+            return;
+        }
+
+        if (null == cardInitialSets)
+        {
+            return;
+        }
+
+        foreach (CardInitialSet cardInitialSet in cardInitialSets)
+        {
+            if (null == cardInitialSet)
+            {
+                continue;
+            }
+
+            cardInitialSet.SetCardDocuments(cardDocuments);
+        }
     }
 
     public CardInfo GetCardInfo(int cardID)
@@ -86,6 +129,7 @@ public class CGameInstance : MonoBehaviour
     {
         Init();
         await LoadCardDocumentsAsync();
+        await LoadCardInitialSetAsync();
     }
 
     void OnDestroy()
@@ -93,6 +137,10 @@ public class CGameInstance : MonoBehaviour
         if (cardDocumentsHandle.IsValid())
         {
             Addressables.Release(cardDocumentsHandle);
+        }
+        if (cardInitialSetsHandle.IsValid())
+        {
+            Addressables.Release(cardInitialSetsHandle);
         }
     }
 }

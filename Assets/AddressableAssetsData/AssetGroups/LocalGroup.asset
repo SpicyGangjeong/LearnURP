@@ -15,6 +15,12 @@ MonoBehaviour:
   m_GroupName: LocalGroup
   m_GUID: b5c08616238600c4e955c62d07a0e0e3
   m_SerializeEntries:
+  - m_GUID: 03fb10ccefda16c4cb326de85ba2e54a
+    m_Address: Assets/Local/SO/CardInitialSet1.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CardInitialSets
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1b8567bdd4955a343a3403519273f980
     m_Address: Assets/Prefab/Canvas.prefab
     m_ReadOnly: 0
@@ -30,11 +36,23 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a01717631685d6e4199712f740e3e342
+    m_Address: Assets/Local/SO/CardInitialSet0.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CardInitialSets
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ada8f796206790c4eb1c84b91dc73ffc
     m_Address: Assets/Local/SO/CardDocuments.asset
     m_ReadOnly: 0
     m_SerializedLabels:
     - CardDocuments
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fd1e2c0b46a1b0149a312c5961304040
+    m_Address: Assets/Local/SO/CardInitialSet2.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CardInitialSets
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: b49e342f95e6240438087db428a39e75, type: 2}

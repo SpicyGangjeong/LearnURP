@@ -3,18 +3,14 @@ using UnityEngine;
 using UnityEngine.InputSystem.Controls;
 namespace DEFINES
 {
-    enum SCENES
+    enum CardPile
     {
-        Logo = 0,
-        Title,
-        Setting,
-        Stage,
-        Ending,
-    }
-    enum HRESULTS
-    {
-        E_FAIL = int.MinValue,
-        S_OK = 1,
+        NONE = -1,
+        HAND = 0,
+        DISCARD = 1,
+        DECK = 2,
+        DISAPPEARED = 3,
+        END = 4,
     }
     public enum CardType : int
     {
