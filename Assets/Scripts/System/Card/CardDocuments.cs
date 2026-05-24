@@ -1,23 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public class CardInfo
-{
-    public int iCardID;
-    public DEFINES.CardType eCardType;
-    public int iCardCost;
-    public string strCardName;
-    public string strCardDescription;
-}
-
 [CreateAssetMenu(fileName = "CardDocuments", menuName = "Scriptable Objects/CardDocuments")]
 public class CardDocuments : ScriptableObject
 {
     [SerializeField] List<CardInfo> cardInfos = new List<CardInfo>();
 
     Dictionary<int, CardInfo> cardLookup = null;
-
+    [ContextMenu("Rebuild Card Description")]
+    void RebuildCardDescription()
+    {
+        foreach (CardInfo cardInfo in cardInfos)
+        {
+            cardInfo.BuildCardDescription();
+        }
+    }
     void OnEnable()
     {
         BuildLookup();
