@@ -163,6 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c384e4687b662024ebd592501d0deb03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CGameInstance
+  cardDocuments: {fileID: 0}
 --- !u!1 &1320848860
 GameObject:
   m_ObjectHideFlags: 0

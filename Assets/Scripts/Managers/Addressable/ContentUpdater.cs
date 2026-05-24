@@ -3,7 +3,6 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Collections.Generic;
 
-// Addressable Asset System을 사용하여 카탈로그 업데이트를 확인하고 필요한 경우 업데이트하는 예제입니다.
 public class ContentUpdater : MonoBehaviour
 {
     async void Start()
