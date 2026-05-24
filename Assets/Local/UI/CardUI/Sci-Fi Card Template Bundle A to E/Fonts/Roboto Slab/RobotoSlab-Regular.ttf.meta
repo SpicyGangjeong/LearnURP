@@ -1,0 +1,38 @@
+fileFormatVersion: 2
+guid: 564a5308f378c2a4490aa869136be4fc
+timeCreated: 1551717975
+licenseType: Store
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Roboto Slab
+  fontNames:
+  - Roboto Slab
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 1a6e28607d954e84b9e168fd1cfa6a02, type: 3}
+  - {fileID: 12800000, guid: 51a5107006696bf4d8401f98f6714f67, type: 3}
+  - {fileID: 12800000, guid: 01ab601255b77d147affe32aec319e92, type: 3}
+  - {fileID: 12800000, guid: 3d0d2215b5a01564c980ab55a8589d64, type: 3}
+  - {fileID: 12800000, guid: 4f22bbf5ef0d5ba4cb7bc96f0c1f8809, type: 3}
+  - {fileID: 12800000, guid: 02861018c772aac42988d2d407a00c37, type: 3}
+  - {fileID: 12800000, guid: 3411ece824ed25f4280b6ff3ee132a9e, type: 3}
+  - {fileID: 12800000, guid: 16f1059c8034d2a4a960c6461db8ed8f, type: 3}
+  - {fileID: 12800000, guid: 2f2ebeef11a640d428b16956fdf580f0, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 143742
+  packageName: Sci-Fi Card Template Bundle
+  packageVersion: 1.0
+  assetPath: Assets/My Production Line/Sci-Fi Card Template Bundle A to E/Fonts/Roboto
+    Slab/RobotoSlab-Regular.ttf
+  uploadId: 304477
