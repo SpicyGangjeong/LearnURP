@@ -11,11 +11,11 @@ enum CardPile
     DECK = 2,
     DISAPPEARED = 3,
 }
-struct CardPileInfo
+class CardPileInfo
 {
     public CardPile ePileType { get; set; }
     public List<Card> listCards { get; set; }
-    public CardPileInfo(CardPile ePileType = CardPile.NONE, List<Card> listCards = null) : this()
+    public CardPileInfo(CardPile ePileType = CardPile.NONE, List<Card> listCards = null)
     {
         if (null == listCards)
         {

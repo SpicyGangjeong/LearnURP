@@ -8,8 +8,13 @@ public class CGameInstance : MonoBehaviour
     static CGameInstance s_pInstance = null;
     public static CGameInstance Instance { get { Init(); return s_pInstance; } }
 
+    
+    [SerializeField] CardDocuments cardDocuments = null;
+
     DeckManager deckManager = null;
     ContentUpdater contentUpdater = null;
+
+    public CardDocuments CardDocuments => cardDocuments;
 
     static private void Init()
     {
@@ -30,6 +35,16 @@ public class CGameInstance : MonoBehaviour
     }
     static private bool Initialize(ref CGameInstance Instance)
     {
+        if (null == Instance.cardDocuments)
+        {
+            Instance.cardDocuments = Resources.Load<CardDocuments>("CardDocuments");
+            if (null == Instance.cardDocuments)
+            {
+                Debug.LogError("CardDocuments not found. Create one via Create > Scriptable Objects > CardDocuments and place it in Assets/Resources/CardDocuments.asset");
+                return false;
+            }
+        }
+
         Instance.contentUpdater = Instance.gameObject.AddComponent<ContentUpdater>();
         Instance.deckManager = new DeckManager();
         if (null == Instance.contentUpdater || null == Instance.deckManager)
@@ -37,6 +52,17 @@ public class CGameInstance : MonoBehaviour
             return false;
         }
         return true;
+    }
+
+    public CardInfo GetCardInfo(int cardID)
+    {
+        if (null == cardDocuments)
+        {
+            Debug.LogError("CardDocuments is null");
+            return null;
+        }
+
+        return cardDocuments.GetCard(cardID);
     }
 
     private void Awake()
