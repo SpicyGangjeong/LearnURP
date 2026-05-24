@@ -1,32 +1,38 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using System.Collections.Generic;
 
-// 특정 라벨이 붙은 에셋들을 모두 로드합니다.
-public class LoadAssetsByLabel : MonoBehaviour
+public class LoadAssetsByLabel<T> where T : Object
 {
-    public string assetLabel = "UI_Icons";
-    private AsyncOperationHandle<IList<Texture2D>> loadHandle;
+    readonly string assetLabel;
 
-    async void Start()
+    public LoadAssetsByLabel(string assetLabel)
     {
-        loadHandle = Addressables.LoadAssetAsync<IList<Texture2D>>(assetLabel);
-        await loadHandle.Task;
-        if (loadHandle.Status == AsyncOperationStatus.Succeeded)
-        {
-            IList<Texture2D> icons = loadHandle.Result;
-            Debug.Log($"Loaded {icons.Count} icons with label : '{assetLabel}'.");
-        } else
-        {
-            Debug.LogError($"Failed to Load assets with label: '{assetLabel}'");
-        }
+        this.assetLabel = assetLabel;
     }
-    void OnDestroy()
+
+    public async Task<AsyncOperationHandle<IList<T>>> LoadAsync()
     {
-        if (loadHandle.IsValid())
+        AsyncOperationHandle<IList<T>> handle = Addressables.LoadAssetsAsync<T>(
+            assetLabel,
+            null,
+            Addressables.MergeMode.Union);
+
+        await handle.Task;
+
+        if (handle.Status != AsyncOperationStatus.Succeeded)
         {
-            Addressables.Release(loadHandle);
+            Debug.LogError($"Failed to load assets with label: '{assetLabel}'");
+            if (handle.IsValid())
+            {
+                Addressables.Release(handle);
+            }
+            return default;
         }
+
+        Debug.Log($"Loaded {handle.Result.Count} assets with label '{assetLabel}'.");
+        return handle;
     }
 }

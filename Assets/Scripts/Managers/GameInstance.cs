@@ -1,7 +1,10 @@
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Android;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public class CGameInstance : MonoBehaviour
 {
@@ -13,7 +16,7 @@ public class CGameInstance : MonoBehaviour
 
     DeckManager deckManager = null;
     ContentUpdater contentUpdater = null;
-
+    AsyncOperationHandle<IList<CardDocuments>> cardDocumentsHandle;
     public CardDocuments CardDocuments => cardDocuments;
 
     static private void Init()
@@ -35,16 +38,6 @@ public class CGameInstance : MonoBehaviour
     }
     static private bool Initialize(ref CGameInstance Instance)
     {
-        if (null == Instance.cardDocuments)
-        {
-            Instance.cardDocuments = Resources.Load<CardDocuments>("CardDocuments");
-            if (null == Instance.cardDocuments)
-            {
-                Debug.LogError("CardDocuments not found. Create one via Create > Scriptable Objects > CardDocuments and place it in Assets/Resources/CardDocuments.asset");
-                return false;
-            }
-        }
-
         Instance.contentUpdater = Instance.gameObject.AddComponent<ContentUpdater>();
         Instance.deckManager = new DeckManager();
         if (null == Instance.contentUpdater || null == Instance.deckManager)
@@ -52,6 +45,26 @@ public class CGameInstance : MonoBehaviour
             return false;
         }
         return true;
+    }
+
+    async Task LoadCardDocumentsAsync()
+    {
+        if (null != cardDocuments)
+        {
+            return;
+        }
+
+        LoadAssetsByLabel<CardDocuments> loader = new LoadAssetsByLabel<CardDocuments>("CardDocuments");
+        cardDocumentsHandle = await loader.LoadAsync();
+        if (false == cardDocumentsHandle.IsValid() ||
+         null == cardDocumentsHandle.Result ||
+          0 == cardDocumentsHandle.Result.Count)
+        {
+            Debug.LogError("CardDocuments not found via Addressables label 'CardDocuments'.");
+            return;
+        }
+
+        cardDocuments = cardDocumentsHandle.Result[0];
     }
 
     public CardInfo GetCardInfo(int cardID)
@@ -69,13 +82,17 @@ public class CGameInstance : MonoBehaviour
     {
         
     }
-    void Start()
+    async void Start()
     {
         Init();
+        await LoadCardDocumentsAsync();
     }
 
-    void Update()
+    void OnDestroy()
     {
-        
+        if (cardDocumentsHandle.IsValid())
+        {
+            Addressables.Release(cardDocumentsHandle);
+        }
     }
 }
