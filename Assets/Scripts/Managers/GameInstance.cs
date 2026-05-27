@@ -5,6 +5,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 
 public class CGameInstance : MonoBehaviour
 {
@@ -14,12 +15,14 @@ public class CGameInstance : MonoBehaviour
     
     [SerializeField] CardDocuments cardDocuments = null;
     [SerializeField] List<CardInitialSet> cardInitialSets = null;
-    DeckManager deckManager = null;
-    ContentUpdater contentUpdater = null;
-    AsyncOperationHandle<IList<CardDocuments>> cardDocumentsHandle;
-    AsyncOperationHandle<IList<CardInitialSet>> cardInitialSetsHandle;
+    private DeckManager deckManager = null;
+    private ContentUpdater contentUpdater = null;
+    private CFSM fsm = null;
+    private AsyncOperationHandle<IList<CardDocuments>> cardDocumentsHandle;
+    private AsyncOperationHandle<IList<CardInitialSet>> cardInitialSetsHandle;
     public CardDocuments CardDocuments => cardDocuments;
-    static private void Init()
+
+    private static void Init()
     {
         if (null == s_pInstance)
         {
@@ -29,21 +32,50 @@ public class CGameInstance : MonoBehaviour
             {
                 gameobject = new GameObject(strInstance);
                 gameobject.AddComponent<CGameInstance>();
-                gameobject.AddComponent<CFSM>();
             }
             DontDestroyOnLoad(gameobject);
             s_pInstance = gameobject.GetComponent<CGameInstance>();
-            bool bResult = Initialize(ref s_pInstance);
+            s_pInstance.fsm = gameobject.GetOrAddComponent<CFSM>();
+            Initialize(ref s_pInstance);
         }
     }
-    static private bool Initialize(ref CGameInstance Instance)
+
+    private static void InitializeFSMStates()
+    {
+        if (null == s_pInstance)
+        {
+            Debug.LogError("s_pInstance is null");
+            return;
+        }
+        if (null == s_pInstance.fsm)
+        {
+            Debug.LogError("fsm is null");
+            return;
+        }
+        s_pInstance.fsm.states = new Dictionary<int, CState>();
+        s_pInstance.fsm.states.Add((int)DEFINES.SystemState.INITIALIZE, 
+            new CState_Sys_Initialize(new CState_Sys_Initialize.STATE_SYS_INITIALIZE_DESC((int)DEFINES.SystemState.INITIALIZE, s_pInstance, s_pInstance)));
+        s_pInstance.fsm.states.Add((int)DEFINES.SystemState.IDLE,
+            new CState_Sys_Idle(new CState_Sys_Idle.STATE_SYS_IDLE_DESC((int)DEFINES.SystemState.IDLE, s_pInstance, s_pInstance)));
+        s_pInstance.fsm.states.Add((int)DEFINES.SystemState.PLAYING,
+            new CState_Sys_Playing(new CState_Sys_Playing.STATE_SYS_PLAYING_DESC((int)DEFINES.SystemState.PLAYING, s_pInstance, s_pInstance)));
+        if (true == s_pInstance.fsm.Is_Valid_FSM((int)DEFINES.SystemState.END))
+        {
+            s_pInstance.fsm.Change_State((int)DEFINES.SystemState.INITIALIZE);
+        }
+    }
+    private static bool Initialize(ref CGameInstance Instance)
     {
         Instance.contentUpdater = Instance.gameObject.AddComponent<ContentUpdater>();
         Instance.deckManager = new DeckManager();
-        if (null == Instance.contentUpdater || null == Instance.deckManager)
+        Instance.fsm = Instance.gameObject.GetComponent<CFSM>();
+        if (null == Instance.contentUpdater || 
+        null == Instance.deckManager || 
+        null == Instance.fsm)
         {
             return false;
         }
+        InitializeFSMStates();
         return true;
     }
 
@@ -66,7 +98,7 @@ public class CGameInstance : MonoBehaviour
         
         cardDocuments = cardDocumentsHandle.Result[0];
     }
-    async Task LoadCardInitialSetAsync()
+    private async Task LoadCardInitialSetAsync()
     {
         if (null == cardInitialSets)
         {
@@ -86,7 +118,7 @@ public class CGameInstance : MonoBehaviour
         InitializeCardInitialSets();
     }
 
-    void InitializeCardInitialSets()
+    private void InitializeCardInitialSets()
     {
         if (null == cardDocuments)
         {
@@ -125,14 +157,15 @@ public class CGameInstance : MonoBehaviour
     {
         
     }
-    async void Start()
+    private async void Start()
     {
         Init();
         await LoadCardDocumentsAsync();
         await LoadCardInitialSetAsync();
+        fsm.Change_State((int)DEFINES.SystemState.IDLE);
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         if (cardDocumentsHandle.IsValid())
         {

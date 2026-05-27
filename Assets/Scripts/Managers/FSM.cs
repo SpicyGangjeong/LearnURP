@@ -1,25 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-namespace ENGINESTATES
-{
-    enum ENGINESTATES
-    {
-        STATE_INITIALIZE = 0,
-        STATE_LOGO,
-        STATE_TITLE,
-        STATE_SETTING,
-        STATE_STAGE,
-        STATE_ENDING,
-    }
-}
+
 class CFSM : MonoBehaviour
 {
-    HashSet<CState> states = null;
+    public Dictionary<int, CState> states = null;
     CState currState = null;
     CState prevState = null;
-
-    /// <summary>상태 없을 때도 null이 아니게 두어 틱에서 NRE가 나지 않게 한다.</summary>
     static void EmptyTick() { }
 
     Action onFixedUpdateTick = EmptyTick;
@@ -38,19 +25,38 @@ class CFSM : MonoBehaviour
         onLateUpdateTick += next.Late_Update_State;
     }
 
-    public void Change_State(CState newState)
+    public void Change_State(int iStateID)
     {
         if (null != currState)
         {
             currState.Exit();
             prevState = currState;
         }
-        currState = newState;
+        if (false == states.TryGetValue(iStateID, out currState))
+        {
+            Debug.LogError($"State not found: {iStateID} {states.Count}");
+            return;
+        }
         ResubscribeStateTicks(currState);
         if (null != currState)
         {
             currState.Enter();
         }
+    }
+    public bool Is_Valid_FSM(int iStateEndID){
+        if (null == states)
+        {
+            Debug.LogError("FSM is not valid: states is null");
+            return false;
+        }
+        for (int i = 0; i < iStateEndID; i++)
+        {
+            if (false == states.TryGetValue(i, out CState state)){
+                Debug.LogError($"FSM is not valid: {i} is not found in states");
+                return false;
+            }
+        }
+        return true;
     }
     public void Fixed_Update_State()
     {
@@ -69,10 +75,13 @@ class CFSM : MonoBehaviour
     {
         return prevState;
     }
-    
+    public CState Get_CurrentState()
+    {
+        return currState;
+    }
     void Awake() { }
     void Start() { }
-    void FixedUpdate() { }
-    void Update() { }
-    void LateUpdate() { Update_State(); }
+    void FixedUpdate() { Fixed_Update_State(); }
+    void Update() { Update_State(); }
+    void LateUpdate() { Late_Update_State(); }
 }

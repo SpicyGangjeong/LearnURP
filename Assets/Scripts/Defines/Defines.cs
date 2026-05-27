@@ -3,6 +3,14 @@ using UnityEngine;
 using UnityEngine.InputSystem.Controls;
 namespace DEFINES
 {
+    enum SystemState : int
+    {
+        NONE = -1,
+        INITIALIZE = 0,
+        IDLE = 1,
+        PLAYING = 2,
+        END = 3,
+    }
     enum CardPile
     {
         NONE = -1,
