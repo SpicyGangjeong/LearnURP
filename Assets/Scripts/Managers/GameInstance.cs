@@ -53,12 +53,13 @@ public class CGameInstance : MonoBehaviour
             return;
         }
         s_pInstance.fsm.states = new Dictionary<int, CState>();
-        s_pInstance.fsm.states.Add((int)DEFINES.SystemState.INITIALIZE, 
-            new CState_Sys_Initialize(new CState_Sys_Initialize.STATE_SYS_INITIALIZE_DESC((int)DEFINES.SystemState.INITIALIZE, s_pInstance, s_pInstance)));
-        s_pInstance.fsm.states.Add((int)DEFINES.SystemState.IDLE,
-            new CState_Sys_Idle(new CState_Sys_Idle.STATE_SYS_IDLE_DESC((int)DEFINES.SystemState.IDLE, s_pInstance, s_pInstance)));
-        s_pInstance.fsm.states.Add((int)DEFINES.SystemState.PLAYING,
-            new CState_Sys_Playing(new CState_Sys_Playing.STATE_SYS_PLAYING_DESC((int)DEFINES.SystemState.PLAYING, s_pInstance, s_pInstance)));
+        s_pInstance.fsm.states.Add((int)DEFINES.SystemState.INITIALIZE, new CState_Sys_Initialize(
+            new CState_Sys_Initialize.STATE_SYS_INITIALIZE_DESC((int)DEFINES.SystemState.INITIALIZE, s_pInstance, s_pInstance.fsm, s_pInstance, s_pInstance.BootstrapAsync)));
+        s_pInstance.fsm.states.Add((int)DEFINES.SystemState.IDLE, new CState_Sys_Idle(
+            new CState_Sys_Idle.STATE_SYS_IDLE_DESC((int)DEFINES.SystemState.IDLE, s_pInstance, s_pInstance.fsm, s_pInstance)));
+        s_pInstance.fsm.states.Add((int)DEFINES.SystemState.PLAYING, new CState_Sys_Playing(
+            new CState_Sys_Playing.STATE_SYS_PLAYING_DESC((int)DEFINES.SystemState.PLAYING, s_pInstance, s_pInstance.fsm, s_pInstance)));
+            
         if (true == s_pInstance.fsm.Is_Valid_FSM((int)DEFINES.SystemState.END))
         {
             s_pInstance.fsm.Change_State((int)DEFINES.SystemState.INITIALIZE);
@@ -100,7 +101,7 @@ public class CGameInstance : MonoBehaviour
     }
     private async Task LoadCardInitialSetAsync()
     {
-        if (null == cardInitialSets)
+        if (0 == cardInitialSets.Count)
         {
             LoadAssetsByLabel<CardInitialSet> loader = new LoadAssetsByLabel<CardInitialSet>("CardInitialSets");
             cardInitialSetsHandle = await loader.LoadAsync();
@@ -157,12 +158,14 @@ public class CGameInstance : MonoBehaviour
     {
         
     }
-    private async void Start()
+    private void Start()
     {
         Init();
+    }
+    public async Task BootstrapAsync()
+    {
         await LoadCardDocumentsAsync();
         await LoadCardInitialSetAsync();
-        fsm.Change_State((int)DEFINES.SystemState.IDLE);
     }
 
     private void OnDestroy()

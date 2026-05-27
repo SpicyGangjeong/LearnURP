@@ -1,5 +1,6 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Logo : MonoBehaviour
 {
@@ -12,5 +13,6 @@ public class Logo : MonoBehaviour
     void OnClick()
     {
         loadAddressableScene.LoadScene();
+        
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-class CFSM : MonoBehaviour
+public class CFSM : MonoBehaviour
 {
     public Dictionary<int, CState> states = null;
     CState currState = null;

@@ -4,7 +4,7 @@ public abstract class CState_Sys : CState
 {
     public class STATE_SYS_DESC : CSTATEDESC
     {
-        public STATE_SYS_DESC(int StateID, MonoBehaviour Owner, CGameInstance GameInstance) : base(StateID, Owner)
+        public STATE_SYS_DESC(int StateID, MonoBehaviour Owner, CFSM FSM, CGameInstance GameInstance) : base(StateID, Owner, FSM)
         {
             this.GameInstance = GameInstance;
         }

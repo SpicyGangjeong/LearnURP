@@ -12,10 +12,11 @@ public struct CardNameCount
 [CreateAssetMenu(fileName = "CardInitialSet", menuName = "Scriptable Objects/CardInitialSet")]
 public class CardInitialSet : ScriptableObject
 {
+    [SerializeField] string strCardInitialSetName = string.Empty;
     [SerializeField] CardDocuments cardDocuments = null;
     [SerializeField] List<CardNameCount> cardEntries = new List<CardNameCount>();
-
     Dictionary<CardInfo, int> cardInitialSetLookup = null;
+    
 
     public IReadOnlyList<CardNameCount> CardEntries => cardEntries;
 

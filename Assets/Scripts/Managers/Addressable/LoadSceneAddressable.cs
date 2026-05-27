@@ -4,7 +4,6 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 
-// Addressable Asset System을 사용하여 씬을 로드하고 언로드하는 예제입니다.
 public class LoadSceneAddressable: MonoBehaviour
 {
     public AssetReference sceneRef;

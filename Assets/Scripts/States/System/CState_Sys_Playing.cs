@@ -4,7 +4,7 @@ public class CState_Sys_Playing : CState_Sys
 {
     public class STATE_SYS_PLAYING_DESC : STATE_SYS_DESC
     {
-        public STATE_SYS_PLAYING_DESC(int StateID, MonoBehaviour Owner, CGameInstance GameInstance) : base(StateID, Owner, GameInstance)
+        public STATE_SYS_PLAYING_DESC(int StateID, MonoBehaviour Owner, CFSM FSM, CGameInstance GameInstance) : base(StateID, Owner, FSM, GameInstance)
         {
         }
     }
