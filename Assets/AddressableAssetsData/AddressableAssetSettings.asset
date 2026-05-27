@@ -130,11 +130,7 @@ MonoBehaviour:
     m_ProfileVersion: 1
   m_LabelTable:
     m_LabelNames:
-    - default
-    - CardDocuments
     - CardInitialSets
-    - Card1
-    - Card23
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: dc58715593d5d6a4597864d4c1177cf8, type: 2}

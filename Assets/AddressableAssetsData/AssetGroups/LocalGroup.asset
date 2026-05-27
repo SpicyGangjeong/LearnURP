@@ -22,7 +22,7 @@ MonoBehaviour:
     - CardInitialSets
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1b8567bdd4955a343a3403519273f980
-    m_Address: Assets/Prefab/Canvas.prefab
+    m_Address: CardCanvas
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -43,10 +43,9 @@ MonoBehaviour:
     - CardInitialSets
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ada8f796206790c4eb1c84b91dc73ffc
-    m_Address: Assets/Local/SO/CardDocuments.asset
+    m_Address: CardDocuments
     m_ReadOnly: 0
-    m_SerializedLabels:
-    - CardDocuments
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fd1e2c0b46a1b0149a312c5961304040
     m_Address: Assets/Local/SO/CardInitialSet2.asset

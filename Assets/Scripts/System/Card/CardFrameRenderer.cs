@@ -6,11 +6,6 @@ public class CardFrameRenderer : MonoBehaviour
     void Awake()
     {
         GameInstance = CGameInstance.Instance;
-        if (null == GameInstance)
-        {
-            Debug.LogError("GameInstance is null");
-            return;
-        }
     }
 
     void Update()

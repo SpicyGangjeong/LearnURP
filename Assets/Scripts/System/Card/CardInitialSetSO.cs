@@ -9,11 +9,11 @@ public struct CardNameCount
     public int iCount;
 }
 
-[CreateAssetMenu(fileName = "CardInitialSet", menuName = "Scriptable Objects/CardInitialSet")]
-public class CardInitialSet : ScriptableObject
+[CreateAssetMenu(fileName = "CardInitialSetSO", menuName = "Scriptable Objects/CardInitialSetSO")]
+public class CardInitialSetSO : ScriptableObject
 {
     [SerializeField] string strCardInitialSetName = string.Empty;
-    [SerializeField] CardDocuments cardDocuments = null;
+    [SerializeField] CardDocumentSO cardDocumentSO = null;
     [SerializeField] List<CardNameCount> cardEntries = new List<CardNameCount>();
     Dictionary<CardInfo, int> cardInitialSetLookup = null;
     
@@ -22,22 +22,22 @@ public class CardInitialSet : ScriptableObject
 
     void OnEnable()
     {
-        if (null != cardDocuments)
+        if (null != cardDocumentSO)
         {
             BuildLookup();
         }
     }
 
-    public void SetCardDocuments(CardDocuments documents)
+    public void SetCardDocumentSO(CardDocumentSO documents)
     {
-        cardDocuments = documents;
+        cardDocumentSO = documents;
         BuildLookup();
     }
 
     void BuildLookup()
     {
         cardInitialSetLookup = new Dictionary<CardInfo, int>();
-        if (null == cardDocuments)
+        if (null == cardDocumentSO)
         {
             return;
         }
@@ -49,9 +49,9 @@ public class CardInitialSet : ScriptableObject
                 continue;
             }
 
-            if (false == cardDocuments.TryGetCardByName(entry.strCardName, out CardInfo cardInfo))
+            if (false == cardDocumentSO.TryGetCardByName(entry.strCardName, out CardInfo cardInfo))
             {
-                Debug.LogWarning($"Card not found in CardDocuments: {entry.strCardName}");
+                Debug.LogWarning($"Card not found in CardDocumentSO: {entry.strCardName}");
                 continue;
             }
 

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "CardDocuments", menuName = "Scriptable Objects/CardDocuments")]
-public class CardDocuments : ScriptableObject
+[CreateAssetMenu(fileName = "CardDocumentSO", menuName = "Scriptable Objects/CardDocumentSO")]
+public class CardDocumentSO : ScriptableObject
 {
     [SerializeField] List<CardInfo> cardInfos = new List<CardInfo>();
 

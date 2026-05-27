@@ -1,0 +1,28 @@
+using TMPro;
+using UnityEngine;
+
+public class GamePlayCanvas : MonoBehaviour
+{
+    CGameInstance gameInstance = null;
+    [SerializeField]
+    private TextMeshProUGUI tmpDeckPile = null;
+    [SerializeField]
+    private TextMeshProUGUI tmpDiscardPile = null;
+    [SerializeField]
+    private TextMeshProUGUI tmpDisappearPile = null;
+
+    void Start()
+    {
+        gameInstance = CGameInstance.Instance;
+    }
+
+    void Update()
+    {
+        if (tmpDeckPile != null)
+        {
+            tmpDeckPile.text = gameInstance.GetPileCount(DEFINES.CardPile.DECK).ToString();
+            tmpDiscardPile.text = gameInstance.GetPileCount(DEFINES.CardPile.DISCARD).ToString();
+            tmpDisappearPile.text = gameInstance.GetPileCount(DEFINES.CardPile.DISAPPEARED).ToString();
+        }
+    }
+}

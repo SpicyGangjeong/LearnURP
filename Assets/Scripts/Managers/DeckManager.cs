@@ -6,6 +6,21 @@ class DeckManager
     List<Card> deckOriginal = new List<Card>();
     CardPileCollection piles = new CardPileCollection();
 
+    public void Initialize(CardInitialSetSO initialSetSO)
+    {
+        IReadOnlyDictionary<CardInfo, int> cardInitialSet = initialSetSO.GetCardInitialSet();
+        foreach (KeyValuePair<CardInfo, int> entry in cardInitialSet)
+        {
+            CardInfo cardInfo = entry.Key;
+            int count = entry.Value;
+            for (int i = 0; i < count; i++)
+            {
+                Card card = new Card(cardInfo);
+                deckOriginal.Add(card);
+            }
+        }
+    }
+
     public void Initialize(List<Card> deckOriginal)
     {
         if (null == deckOriginal)
@@ -23,6 +38,7 @@ class DeckManager
         piles.ClearAll();
         piles.AddRange(deckOriginal, DEFINES.CardPile.DECK);
         ShuffleDeck();
+        DrawCard(5);
     }
 
     public void ShuffleDeck()

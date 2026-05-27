@@ -18,7 +18,7 @@ namespace DEFINES
         GAME_PLAY = 1,
         END,
     }
-    enum CardPile
+    public enum CardPile
     {
         NONE = -1,
         HAND = 0,

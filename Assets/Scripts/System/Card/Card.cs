@@ -3,10 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
 
+
+delegate void DrawCard();
+delegate void PlayCard();
+delegate void DiscardCard();
+delegate void ReturnCard();
+delegate void DisappearCard();
+delegate void ShuffleCard();
 class Card
 {
     CardInfo cardInfo = null;
 
+    public Card(CardInfo Info)
+    {
+        cardInfo = new CardInfo(Info);
+    }
     public Card(int cardID = 0)
     {
         cardInfo = CGameInstance.Instance.GetCardInfo(cardID);
@@ -16,19 +27,12 @@ class Card
             return;
         }
     }
-
-    public delegate void DrawCard();
-    public delegate void PlayCard();
-    public delegate void DiscardCard();
-    public delegate void ReturnCard();
-    public delegate void DisappearCard();
-    public delegate void ShuffleCard();
-    DrawCard drawCard = null;
-    PlayCard playCard = null;
-    DiscardCard discardCard = null;
-    ReturnCard returnCard = null;
-    DisappearCard disappearCard = null;
-    ShuffleCard shuffleCard = null;
+    public DrawCard drawCard = null;
+    public PlayCard playCard = null;
+    public DiscardCard discardCard = null;
+    public ReturnCard returnCard = null;
+    public DisappearCard disappearCard = null;
+    public ShuffleCard shuffleCard = null;
 }
 
 [Serializable]
@@ -51,6 +55,19 @@ public class CardInfo
     public string strCardName;
     [SerializeField] public List<CardEffect> listCardEffects = new List<CardEffect>();
     public string strCardDescription;
+
+    public CardInfo() { }
+    public CardInfo(CardInfo Info)
+    {
+        iCardID = Info.iCardID;
+        eCardType = Info.eCardType;
+        iCardCost = Info.iCardCost;
+        strCardName = Info.strCardName;
+        listCardEffects = new List<CardEffect>(Info.listCardEffects);
+        strCardDescription = Info.strCardDescription;
+    }
+
+
     public void BuildCardDescription()
     {
         StringBuilder sb = new StringBuilder();

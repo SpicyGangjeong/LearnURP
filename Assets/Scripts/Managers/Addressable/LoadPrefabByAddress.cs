@@ -7,7 +7,6 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 public class LoadPrefabByAddress : MonoBehaviour
 {
     public string prefabAddress = "Assets/Prefabs/MyPrefab.prefab";
-
     private AsyncOperationHandle<GameObject> loadHandle;
 
     async void Start()

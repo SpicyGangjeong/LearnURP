@@ -1,11 +1,9 @@
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.Android;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Unity.VisualScripting;
+using System.Linq;
 
 public class CGameInstance : MonoBehaviour
 {
@@ -13,15 +11,14 @@ public class CGameInstance : MonoBehaviour
     public static CGameInstance Instance { get { Init(); return s_pInstance; } }
 
     [SerializeField] SceneSO sceneSO = null;
-    [SerializeField] CardDocuments cardDocuments = null;
-    [SerializeField] List<CardInitialSet> cardInitialSets = null;
+    [SerializeField] CardDocumentSO cardDocumentSO = null;
+    [SerializeField] List<CardInitialSetSO> cardInitialSetSO = null;
     private DeckManager deckManager = null;
     private ContentUpdater contentUpdater = null;
     private LevelManager levelManager = null;
+    private AssetManager assetManager = null;
     private CFSM fsm = null;
-    private AsyncOperationHandle<IList<CardDocuments>> cardDocumentsHandle;
-    private AsyncOperationHandle<IList<CardInitialSet>> cardInitialSetsHandle;
-    public CardDocuments CardDocuments => cardDocuments;
+    public CardDocumentSO CardDocuments => cardDocumentSO;
 
     private static void Init()
     {
@@ -36,7 +33,7 @@ public class CGameInstance : MonoBehaviour
             }
             DontDestroyOnLoad(gameobject);
             s_pInstance = gameobject.GetComponent<CGameInstance>();
-            s_pInstance.fsm = gameobject.GetOrAddComponent<CFSM>();
+            s_pInstance.fsm = gameobject.AddComponent<CFSM>();
             Initialize(ref s_pInstance);
         }
     }
@@ -69,92 +66,82 @@ public class CGameInstance : MonoBehaviour
     private static bool Initialize(ref CGameInstance Instance)
     {
         Instance.contentUpdater = Instance.gameObject.AddComponent<ContentUpdater>();
+        Instance.assetManager = new AssetManager();
         Instance.deckManager = new DeckManager();
         Instance.levelManager = new LevelManager(Instance.sceneSO.sceneReferences);
         Instance.fsm = Instance.gameObject.GetComponent<CFSM>();
         if (null == Instance.contentUpdater || 
-        null == Instance.deckManager || 
-        null == Instance.levelManager ||
-        null == Instance.fsm)
+            null == Instance.assetManager ||
+            null == Instance.deckManager || 
+            null == Instance.levelManager ||
+            null == Instance.fsm)
         {
             return false;
         }
         InitializeFSMStates();
         return true;
     }
-
-    async Task LoadCardDocumentsAsync()
+    public void StartDeck(int initialSetIndex)
     {
-        if (null != cardDocuments)
+        if (fsm.IsCurrentState((int)DEFINES.SystemState.IDLE))
+        {
+            deckManager.Initialize(cardInitialSetSO[initialSetIndex]);
+            deckManager.StartGame();
+        }
+    }
+    public int GetPileCount(DEFINES.CardPile pileType)
+    {
+        return deckManager.GetPileCount(pileType);
+    }
+
+    public async Task<Object> LoadAddressAssetAsync(string assetName)
+    {
+        AsyncOperationHandle<Object> handle = await assetManager.LoadAddressAssetAsync(assetName);
+        return handle.Result;
+    }
+    private async Task LoadPrototypesAsync()
+    {
+        await assetManager.LoadAddressAssetAsync("CardCanvas");
+    }
+    private async Task LoadCardDocumentsAsync()
+    {
+        if (null != cardDocumentSO)
         {
             return;
         }
 
-        LoadAssetsByLabel<CardDocuments> loader = new LoadAssetsByLabel<CardDocuments>("CardDocuments");
-        cardDocumentsHandle = await loader.LoadAsync();
-        if (false == cardDocumentsHandle.IsValid() ||
-         null == cardDocumentsHandle.Result ||
-          0 == cardDocumentsHandle.Result.Count)
-        {
-            Debug.LogError("CardDocuments not found via Addressables label 'CardDocuments'.");
-            return;
-        }
-        
-        cardDocuments = cardDocumentsHandle.Result[0];
+        AsyncOperationHandle<Object> cardDocumentsHandle = await assetManager.LoadAddressAssetAsync("CardDocuments");
+        cardDocumentSO = cardDocumentsHandle.Result as CardDocumentSO;
     }
     private async Task LoadCardInitialSetAsync()
     {
-        if (0 == cardInitialSets.Count)
+        if (0 != cardInitialSetSO.Count)
         {
-            LoadAssetsByLabel<CardInitialSet> loader = new LoadAssetsByLabel<CardInitialSet>("CardInitialSets");
-            cardInitialSetsHandle = await loader.LoadAsync();
-            if (false == cardInitialSetsHandle.IsValid() ||
-             null == cardInitialSetsHandle.Result ||
-              0 == cardInitialSetsHandle.Result.Count)
-            {
-                Debug.LogError("CardInitialSets not found via Addressables label 'CardInitialSets'.");
-                return;
-            }
-
-            cardInitialSets = new List<CardInitialSet>(cardInitialSetsHandle.Result);
+            return;
         }
+
+        AsyncOperationHandle<IList<Object>> cardInitialSetsHandle = await assetManager.LoadLabelAssetsAsync("CardInitialSets");
+        cardInitialSetSO = cardInitialSetsHandle.Result.Cast<CardInitialSetSO>().ToList();
 
         InitializeCardInitialSets();
     }
-
     private void InitializeCardInitialSets()
     {
-        if (null == cardDocuments)
+        foreach (CardInitialSetSO cardInitialSet in cardInitialSetSO)
         {
-            Debug.LogError("Cannot initialize CardInitialSets: CardDocuments is null.");
-            return;
-        }
-
-        if (null == cardInitialSets)
-        {
-            return;
-        }
-
-        foreach (CardInitialSet cardInitialSet in cardInitialSets)
-        {
-            if (null == cardInitialSet)
-            {
-                continue;
-            }
-
-            cardInitialSet.SetCardDocuments(cardDocuments);
+            cardInitialSet.SetCardDocumentSO(cardDocumentSO);
         }
     }
 
     public CardInfo GetCardInfo(int cardID)
     {
-        if (null == cardDocuments)
+        if (null == cardDocumentSO)
         {
             Debug.LogError("CardDocuments is null");
             return null;
         }
 
-        return cardDocuments.GetCard(cardID);
+        return cardDocumentSO.GetCard(cardID);
     }
 
     public void ChangeScene(DEFINES.SceneID sceneID)
@@ -172,19 +159,13 @@ public class CGameInstance : MonoBehaviour
     }
     public async Task BootstrapAsync()
     {
+        await LoadPrototypesAsync();
         await LoadCardDocumentsAsync();
         await LoadCardInitialSetAsync();
     }
 
     private void OnDestroy()
     {
-        if (cardDocumentsHandle.IsValid())
-        {
-            Addressables.Release(cardDocumentsHandle);
-        }
-        if (cardInitialSetsHandle.IsValid())
-        {
-            Addressables.Release(cardInitialSetsHandle);
-        }
+        assetManager.ReleaseAssets();
     }
 }

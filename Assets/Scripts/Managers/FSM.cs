@@ -13,6 +13,11 @@ public class CFSM : MonoBehaviour
     Action onUpdateTick = EmptyTick;
     Action onLateUpdateTick = EmptyTick;
 
+    public bool IsCurrentState(int stateID)
+    {
+        return currState != null && currState.StateID == stateID;
+    }
+
     void ResubscribeStateTicks(CState next)
     {
         onFixedUpdateTick = EmptyTick;
