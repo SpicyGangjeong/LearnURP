@@ -3,14 +3,19 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
+using System.Threading.Tasks;
 
-public class LoadSceneAddressable: MonoBehaviour
+public class SceneAddressable
 {
     public AssetReference sceneRef;
     [SerializeField] LoadSceneMode loadSceneMode = LoadSceneMode.Single;
     private AsyncOperationHandle<SceneInstance> sceneLoadHandle;
 
-    public async void LoadScene()
+    public SceneAddressable(AssetReference sceneRef)
+    {
+        this.sceneRef = sceneRef;
+    }
+    public async Task LoadScene()
     {
         if (false == sceneRef.RuntimeKeyIsValid())
         {
@@ -22,13 +27,14 @@ public class LoadSceneAddressable: MonoBehaviour
         if (sceneLoadHandle.Status == AsyncOperationStatus.Succeeded)
         {
             Debug.Log($"Scene '{sceneRef.editorAsset.name}' loaded successfully.");
-        } else
+        } 
+        else
         {
             Debug.LogError($"Failed to Load scene from AssetReference: {sceneRef.AssetGUID}");
         }
     }
 
-    public async void UnloadScene()
+    public async Task UnloadScene()
     {
         if (sceneLoadHandle.IsValid())
         {
@@ -46,7 +52,7 @@ public class LoadSceneAddressable: MonoBehaviour
         }
     }
 
-    void OnDestroy()
+    void ChangeScene()
     {
         if (sceneLoadHandle.IsValid() && sceneLoadHandle.Status == AsyncOperationStatus.Succeeded)
         {

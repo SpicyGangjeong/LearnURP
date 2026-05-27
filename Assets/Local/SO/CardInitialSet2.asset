@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d92479489e04eb488d957a63d0df14c, type: 3}
   m_Name: CardInitialSet2
   m_EditorClassIdentifier: Assembly-CSharp::CardInitialSet
+  strCardInitialSetName: ThirdDeck
   cardDocuments: {fileID: 11400000, guid: ada8f796206790c4eb1c84b91dc73ffc, type: 2}
   cardEntries:
   - strCardName: Third Set

@@ -12,11 +12,12 @@ public class CGameInstance : MonoBehaviour
     static CGameInstance s_pInstance = null;
     public static CGameInstance Instance { get { Init(); return s_pInstance; } }
 
-    
+    [SerializeField] SceneSO sceneSO = null;
     [SerializeField] CardDocuments cardDocuments = null;
     [SerializeField] List<CardInitialSet> cardInitialSets = null;
     private DeckManager deckManager = null;
     private ContentUpdater contentUpdater = null;
+    private LevelManager levelManager = null;
     private CFSM fsm = null;
     private AsyncOperationHandle<IList<CardDocuments>> cardDocumentsHandle;
     private AsyncOperationHandle<IList<CardInitialSet>> cardInitialSetsHandle;
@@ -69,9 +70,11 @@ public class CGameInstance : MonoBehaviour
     {
         Instance.contentUpdater = Instance.gameObject.AddComponent<ContentUpdater>();
         Instance.deckManager = new DeckManager();
+        Instance.levelManager = new LevelManager(Instance.sceneSO.sceneReferences);
         Instance.fsm = Instance.gameObject.GetComponent<CFSM>();
         if (null == Instance.contentUpdater || 
         null == Instance.deckManager || 
+        null == Instance.levelManager ||
         null == Instance.fsm)
         {
             return false;
@@ -152,6 +155,11 @@ public class CGameInstance : MonoBehaviour
         }
 
         return cardDocuments.GetCard(cardID);
+    }
+
+    public void ChangeScene(DEFINES.SceneID sceneID)
+    {
+        levelManager.ChangeScene(sceneID);
     }
 
     private void Awake()

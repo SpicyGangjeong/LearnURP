@@ -56,6 +56,6 @@ public class CState_Sys_Initialize : CState_Sys
     public override void Exit()
     {
         Debug.Log("CState_Sys_Initialize Exit");
-        LoadSceneAddressable.LoadScene(DEFINES.SceneID.SYS_MAIN_MENU);
+        GameInstance.ChangeScene(DEFINES.SceneID.MAIN_MENU);
     }
 }

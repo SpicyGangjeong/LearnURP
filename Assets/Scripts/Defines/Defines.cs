@@ -11,6 +11,13 @@ namespace DEFINES
         PLAYING = 2,
         END = 3,
     }
+    public enum SceneID
+    {
+        NONE = -1,
+        MAIN_MENU = 0,
+        GAME_PLAY = 1,
+        END,
+    }
     enum CardPile
     {
         NONE = -1,
