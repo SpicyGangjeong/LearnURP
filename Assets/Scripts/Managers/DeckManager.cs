@@ -1,8 +1,23 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+public delegate void DrawCard(Card card);
+public delegate void PlayCard(Card card);
+public delegate void DiscardCard(Card card);
+public delegate void ReturnCard(Card card);
+public delegate void DisappearCard(Card card);
+public delegate void ShuffleCard();
 class DeckManager
 {
+    static void EmptyEvent() { }
+    static void EmptyEvent(Card card) { }
+
+    public event DrawCard OnDrawCard;
+    public event PlayCard OnPlayCard;
+    public event DiscardCard OnDiscardCard;
+    public event ReturnCard OnReturnCard;
+    public event DisappearCard OnDisappearCard;
+    public event ShuffleCard OnShuffleCard;
     List<Card> deckOriginal = new List<Card>();
     CardPileCollection piles = new CardPileCollection();
 
@@ -19,8 +34,9 @@ class DeckManager
                 deckOriginal.Add(card);
             }
         }
+        OnDrawCard += EmptyEvent;
+        OnShuffleCard += EmptyEvent;
     }
-
     public void Initialize(List<Card> deckOriginal)
     {
         if (null == deckOriginal)
@@ -40,6 +56,11 @@ class DeckManager
         ShuffleDeck();
         DrawCard(5);
     }
+    public void PlayCard(Card card)
+    {
+        //MoveCard(card, DEFINES.CardPile.HAND, DEFINES.CardPile.DISCARD);
+        OnPlayCard(card);
+    }
 
     public IReadOnlyList<Card> GetCards(DEFINES.CardPile pileType)
     {
@@ -49,6 +70,7 @@ class DeckManager
     public void ShuffleDeck()
     {
         piles.Shuffle(DEFINES.CardPile.DECK);
+        OnShuffleCard();
     }
 
     public void DrawCard(int count)
@@ -71,24 +93,34 @@ class DeckManager
             }
 
             MoveCard(card, DEFINES.CardPile.DECK, DEFINES.CardPile.HAND);
+            OnDrawCard(card);
         }
     }
 
     public void ReCycleCard()
     {
         piles.AddRange(piles.GetCards(DEFINES.CardPile.DISCARD), DEFINES.CardPile.DECK);
+        IReadOnlyList<Card> cards = piles.GetCards(DEFINES.CardPile.DISCARD);
+        foreach (Card card in cards)
+        {
+            OnReturnCard(card);
+        }
+
         piles.Clear(DEFINES.CardPile.DISCARD);
+
         ShuffleDeck();
     }
 
     public void DiscardCard(Card card)
     {
         MoveCard(card, DEFINES.CardPile.HAND, DEFINES.CardPile.DISCARD);
+        OnDiscardCard(card);
     }
 
     public void DisappearCard(Card card)
     {
         MoveCard(card, DEFINES.CardPile.HAND, DEFINES.CardPile.DISAPPEARED);
+        OnDisappearCard(card);
     }
 
     public void MoveCard(Card card, DEFINES.CardPile fromPile, DEFINES.CardPile toPile)

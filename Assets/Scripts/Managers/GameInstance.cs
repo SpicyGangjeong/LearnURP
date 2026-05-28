@@ -13,10 +13,17 @@ public class CGameInstance : MonoBehaviour
     [SerializeField] SceneSO sceneSO = null;
     [SerializeField] CardDocumentSO cardDocumentSO = null;
     [SerializeField] List<CardInitialSetSO> cardInitialSetSO = null;
-    private DeckManager deckManager = null;
     private ContentUpdater contentUpdater = null;
+    private DeckManager deckManager = null;
     private LevelManager levelManager = null;
     private AssetManager assetManager = null;
+
+    public event DrawCard       OnDrawCard { add { deckManager.OnDrawCard += value; } remove { deckManager.OnDrawCard -= value; } }
+    public event PlayCard       OnPlayCard { add { deckManager.OnPlayCard += value; } remove { deckManager.OnPlayCard -= value; } }
+    public event DiscardCard    OnDiscardCard { add { deckManager.OnDiscardCard += value; } remove { deckManager.OnDiscardCard -= value; } }
+    public event ReturnCard     OnReturnCard { add { deckManager.OnReturnCard += value; } remove { deckManager.OnReturnCard -= value; } }
+    public event DisappearCard  OnDisappearCard { add { deckManager.OnDisappearCard += value; } remove { deckManager.OnDisappearCard -= value; } }
+    public event ShuffleCard    OnShuffleCard { add { deckManager.OnShuffleCard += value; } remove { deckManager.OnShuffleCard -= value; } }
     private CFSM fsm = null;
     public CardDocumentSO CardDocuments => cardDocumentSO;
 

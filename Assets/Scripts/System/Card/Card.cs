@@ -4,12 +4,6 @@ using UnityEngine;
 using System.Text;
 
 
-public delegate void DrawCard();
-public delegate void PlayCard();
-public delegate void DiscardCard();
-public delegate void ReturnCard();
-public delegate void DisappearCard();
-public delegate void ShuffleCard();
 public class Card
 {
     CardInfo cardInfo = null;
@@ -29,12 +23,12 @@ public class Card
         }
     }
 
-    public DrawCard drawCard = null;
-    public PlayCard playCard = null;
-    public DiscardCard discardCard = null;
-    public ReturnCard returnCard = null;
-    public DisappearCard disappearCard = null;
-    public ShuffleCard shuffleCard = null;
+    public event DrawCard OnDrawCard;
+    public event PlayCard OnPlayCard;
+    public event DiscardCard OnDiscardCard;
+    public event ReturnCard OnReturnCard;
+    public event DisappearCard OnDisappearCard;
+    public event ShuffleCard OnShuffleCard;
 }
 
 [Serializable]

@@ -4,7 +4,8 @@ using UnityEngine;
 class CardPileCollection
 {
     readonly Dictionary<DEFINES.CardPile, List<Card>> piles = new Dictionary<DEFINES.CardPile, List<Card>>();
-
+    
+    
     public CardPileCollection()
     {
         piles[DEFINES.CardPile.HAND] = new List<Card>();
