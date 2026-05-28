@@ -41,6 +41,11 @@ class DeckManager
         DrawCard(5);
     }
 
+    public IReadOnlyList<Card> GetCards(DEFINES.CardPile pileType)
+    {
+        return piles.GetCards(pileType);
+    }
+
     public void ShuffleDeck()
     {
         piles.Shuffle(DEFINES.CardPile.DECK);

@@ -93,6 +93,10 @@ public class CGameInstance : MonoBehaviour
     {
         return deckManager.GetPileCount(pileType);
     }
+    public IReadOnlyList<Card> GetCards(DEFINES.CardPile pileType)
+    {
+        return deckManager.GetCards(pileType);
+    }
 
     public async Task<Object> LoadAddressAssetAsync(string assetName)
     {

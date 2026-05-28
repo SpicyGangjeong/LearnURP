@@ -4,15 +4,16 @@ using UnityEngine;
 using System.Text;
 
 
-delegate void DrawCard();
-delegate void PlayCard();
-delegate void DiscardCard();
-delegate void ReturnCard();
-delegate void DisappearCard();
-delegate void ShuffleCard();
-class Card
+public delegate void DrawCard();
+public delegate void PlayCard();
+public delegate void DiscardCard();
+public delegate void ReturnCard();
+public delegate void DisappearCard();
+public delegate void ShuffleCard();
+public class Card
 {
     CardInfo cardInfo = null;
+    public CardInfo CardInfo => cardInfo;
 
     public Card(CardInfo Info)
     {
@@ -27,6 +28,7 @@ class Card
             return;
         }
     }
+
     public DrawCard drawCard = null;
     public PlayCard playCard = null;
     public DiscardCard discardCard = null;
