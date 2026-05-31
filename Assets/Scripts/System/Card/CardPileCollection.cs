@@ -86,10 +86,15 @@ class CardPileCollection
         return pile.Remove(card);
     }
 
-    public void Move(Card card, DEFINES.CardPile fromPile, DEFINES.CardPile toPile)
+    public bool Move(Card card, DEFINES.CardPile fromPile, DEFINES.CardPile toPile)
     {
-        Remove(card, fromPile);
+        if (false == Remove(card, fromPile))
+        {
+            return false;
+        }
+
         Add(card, toPile);
+        return true;
     }
 
     public void AddRange(IEnumerable<Card> cards, DEFINES.CardPile pileType)
