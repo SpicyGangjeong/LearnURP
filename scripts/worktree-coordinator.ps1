@@ -90,10 +90,13 @@ function Get-Porcelain([string] $Dir) {
     $n = [System.Collections.Generic.List[string]]::new()
     foreach ($line in $lines) {
         if ([string]::IsNullOrWhiteSpace($line)) { continue }
-        $p = $line.Substring(3).Trim().Trim('"')
-        if ($line.StartsWith('??')) { $n.Add($p); continue }
-        if ($line[0] -ne ' ') { $s.Add($p) }
-        if ($line.Length -gt 1 -and $line[1] -ne ' ') { $u.Add($p) }
+        if ($line -match '^\?\? (.+)$') { $n.Add($Matches[1].Trim().Trim('"')); continue }
+        if ($line -match '^(.{2}) (.+)$') {
+            $xy = $Matches[1]
+            $p = $Matches[2].Trim().Trim('"')
+            if ($xy[0] -ne ' ') { $s.Add($p) }
+            if ($xy.Length -gt 1 -and $xy[1] -ne ' ') { $u.Add($p) }
+        }
     }
     @{ s = @($s); u = @($u); n = @($n); dirty = ($s.Count + $u.Count + $n.Count) -gt 0 }
 }
