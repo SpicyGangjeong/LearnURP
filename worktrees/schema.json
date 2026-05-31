@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "learnurp-worktree-state-v1",
+  "type": "object",
+  "required": ["v", "repo", "ts", "wt"],
+  "properties": {
+    "v": { "const": 1 },
+    "repo": { "type": "string" },
+    "ts": { "type": "string", "format": "date-time" },
+    "wt": {
+      "type": "object",
+      "required": ["main", "agent"],
+      "properties": {
+        "main": { "$ref": "#/$defs/tree" },
+        "agent": { "$ref": "#/$defs/tree" }
+      }
+    }
+  },
+  "$defs": {
+    "tree": {
+      "type": "object",
+      "required": ["role", "br", "head", "dirty", "chg", "rem", "prog"],
+      "properties": {
+        "role": { "enum": ["user", "agent"] },
+        "br": { "type": "string" },
+        "head": { "type": ["string", "null"] },
+        "subj": { "type": ["string", "null"] },
+        "at": { "type": ["string", "null"] },
+        "dirty": { "type": "boolean" },
+        "chg": {
+          "type": "object",
+          "properties": {
+            "s": { "type": "array", "items": { "type": "string" } },
+            "u": { "type": "array", "items": { "type": "string" } },
+            "n": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "rem": {
+          "type": "object",
+          "properties": {
+            "up": { "type": ["string", "null"] },
+            "ah": { "type": "integer" },
+            "bh": { "type": "integer" }
+          }
+        },
+        "prog": {
+          "type": "object",
+          "properties": {
+            "task": { "type": "string" },
+            "done": { "type": "array", "items": { "type": "string" } },
+            "wip": { "type": "array", "items": { "type": "string" } },
+            "todo": { "type": "array", "items": { "type": "string" } },
+            "blk": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    }
+  }
+}
