@@ -1,5 +1,5 @@
 #Requires -Version 5.1
-# Agent-oriented worktree state I/O. Human view: .\scripts\worktree.ps1 show
+# Worktree coordinator — state I/O. Human view: .\scripts\worktree-coordinator.ps1 show
 [CmdletBinding()]
 param(
     [Parameter(Position = 0)]

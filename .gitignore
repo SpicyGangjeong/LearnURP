@@ -10,7 +10,7 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
-# Worktree mediator — PC별 절대 경로 (status.json은 커밋)
+# Worktree coordinator — PC별 절대 경로 (state.json은 커밋)
 /worktrees/paths.local.json
 
 .utmp/

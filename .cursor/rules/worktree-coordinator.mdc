@@ -1,0 +1,25 @@
+---
+description: Worktree coordinator — session boot and LearnURP-cursor-only edits
+alwaysApply: true
+---
+
+# Worktree coordinator
+
+## Session boot (every new chat — automatic)
+
+Equivalent to: *worktree coordinator 켜진 상태야. worktrees/state.json 읽고 scan 한 뒤 LearnURP-cursor에서만 작업해.*
+
+On first response without waiting for the user:
+
+1. Read `worktrees/state.json` (sessionStart hook may have run `scan` already).
+2. Run `.\scripts\worktree-coordinator.ps1 scan` if git changed since last `ts`.
+3. Implement and commit only under `C:\Users\golde\OneDrive\Desktop\LearnURP-cursor` (`HandManage`).
+
+Main `LearnURP` is for the user; do not apply code edits there unless the user explicitly asks.
+
+## Commands
+
+- `.\scripts\worktree-coordinator.ps1 scan` | `get` | `show`
+- `set-prog -Role agent ...` | `load -InFile patch.json`
+
+Schema: `worktrees/schema.json`

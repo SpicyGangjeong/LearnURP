@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "learnurp-worktree-state-v1",
+  "$id": "learnurp-worktree-coordinator-state-v1",
   "type": "object",
   "required": ["v", "repo", "ts", "wt"],
   "properties": {
