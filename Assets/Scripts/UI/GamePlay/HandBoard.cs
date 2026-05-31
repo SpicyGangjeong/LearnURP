@@ -70,7 +70,10 @@ public class HandBoard : MonoBehaviour
         {
             handCards = gameInstance.GetCards(DEFINES.CardPile.HAND);
         }
-        gameInstance.OnDrawCard += OnDrawCard;
+        gameInstance.OnDrawCard += OnHandChanged;
+        gameInstance.OnPlayCard += OnHandChanged;
+        gameInstance.OnDiscardCard += OnHandChanged;
+        gameInstance.OnEndTurn += OnEndTurn;
         RebuildHand();
     }
 
@@ -78,14 +81,22 @@ public class HandBoard : MonoBehaviour
     {
         if (gameInstance != null)
         {
-            gameInstance.OnDrawCard -= OnDrawCard;
+            gameInstance.OnDrawCard -= OnHandChanged;
+            gameInstance.OnPlayCard -= OnHandChanged;
+            gameInstance.OnDiscardCard -= OnHandChanged;
+            gameInstance.OnEndTurn -= OnEndTurn;
         }
     }
 
     private void Update()
     {
     }
-    private void OnDrawCard(Card card)
+    private void OnHandChanged(Card card)
+    {
+        RebuildHand();
+    }
+
+    private void OnEndTurn()
     {
         RebuildHand();
     }

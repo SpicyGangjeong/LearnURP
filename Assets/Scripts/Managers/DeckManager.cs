@@ -7,8 +7,11 @@ public delegate void DiscardCard(Card card);
 public delegate void ReturnCard(Card card);
 public delegate void DisappearCard(Card card);
 public delegate void ShuffleCard();
+public delegate void EndTurn();
 class DeckManager
 {
+    const int HAND_DRAW_COUNT = 5;
+
     static void EmptyEvent() { }
     static void EmptyEvent(Card card) { }
 
@@ -18,6 +21,7 @@ class DeckManager
     public event ReturnCard OnReturnCard;
     public event DisappearCard OnDisappearCard;
     public event ShuffleCard OnShuffleCard;
+    public event EndTurn OnEndTurn;
     List<Card> deckOriginal = new List<Card>();
     CardPileCollection piles = new CardPileCollection();
 
@@ -36,6 +40,7 @@ class DeckManager
         }
         OnDrawCard += EmptyEvent;
         OnShuffleCard += EmptyEvent;
+        OnEndTurn += EmptyEvent;
     }
     public void Initialize(List<Card> deckOriginal)
     {
@@ -54,12 +59,35 @@ class DeckManager
         piles.ClearAll();
         piles.AddRange(deckOriginal, DEFINES.CardPile.DECK);
         ShuffleDeck();
-        DrawCard(5);
+        DrawCard(HAND_DRAW_COUNT);
     }
-    public void PlayCard(Card card)
+
+    public void EndTurn(int drawCount = HAND_DRAW_COUNT)
     {
-        //MoveCard(card, DEFINES.CardPile.HAND, DEFINES.CardPile.DISCARD);
+        DiscardAllHand();
+        DrawCard(drawCount);
+        OnEndTurn();
+    }
+
+    void DiscardAllHand()
+    {
+        List<Card> handSnapshot = new List<Card>(piles.GetCards(DEFINES.CardPile.HAND));
+        foreach (Card card in handSnapshot)
+        {
+            MoveCard(card, DEFINES.CardPile.HAND, DEFINES.CardPile.DISCARD);
+            OnDiscardCard(card);
+        }
+    }
+    public bool PlayCard(Card card)
+    {
+        if (false == IsInHand(card))
+        {
+            return false;
+        }
+
+        MoveCard(card, DEFINES.CardPile.HAND, DEFINES.CardPile.DISCARD);
         OnPlayCard(card);
+        return true;
     }
 
     public IReadOnlyList<Card> GetCards(DEFINES.CardPile pileType)
@@ -111,10 +139,16 @@ class DeckManager
         ShuffleDeck();
     }
 
-    public void DiscardCard(Card card)
+    public bool DiscardCard(Card card)
     {
+        if (false == IsInHand(card))
+        {
+            return false;
+        }
+
         MoveCard(card, DEFINES.CardPile.HAND, DEFINES.CardPile.DISCARD);
         OnDiscardCard(card);
+        return true;
     }
 
     public void DisappearCard(Card card)
@@ -146,5 +180,23 @@ class DeckManager
     public IReadOnlyList<Card> GetPileCards(DEFINES.CardPile pileType)
     {
         return piles.GetCards(pileType);
+    }
+
+    bool IsInHand(Card card)
+    {
+        if (null == card)
+        {
+            return false;
+        }
+
+        foreach (Card handCard in piles.GetCards(DEFINES.CardPile.HAND))
+        {
+            if (handCard == card)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

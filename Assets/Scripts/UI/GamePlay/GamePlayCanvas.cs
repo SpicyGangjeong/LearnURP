@@ -25,4 +25,9 @@ public class GamePlayCanvas : MonoBehaviour
             tmpDisappearPile.text = gameInstance.GetPileCount(DEFINES.CardPile.DISAPPEARED).ToString();
         }
     }
+
+    public void RequestEndTurn()
+    {
+        CGameInstance.Instance.TryEndTurn();
+    }
 }
