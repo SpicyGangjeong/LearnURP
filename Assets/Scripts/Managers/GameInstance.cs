@@ -24,6 +24,7 @@ public class CGameInstance : MonoBehaviour
     public event ReturnCard     OnReturnCard { add { deckManager.OnReturnCard += value; } remove { deckManager.OnReturnCard -= value; } }
     public event DisappearCard  OnDisappearCard { add { deckManager.OnDisappearCard += value; } remove { deckManager.OnDisappearCard -= value; } }
     public event ShuffleCard    OnShuffleCard { add { deckManager.OnShuffleCard += value; } remove { deckManager.OnShuffleCard -= value; } }
+    public event EndTurn        OnEndTurn { add { deckManager.OnEndTurn += value; } remove { deckManager.OnEndTurn -= value; } }
     private CFSM fsm = null;
     public CardDocumentSO CardDocuments => cardDocumentSO;
 
@@ -103,6 +104,43 @@ public class CGameInstance : MonoBehaviour
     public IReadOnlyList<Card> GetCards(DEFINES.CardPile pileType)
     {
         return deckManager.GetCards(pileType);
+    }
+
+    public bool TryPlayCard(Card card)
+    {
+        if (false == CanPlayHandCard())
+        {
+            return false;
+        }
+
+        return deckManager.PlayCard(card);
+    }
+
+    public bool TryDiscardCard(Card card)
+    {
+        if (false == CanPlayHandCard())
+        {
+            return false;
+        }
+
+        return deckManager.DiscardCard(card);
+    }
+
+    public bool TryEndTurn()
+    {
+        if (false == CanPlayHandCard())
+        {
+            return false;
+        }
+
+        deckManager.EndTurn();
+        return true;
+    }
+
+    bool CanPlayHandCard()
+    {
+        return fsm.IsCurrentState((int)DEFINES.SystemState.IDLE)
+            || fsm.IsCurrentState((int)DEFINES.SystemState.PLAYING);
     }
 
     public async Task<Object> LoadAddressAssetAsync(string assetName)
