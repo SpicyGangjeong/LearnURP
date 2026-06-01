@@ -9,7 +9,6 @@ public class HandBoard : MonoBehaviour
     CGameInstance gameInstance = null;
     IReadOnlyList<Card> handCards = null;
     CardCanvas[] cardCanvasSlots = new CardCanvas[MAX_HAND_SLOTS];
-    GameObject cardCanvasPrefab = null;
 
     private Vector3 _startPos;
     private Vector3 _endPos;
@@ -21,6 +20,11 @@ public class HandBoard : MonoBehaviour
     private void CalcHandPos(Vector3 centerPos)
     {
         _handPos = new Vector3[Mathf.Max(1, _maxSlots)];
+        if (iCurrentHand == 1)
+        {
+            _handPos[0] = centerPos;
+            return;
+        }
 
         float slotStep = 1f / Mathf.Max(1, _maxSlots - 1);
         float span = slotStep * (iCurrentHand - 1);
@@ -153,14 +157,10 @@ public class HandBoard : MonoBehaviour
 
     private bool EnsureCardPool()
     {
-        if (cardCanvasPrefab == null)
+        if (false == gameInstance.ObjectPools.IsRegistered(PoolKeys.CardCanvas))
         {
-            cardCanvasPrefab = gameInstance.LoadAddressAssetAsync("CardCanvas").Result as GameObject;
-            if (cardCanvasPrefab == null)
-            {
-                Debug.LogError("CardCanvas prefab load failed.");
-                return false;
-            }
+            Debug.LogError("CardCanvas pool is not registered. Run Bootstrap first.");
+            return false;
         }
 
         for (int i = 0; i < _maxSlots; i++)
@@ -170,10 +170,10 @@ public class HandBoard : MonoBehaviour
                 continue;
             }
 
-            CardCanvas cardCanvas = Instantiate(cardCanvasPrefab, transform, false).GetComponent<CardCanvas>();
+            CardCanvas cardCanvas = gameInstance.GetPooled<CardCanvas>(PoolKeys.CardCanvas, transform);
             if (cardCanvas == null)
             {
-                Debug.LogError("CardCanvas component missing on prefab.");
+                Debug.LogError("Failed to get CardCanvas from pool.");
                 return false;
             }
 

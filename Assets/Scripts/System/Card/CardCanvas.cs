@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CardCanvas : MonoBehaviour, IPointerClickHandler
+public class CardCanvas : MonoBehaviour, IPointerClickHandler, IPoolable
 {
     [SerializeField] TextMeshProUGUI slotName = null;
     [SerializeField] TextMeshProUGUI slotCost = null;
@@ -38,7 +38,7 @@ public class CardCanvas : MonoBehaviour, IPointerClickHandler
         {
             return;
         }
-        
+
         CGameInstance.Instance.TryPlayCard(refCard);
     }
 
@@ -62,5 +62,22 @@ public class CardCanvas : MonoBehaviour, IPointerClickHandler
         {
             RequestDiscard();
         }
+    }
+
+    public void OnCreate()
+    {
+    }
+
+    public void OnDestroy()
+    {
+    }
+
+    public void OnSpawn()
+    {
+    }
+
+    public void OnDespawn()
+    {
+        refCard = null;
     }
 }
