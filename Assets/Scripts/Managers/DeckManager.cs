@@ -39,6 +39,10 @@ class DeckManager
             }
         }
         OnDrawCard += EmptyEvent;
+        OnPlayCard += EmptyEvent;
+        OnDiscardCard += EmptyEvent;
+        OnReturnCard += EmptyEvent;
+        OnDisappearCard += EmptyEvent;
         OnShuffleCard += EmptyEvent;
         OnEndTurn += EmptyEvent;
     }
@@ -127,15 +131,12 @@ class DeckManager
 
     public void ReCycleCard()
     {
-        piles.AddRange(piles.GetCards(DEFINES.CardPile.DISCARD), DEFINES.CardPile.DECK);
-        IReadOnlyList<Card> cards = piles.GetCards(DEFINES.CardPile.DISCARD);
+        List<Card> cards = new List<Card>(piles.GetPile(DEFINES.CardPile.DISCARD));
         foreach (Card card in cards)
         {
+            MoveCard(card, DEFINES.CardPile.DISCARD, DEFINES.CardPile.DECK);
             OnReturnCard(card);
         }
-
-        piles.Clear(DEFINES.CardPile.DISCARD);
-
         ShuffleDeck();
     }
 

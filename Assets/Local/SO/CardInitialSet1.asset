@@ -13,11 +13,15 @@ MonoBehaviour:
   m_Name: CardInitialSet1
   m_EditorClassIdentifier: Assembly-CSharp::CardInitialSet
   strCardInitialSetName: SecondDEck
-  cardDocuments: {fileID: 11400000, guid: ada8f796206790c4eb1c84b91dc73ffc, type: 2}
+  cardDocumentSO: {fileID: 11400000, guid: ada8f796206790c4eb1c84b91dc73ffc, type: 2}
   cardEntries:
   - strCardName: Basic Attack
     iCount: 4
   - strCardName: Basic Defence
     iCount: 4
+  - strCardName: Basic Magic
+    iCount: 1
+  - strCardName: Basic Item
+    iCount: 1
   - strCardName: Second Set
-    iCount: 2
+    iCount: 1

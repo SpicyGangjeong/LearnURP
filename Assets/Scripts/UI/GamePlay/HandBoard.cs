@@ -21,11 +21,6 @@ public class HandBoard : MonoBehaviour
     private void CalcHandPos(Vector3 centerPos)
     {
         _handPos = new Vector3[Mathf.Max(1, _maxSlots)];
-        if (iCurrentHand == 1)
-        {
-            _handPos[0] = centerPos;
-            return;
-        }
 
         float slotStep = 1f / Mathf.Max(1, _maxSlots - 1);
         float span = slotStep * (iCurrentHand - 1);

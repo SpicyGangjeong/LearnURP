@@ -112,6 +112,6 @@ MonoBehaviour:
     strCardDescription: 'When Draw, Selected Unit Heal by 4 points.
 
       When
-      Discard, All Damage by 1 points.
+      Draw, All Damage by 1 points.
 
 '
