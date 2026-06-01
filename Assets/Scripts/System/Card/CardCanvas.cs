@@ -38,7 +38,7 @@ public class CardCanvas : MonoBehaviour, IPointerClickHandler
         {
             return;
         }
-
+        
         CGameInstance.Instance.TryPlayCard(refCard);
     }
 

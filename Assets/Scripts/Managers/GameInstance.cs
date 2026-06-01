@@ -17,6 +17,7 @@ public class CGameInstance : MonoBehaviour
     private DeckManager deckManager = null;
     private LevelManager levelManager = null;
     private AssetManager assetManager = null;
+    private JobQueueManager jobQueueManager = null;
 
     public event DrawCard       OnDrawCard { add { deckManager.OnDrawCard += value; } remove { deckManager.OnDrawCard -= value; } }
     public event PlayCard       OnPlayCard { add { deckManager.OnPlayCard += value; } remove { deckManager.OnPlayCard -= value; } }
@@ -27,7 +28,10 @@ public class CGameInstance : MonoBehaviour
     public event EndTurn        OnEndTurn { add { deckManager.OnEndTurn += value; } remove { deckManager.OnEndTurn -= value; } }
     private CFSM fsm = null;
     public CardDocumentSO CardDocuments => cardDocumentSO;
-
+    public void EnqueueJob(IJob job)
+    {
+        jobQueueManager.EnqueueJob(job);
+    }
     private static void Init()
     {
         if (null == s_pInstance)
@@ -77,6 +81,7 @@ public class CGameInstance : MonoBehaviour
         Instance.assetManager = new AssetManager();
         Instance.deckManager = new DeckManager();
         Instance.levelManager = new LevelManager(Instance.sceneSO.sceneReferences);
+        Instance.jobQueueManager = new JobQueueManager();
         Instance.fsm = Instance.gameObject.GetComponent<CFSM>();
         if (null == Instance.contentUpdater || 
             null == Instance.assetManager ||
