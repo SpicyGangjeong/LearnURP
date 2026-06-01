@@ -27,13 +27,15 @@ public class HandBoard : MonoBehaviour
             return;
         }
 
+        float slotStep = 1f / Mathf.Max(1, _maxSlots - 1);
+        float span = slotStep * (iCurrentHand - 1);
+        float startT = 0.5f - span * 0.5f;
+
         for (int i = 0; i < iCurrentHand; i++)
         {
-            float t = (float)i / (iCurrentHand - 1);
+            float t = Mathf.Clamp01(startT + i * slotStep);
             _handPos[i] = GetQuadraticBezierPoint(t, _startPos, _controlPos, _endPos);
         }
-
-        return;
     }
     public Vector3 GetSlotPosition(int index)
     {
