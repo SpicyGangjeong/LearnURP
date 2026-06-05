@@ -11,12 +11,19 @@ public class GamePlayCanvas : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI tmpDisappearPile = null;
 
+    private bool bDirty = false;
+
     void Start()
     {
         gameInstance = CGameInstance.Instance;
     }
 
     void Update()
+    {
+        ChangePileSize();
+    }
+
+    void ChangePileSize()
     {
         if (tmpDeckPile != null)
         {

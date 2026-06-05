@@ -17,6 +17,11 @@ public class CGameInstance : MonoBehaviour
     private DeckManager deckManager = null;
     private LevelManager levelManager = null;
     private AssetManager assetManager = null;
+    private JobQueueManager jobQueueManager = null;
+    private ObjectPoolManager objectPoolManager = null;
+    Transform poolRoot = null;
+
+    public ObjectPoolManager ObjectPools => objectPoolManager;
 
     public event DrawCard       OnDrawCard { add { deckManager.OnDrawCard += value; } remove { deckManager.OnDrawCard -= value; } }
     public event PlayCard       OnPlayCard { add { deckManager.OnPlayCard += value; } remove { deckManager.OnPlayCard -= value; } }
@@ -27,6 +32,11 @@ public class CGameInstance : MonoBehaviour
     public event EndTurn        OnEndTurn { add { deckManager.OnEndTurn += value; } remove { deckManager.OnEndTurn -= value; } }
     private CFSM fsm = null;
     public CardDocumentSO CardDocuments => cardDocumentSO;
+
+    public void EnqueueJob(IJob job)
+    {
+        jobQueueManager.EnqueueJob(job);
+    }
 
     private static void Init()
     {
@@ -77,17 +87,56 @@ public class CGameInstance : MonoBehaviour
         Instance.assetManager = new AssetManager();
         Instance.deckManager = new DeckManager();
         Instance.levelManager = new LevelManager(Instance.sceneSO.sceneReferences);
+        Instance.jobQueueManager = new JobQueueManager();
         Instance.fsm = Instance.gameObject.GetComponent<CFSM>();
+        Instance.poolRoot = EnsurePoolRoot(Instance.gameObject.transform);
+        Instance.objectPoolManager = new ObjectPoolManager(Instance.poolRoot);
         if (null == Instance.contentUpdater || 
             null == Instance.assetManager ||
             null == Instance.deckManager || 
             null == Instance.levelManager ||
-            null == Instance.fsm)
+            null == Instance.jobQueueManager ||
+            null == Instance.fsm ||
+            null == Instance.objectPoolManager)
         {
             return false;
         }
         InitializeFSMStates();
         return true;
+    }
+
+    static Transform EnsurePoolRoot(Transform parent)
+    {
+        Transform existing = parent.Find("PoolRoot");
+        if (null != existing)
+        {
+            return existing;
+        }
+
+        GameObject poolRootObject = new GameObject("PoolRoot");
+        poolRootObject.transform.SetParent(parent, false);
+        return poolRootObject.transform;
+    }
+
+    public T GetPooled<T>(string key, Transform parent = null) where T : Component
+    {
+        if (null == objectPoolManager)
+        {
+            Debug.LogError("ObjectPoolManager is null.");
+            return null;
+        }
+
+        return objectPoolManager.Get<T>(key, parent);
+    }
+
+    public void ReleasePooled<T>(string key, T instance) where T : Component
+    {
+        if (null == objectPoolManager)
+        {
+            return;
+        }
+
+        objectPoolManager.Release(key, instance);
     }
     public void StartDeck(int initialSetIndex)
     {
@@ -150,7 +199,28 @@ public class CGameInstance : MonoBehaviour
     }
     private async Task LoadPrototypesAsync()
     {
-        await assetManager.LoadAddressAssetAsync("CardCanvas");
+        const int CARD_CANVAS_POOL_SIZE = 10;
+        AsyncOperationHandle<Object> cardCanvasHandle = await assetManager.LoadAddressAssetAsync("CardCanvas");
+        GameObject cardCanvasPrefab = cardCanvasHandle.Result as GameObject;
+        if (null == cardCanvasPrefab)
+        {
+            Debug.LogError("CardCanvas prefab load failed.");
+            return;
+        }
+
+        CardCanvas cardCanvasComponent = cardCanvasPrefab.GetComponent<CardCanvas>();
+        if (null == cardCanvasComponent)
+        {
+            Debug.LogError("CardCanvas component missing on prefab.");
+            return;
+        }
+
+        if (objectPoolManager.IsRegistered(PoolKeys.CardCanvas))
+        {
+            return;
+        }
+
+        objectPoolManager.Register(PoolKeys.CardCanvas, cardCanvasComponent, CARD_CANVAS_POOL_SIZE, maxSize: 0);
     }
     private async Task LoadCardDocumentsAsync()
     {
@@ -215,6 +285,11 @@ public class CGameInstance : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (null != objectPoolManager)
+        {
+            objectPoolManager.ClearAll();
+        }
+
         assetManager.ReleaseAssets();
     }
 }
