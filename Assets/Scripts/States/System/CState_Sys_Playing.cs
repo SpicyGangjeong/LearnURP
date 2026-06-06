@@ -4,11 +4,11 @@ public class CState_Sys_Playing : CState_Sys
 {
     public class STATE_SYS_PLAYING_DESC : STATE_SYS_DESC
     {
-        public STATE_SYS_PLAYING_DESC(int StateID, MonoBehaviour Owner, CFSM FSM, CGameInstance GameInstance) : base(StateID, Owner, FSM, GameInstance)
+        public STATE_SYS_PLAYING_DESC(int iStateID, MonoBehaviour pOwner, CFSM pFsm, CGameInstance pGameInstance) : base(iStateID, pOwner, pFsm, pGameInstance)
         {
         }
     }
-    public CState_Sys_Playing(STATE_SYS_PLAYING_DESC refOwner) : base(refOwner) { }
+    public CState_Sys_Playing(STATE_SYS_PLAYING_DESC pRefOwner) : base(pRefOwner) { }
     public override void Fixed_Update_State()
     {
 

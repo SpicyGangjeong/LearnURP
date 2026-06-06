@@ -1,98 +1,101 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class HandBoard : MonoBehaviour
 {
-    private const int MAX_HAND_SLOTS = 10;
-    [SerializeField] private int _maxSlots = MAX_HAND_SLOTS;
-    [SerializeField] private float _curveHeight = 120f;
-    CGameInstance gameInstance = null;
-    IReadOnlyList<Card> handCards = null;
-    CardCanvas[] cardCanvasSlots = new CardCanvas[MAX_HAND_SLOTS];
+    private const int s_iMaxHandSlots = 10;
+    [FormerlySerializedAs("_maxSlots")]
+    [SerializeField] private int m_iMaxSlots = s_iMaxHandSlots;
+    [FormerlySerializedAs("_curveHeight")]
+    [SerializeField] private float m_fCurveHeight = 120f;
+    CGameInstance m_pGameInstance = null;
+    IReadOnlyList<Card> m_vHandCards = null;
+    CardCanvas[] m_vCardCanvasSlots = new CardCanvas[s_iMaxHandSlots];
 
-    private Vector3 _startPos;
-    private Vector3 _endPos;
-    private Vector3 _controlPos;
-    private Vector3[] _handPos;
+    Vector3 m_pStartPos;
+    Vector3 m_pEndPos;
+    Vector3 m_pControlPos;
+    Vector3[] m_vHandPos;
 
-    private int iCurrentHand = 10;
+    int m_iCurrentHand = 10;
 
-    private void CalcHandPos(Vector3 centerPos)
+    private void CalcHandPos(Vector3 pCenterPos)
     {
-        _handPos = new Vector3[Mathf.Max(1, _maxSlots)];
-        if (iCurrentHand == 1)
+        m_vHandPos = new Vector3[Mathf.Max(1, m_iMaxSlots)];
+        if (m_iCurrentHand == 1)
         {
-            _handPos[0] = centerPos;
+            m_vHandPos[0] = pCenterPos;
             return;
         }
 
-        float slotStep = 1f / Mathf.Max(1, _maxSlots - 1);
-        float span = slotStep * (iCurrentHand - 1);
-        float startT = 0.5f - span * 0.5f;
+        float fSlotStep = 1f / Mathf.Max(1, m_iMaxSlots - 1);
+        float fSpan = fSlotStep * (m_iCurrentHand - 1);
+        float fStartT = 0.5f - fSpan * 0.5f;
 
-        for (int i = 0; i < iCurrentHand; i++)
+        for (int i = 0; i < m_iCurrentHand; i++)
         {
-            float t = Mathf.Clamp01(startT + i * slotStep);
-            _handPos[i] = GetQuadraticBezierPoint(t, _startPos, _controlPos, _endPos);
+            float fT = Mathf.Clamp01(fStartT + i * fSlotStep);
+            m_vHandPos[i] = GetQuadraticBezierPoint(fT, m_pStartPos, m_pControlPos, m_pEndPos);
         }
     }
-    public Vector3 GetSlotPosition(int index)
+    public Vector3 GetSlotPosition(int iIndex)
     {
-        if (_handPos == null || _handPos.Length == 0)
+        if (m_vHandPos == null || m_vHandPos.Length == 0)
             return transform.position;
 
-        index = Mathf.Clamp(index, 0, _handPos.Length - 1);
-        return _handPos[index];
+        iIndex = Mathf.Clamp(iIndex, 0, m_vHandPos.Length - 1);
+        return m_vHandPos[iIndex];
     }
-    private Vector3 GetQuadraticBezierPoint(float t, Vector3 p0, Vector3 p1, Vector3 p2)
+    private Vector3 GetQuadraticBezierPoint(float fT, Vector3 p0, Vector3 p1, Vector3 p2)
     {
-        float oneMinusT = 1f - t;
-        return oneMinusT * oneMinusT * p0 + 2f * oneMinusT * t * p1 + t * t * p2;
+        float fOneMinusT = 1f - fT;
+        return fOneMinusT * fOneMinusT * p0 + 2f * fOneMinusT * fT * p1 + fT * fT * p2;
     }
 
     void Awake()
     {
-        RectTransform rectTransform = GetComponent<RectTransform>();
-        Vector3[] corners = new Vector3[4];
-        rectTransform.GetWorldCorners(corners);
+        RectTransform pRectTransform = GetComponent<RectTransform>();
+        Vector3[] vCorners = new Vector3[4];
+        pRectTransform.GetWorldCorners(vCorners);
 
-        _startPos = Vector3.Lerp(corners[0], corners[1], 0.5f); // 좌측 중앙
-        _endPos = Vector3.Lerp(corners[3], corners[2], 0.5f);   // 우측 중앙
-        Vector3 centerPos = Vector3.Lerp(_startPos, _endPos, 0.5f);
-        _controlPos = centerPos + Vector3.up * _curveHeight;
+        m_pStartPos = Vector3.Lerp(vCorners[0], vCorners[1], 0.5f); // 좌측 중앙
+        m_pEndPos = Vector3.Lerp(vCorners[3], vCorners[2], 0.5f);   // 우측 중앙
+        Vector3 pCenterPos = Vector3.Lerp(m_pStartPos, m_pEndPos, 0.5f);
+        m_pControlPos = pCenterPos + Vector3.up * m_fCurveHeight;
 
-        CalcHandPos(centerPos);
+        CalcHandPos(pCenterPos);
     }
 
     void Start()
     {
-        gameInstance = CGameInstance.Instance;
-        if (null == handCards)
+        m_pGameInstance = CGameInstance.Instance;
+        if (null == m_vHandCards)
         {
-            handCards = gameInstance.GetCards(DEFINES.CardPile.HAND);
+            m_vHandCards = m_pGameInstance.GetCards(DEFINES.CardPile.HAND);
         }
-        gameInstance.OnDrawCard += OnHandChanged;
-        gameInstance.OnPlayCard += OnHandChanged;
-        gameInstance.OnDiscardCard += OnHandChanged;
-        gameInstance.OnEndTurn += OnEndTurn;
+        m_pGameInstance.OnDrawCard += OnHandChanged;
+        m_pGameInstance.OnPlayCard += OnHandChanged;
+        m_pGameInstance.OnDiscardCard += OnHandChanged;
+        m_pGameInstance.OnEndTurn += OnEndTurn;
         RebuildHand();
     }
 
     private void OnDestroy()
     {
-        if (gameInstance != null)
+        if (m_pGameInstance != null)
         {
-            gameInstance.OnDrawCard -= OnHandChanged;
-            gameInstance.OnPlayCard -= OnHandChanged;
-            gameInstance.OnDiscardCard -= OnHandChanged;
-            gameInstance.OnEndTurn -= OnEndTurn;
+            m_pGameInstance.OnDrawCard -= OnHandChanged;
+            m_pGameInstance.OnPlayCard -= OnHandChanged;
+            m_pGameInstance.OnDiscardCard -= OnHandChanged;
+            m_pGameInstance.OnEndTurn -= OnEndTurn;
         }
     }
 
     private void Update()
     {
     }
-    private void OnHandChanged(Card card)
+    private void OnHandChanged(Card pCard)
     {
         RebuildHand();
     }
@@ -104,81 +107,81 @@ public class HandBoard : MonoBehaviour
 
     private void RebuildHand()
     {
-        if (handCards == null)
+        if (m_vHandCards == null)
         {
             return;
         }
 
-        int cardCount = Mathf.Min(handCards.Count, _maxSlots);
-        iCurrentHand = Mathf.Max(1, cardCount);
+        int iCardCount = Mathf.Min(m_vHandCards.Count, m_iMaxSlots);
+        m_iCurrentHand = Mathf.Max(1, iCardCount);
 
-        RectTransform boardRect = transform as RectTransform;
-        if (boardRect == null)
+        RectTransform pBoardRect = transform as RectTransform;
+        if (pBoardRect == null)
         {
             Debug.LogError("HandBoard requires RectTransform.");
             return;
         }
 
-        Vector3[] corners = new Vector3[4];
-        boardRect.GetWorldCorners(corners);
-        _startPos = Vector3.Lerp(corners[0], corners[1], 0.5f);
-        _endPos = Vector3.Lerp(corners[3], corners[2], 0.5f);
-        Vector3 centerPos = Vector3.Lerp(_startPos, _endPos, 0.5f);
-        _controlPos = centerPos + Vector3.up * _curveHeight;
-        CalcHandPos(centerPos);
+        Vector3[] vCorners = new Vector3[4];
+        pBoardRect.GetWorldCorners(vCorners);
+        m_pStartPos = Vector3.Lerp(vCorners[0], vCorners[1], 0.5f);
+        m_pEndPos = Vector3.Lerp(vCorners[3], vCorners[2], 0.5f);
+        Vector3 pCenterPos = Vector3.Lerp(m_pStartPos, m_pEndPos, 0.5f);
+        m_pControlPos = pCenterPos + Vector3.up * m_fCurveHeight;
+        CalcHandPos(pCenterPos);
 
         if (!EnsureCardPool())
         {
             return;
         }
 
-        for (int i = 0; i < cardCount; i++)
+        for (int i = 0; i < iCardCount; i++)
         {
-            CardCanvas cardCanvas = cardCanvasSlots[i];
-            if (cardCanvas == null)
+            CardCanvas pCardCanvas = m_vCardCanvasSlots[i];
+            if (pCardCanvas == null)
             {
                 continue;
             }
 
-            cardCanvas.gameObject.SetActive(true);
-            cardCanvas.BindCard(handCards[i]);
-            cardCanvas.transform.position = GetSlotPosition(i);
-            cardCanvas.transform.localScale = Vector3.one;
+            pCardCanvas.gameObject.SetActive(true);
+            pCardCanvas.BindCard(m_vHandCards[i]);
+            pCardCanvas.transform.position = GetSlotPosition(i);
+            pCardCanvas.transform.localScale = Vector3.one;
         }
 
-        for (int i = cardCount; i < cardCanvasSlots.Length; i++)
+        for (int i = iCardCount; i < m_vCardCanvasSlots.Length; i++)
         {
-            if (cardCanvasSlots[i] != null)
+            if (m_vCardCanvasSlots[i] != null)
             {
-                cardCanvasSlots[i].gameObject.SetActive(false);
+                m_vCardCanvasSlots[i].gameObject.SetActive(false);
             }
         }
     }
 
     private bool EnsureCardPool()
     {
-        if (false == gameInstance.ObjectPools.IsRegistered(PoolKeys.CardCanvas))
+        if (false == m_pGameInstance.ObjectPools.IsRegistered(PoolKeys.s_strCardCanvas))
         {
             Debug.LogError("CardCanvas pool is not registered. Run Bootstrap first.");
             return false;
         }
 
-        for (int i = 0; i < _maxSlots; i++)
+        for (int i = 0; i < m_iMaxSlots; i++)
         {
-            if (cardCanvasSlots[i] != null)
+            if (m_vCardCanvasSlots[i] != null)
             {
                 continue;
             }
 
-            CardCanvas cardCanvas = gameInstance.GetPooled<CardCanvas>(PoolKeys.CardCanvas, transform);
-            if (cardCanvas == null)
+            CardCanvas pCardCanvas = m_pGameInstance.GetPooled<CardCanvas>(PoolKeys.s_strCardCanvas, transform);
+            if (pCardCanvas == null)
             {
                 Debug.LogError("Failed to get CardCanvas from pool.");
                 return false;
             }
 
-            cardCanvas.gameObject.SetActive(false);
-            cardCanvasSlots[i] = cardCanvas;
+            pCardCanvas.gameObject.SetActive(false);
+            m_vCardCanvasSlots[i] = pCardCanvas;
         }
 
         return true;

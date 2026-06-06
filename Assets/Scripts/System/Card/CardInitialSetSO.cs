@@ -1,78 +1,84 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [Serializable]
 public struct CardNameCount
 {
-    public string strCardName;
-    public int iCount;
+    [FormerlySerializedAs("strCardName")]
+    public string m_strCardName;
+    [FormerlySerializedAs("iCount")]
+    public int m_iCount;
 }
 
 [CreateAssetMenu(fileName = "CardInitialSetSO", menuName = "Scriptable Objects/CardInitialSetSO")]
 public class CardInitialSetSO : ScriptableObject
 {
-    [SerializeField] string strCardInitialSetName = string.Empty;
-    [SerializeField] CardDocumentSO cardDocumentSO = null;
-    [SerializeField] List<CardNameCount> cardEntries = new List<CardNameCount>();
-    Dictionary<CardInfo, int> cardInitialSetLookup = null;
+    [FormerlySerializedAs("strCardInitialSetName")]
+    [SerializeField] string m_strCardInitialSetName = string.Empty;
+    [FormerlySerializedAs("cardDocumentSO")]
+    [SerializeField] CardDocumentSO m_pCardDocumentSO = null;
+    [FormerlySerializedAs("cardEntries")]
+    [SerializeField] List<CardNameCount> m_vCardEntries = new List<CardNameCount>();
+    Dictionary<CardInfo, int> m_vCardInitialSetLookup = null;
     
 
-    public IReadOnlyList<CardNameCount> CardEntries => cardEntries;
+    public IReadOnlyList<CardNameCount> CardEntries => m_vCardEntries;
 
     void OnEnable()
     {
-        if (null != cardDocumentSO)
+        if (null != m_pCardDocumentSO)
         {
             BuildLookup();
         }
     }
 
-    public void SetCardDocumentSO(CardDocumentSO documents)
+    public void SetCardDocumentSO(CardDocumentSO pDocuments)
     {
-        cardDocumentSO = documents;
+        m_pCardDocumentSO = pDocuments;
         BuildLookup();
     }
 
     void BuildLookup()
     {
-        cardInitialSetLookup = new Dictionary<CardInfo, int>();
-        if (null == cardDocumentSO)
+        m_vCardInitialSetLookup = new Dictionary<CardInfo, int>();
+        if (null == m_pCardDocumentSO)
         {
             return;
         }
 
-        foreach (CardNameCount entry in cardEntries)
+        foreach (CardNameCount pEntry in m_vCardEntries)
         {
-            if (string.IsNullOrEmpty(entry.strCardName) || entry.iCount <= 0)
+            if (string.IsNullOrEmpty(pEntry.m_strCardName) || pEntry.m_iCount <= 0)
             {
                 continue;
             }
 
-            if (false == cardDocumentSO.TryGetCardByName(entry.strCardName, out CardInfo cardInfo))
+            if (false == m_pCardDocumentSO.TryGetCardByName(pEntry.m_strCardName, out CardInfo pCardInfo))
             {
-                Debug.LogWarning($"Card not found in CardDocumentSO: {entry.strCardName}");
+                Debug.LogWarning($"Card not found in CardDocumentSO: {pEntry.m_strCardName}");
                 continue;
             }
 
-            if (cardInitialSetLookup.ContainsKey(cardInfo))
+            if (m_vCardInitialSetLookup.ContainsKey(pCardInfo))
             {
-                cardInitialSetLookup[cardInfo] += entry.iCount;
+                m_vCardInitialSetLookup[pCardInfo] += pEntry.m_iCount;
             }
             else
             {
-                cardInitialSetLookup.Add(cardInfo, entry.iCount);
+                m_vCardInitialSetLookup.Add(pCardInfo, pEntry.m_iCount);
             }
         }
     }
 
     public IReadOnlyDictionary<CardInfo, int> GetCardInitialSet()
     {
-        if (null == cardInitialSetLookup)
+        if (null == m_vCardInitialSetLookup)
         {
             BuildLookup();
         }
 
-        return cardInitialSetLookup;
+        return m_vCardInitialSetLookup;
     }
 }

@@ -3,134 +3,134 @@ using UnityEngine;
 
 class CardPileCollection
 {
-    readonly Dictionary<DEFINES.CardPile, List<Card>> piles = new Dictionary<DEFINES.CardPile, List<Card>>();
+    readonly Dictionary<DEFINES.CardPile, List<Card>> m_vPiles = new Dictionary<DEFINES.CardPile, List<Card>>();
     
     
     public CardPileCollection()
     {
-        piles[DEFINES.CardPile.HAND] = new List<Card>();
-        piles[DEFINES.CardPile.DISCARD] = new List<Card>();
-        piles[DEFINES.CardPile.DECK] = new List<Card>();
-        piles[DEFINES.CardPile.DISAPPEARED] = new List<Card>();
+        m_vPiles[DEFINES.CardPile.HAND] = new List<Card>();
+        m_vPiles[DEFINES.CardPile.DISCARD] = new List<Card>();
+        m_vPiles[DEFINES.CardPile.DECK] = new List<Card>();
+        m_vPiles[DEFINES.CardPile.DISAPPEARED] = new List<Card>();
     }
 
-    public static bool IsValidPile(DEFINES.CardPile pileType)
+    public static bool IsValidPile(DEFINES.CardPile iPileType)
     {
-        return pileType == DEFINES.CardPile.HAND
-            || pileType == DEFINES.CardPile.DISCARD
-            || pileType == DEFINES.CardPile.DECK
-            || pileType == DEFINES.CardPile.DISAPPEARED;
+        return iPileType == DEFINES.CardPile.HAND
+            || iPileType == DEFINES.CardPile.DISCARD
+            || iPileType == DEFINES.CardPile.DECK
+            || iPileType == DEFINES.CardPile.DISAPPEARED;
     }
 
-    public List<Card> GetPile(DEFINES.CardPile pileType)
+    public List<Card> GetPile(DEFINES.CardPile iPileType)
     {
-        if (false == IsValidPile(pileType))
+        if (false == IsValidPile(iPileType))
         {
-            Debug.LogError($"Invalid card pile type: {pileType}");
+            Debug.LogError($"Invalid card pile type: {iPileType}");
             return null;
         }
 
-        return piles[pileType];
+        return m_vPiles[iPileType];
     }
 
-    public IReadOnlyList<Card> GetCards(DEFINES.CardPile pileType)
+    public IReadOnlyList<Card> GetCards(DEFINES.CardPile iPileType)
     {
-        return GetPile(pileType);
+        return GetPile(iPileType);
     }
 
-    public int GetCount(DEFINES.CardPile pileType)
+    public int GetCount(DEFINES.CardPile iPileType)
     {
-        List<Card> pile = GetPile(pileType);
-        if (null == pile)
+        List<Card> vPile = GetPile(iPileType);
+        if (null == vPile)
         {
             return 0;
         }
 
-        return pile.Count;
+        return vPile.Count;
     }
 
     public void ClearAll()
     {
-        foreach (List<Card> pile in piles.Values)
+        foreach (List<Card> vPile in m_vPiles.Values)
         {
-            pile.Clear();
+            vPile.Clear();
         }
     }
 
-    public void Clear(DEFINES.CardPile pileType)
+    public void Clear(DEFINES.CardPile iPileType)
     {
-        List<Card> pile = GetPile(pileType);
-        if (null != pile)
+        List<Card> vPile = GetPile(iPileType);
+        if (null != vPile)
         {
-            pile.Clear();
+            vPile.Clear();
         }
     }
 
-    public void Add(Card card, DEFINES.CardPile pileType)
+    public void Add(Card pCard, DEFINES.CardPile iPileType)
     {
-        List<Card> pile = GetPile(pileType);
-        if (null != pile)
+        List<Card> vPile = GetPile(iPileType);
+        if (null != vPile)
         {
-            pile.Add(card);
+            vPile.Add(pCard);
         }
     }
 
-    public bool Remove(Card card, DEFINES.CardPile pileType)
+    public bool Remove(Card pCard, DEFINES.CardPile iPileType)
     {
-        List<Card> pile = GetPile(pileType);
-        if (null == pile)
+        List<Card> vPile = GetPile(iPileType);
+        if (null == vPile)
         {
             return false;
         }
 
-        return pile.Remove(card);
+        return vPile.Remove(pCard);
     }
 
-    public bool Move(Card card, DEFINES.CardPile fromPile, DEFINES.CardPile toPile)
+    public bool Move(Card pCard, DEFINES.CardPile iFromPile, DEFINES.CardPile iToPile)
     {
-        if (false == Remove(card, fromPile))
+        if (false == Remove(pCard, iFromPile))
         {
             return false;
         }
 
-        Add(card, toPile);
+        Add(pCard, iToPile);
         return true;
     }
 
-    public void AddRange(IEnumerable<Card> cards, DEFINES.CardPile pileType)
+    public void AddRange(IEnumerable<Card> vCards, DEFINES.CardPile iPileType)
     {
-        List<Card> pile = GetPile(pileType);
-        if (null != pile)
+        List<Card> vPile = GetPile(iPileType);
+        if (null != vPile)
         {
-            pile.AddRange(cards);
+            vPile.AddRange(vCards);
         }
     }
 
-    public Card GetTopCard(DEFINES.CardPile pileType)
+    public Card GetTopCard(DEFINES.CardPile iPileType)
     {
-        List<Card> pile = GetPile(pileType);
-        if (null == pile || 0 == pile.Count)
+        List<Card> vPile = GetPile(iPileType);
+        if (null == vPile || 0 == vPile.Count)
         {
             return null;
         }
 
-        return pile[0];
+        return vPile[0];
     }
 
-    public void Shuffle(DEFINES.CardPile pileType)
+    public void Shuffle(DEFINES.CardPile iPileType)
     {
-        List<Card> pile = GetPile(pileType);
-        if (null == pile)
+        List<Card> vPile = GetPile(iPileType);
+        if (null == vPile)
         {
             return;
         }
 
-        for (int i = 0; i < pile.Count; i++)
+        for (int i = 0; i < vPile.Count; i++)
         {
-            int randomIndex = Random.Range(0, pile.Count);
-            Card tempCard = pile[i];
-            pile[i] = pile[randomIndex];
-            pile[randomIndex] = tempCard;
+            int iRandomIndex = Random.Range(0, vPile.Count);
+            Card pTempCard = vPile[i];
+            vPile[i] = vPile[iRandomIndex];
+            vPile[iRandomIndex] = pTempCard;
         }
     }
 }

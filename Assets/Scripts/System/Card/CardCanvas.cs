@@ -2,63 +2,70 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.Serialization;
 
 public class CardCanvas : MonoBehaviour, IPointerClickHandler, IPoolable
 {
-    [SerializeField] TextMeshProUGUI slotName = null;
-    [SerializeField] TextMeshProUGUI slotCost = null;
-    [SerializeField] TextMeshProUGUI slotDescription = null;
-    [SerializeField] Image slotImage = null;
-    [SerializeField] Image slotTypeImage = null;
-    [SerializeField] Image slotQualityImage = null;
+    [FormerlySerializedAs("slotName")]
+    [SerializeField] TextMeshProUGUI m_pSlotName = null;
+    [FormerlySerializedAs("slotCost")]
+    [SerializeField] TextMeshProUGUI m_pSlotCost = null;
+    [FormerlySerializedAs("slotDescription")]
+    [SerializeField] TextMeshProUGUI m_pSlotDescription = null;
+    [FormerlySerializedAs("slotImage")]
+    [SerializeField] Image m_pSlotImage = null;
+    [FormerlySerializedAs("slotTypeImage")]
+    [SerializeField] Image m_pSlotTypeImage = null;
+    [FormerlySerializedAs("slotQualityImage")]
+    [SerializeField] Image m_pSlotQualityImage = null;
 
-    Card refCard = null;
+    Card m_pRefCard = null;
 
-    public Card BoundCard => refCard;
+    public Card BoundCard => m_pRefCard;
 
-    public void BindCard(Card card)
+    public void BindCard(Card pCard)
     {
-        refCard = card;
-        if (null == card || null == card.CardInfo)
+        m_pRefCard = pCard;
+        if (null == pCard || null == pCard.CardInfo)
         {
             return;
         }
 
-        slotName.text = card.CardInfo.strCardName;
-        slotCost.text = card.CardInfo.iCardCost.ToString();
-        slotDescription.text = card.CardInfo.strCardDescription;
-        // slotImage.sprite = card.CardInfo.sprite;
-        // slotTypeImage.sprite = card.CardInfo.eCardType;
-        // slotQualityImage.sprite = card.CardInfo.sprite;
+        m_pSlotName.text = pCard.CardInfo.m_strCardName;
+        m_pSlotCost.text = pCard.CardInfo.m_iCardCost.ToString();
+        m_pSlotDescription.text = pCard.CardInfo.m_strCardDescription;
+        // m_pSlotImage.sprite = pCard.CardInfo.sprite;
+        // m_pSlotTypeImage.sprite = pCard.CardInfo.m_iCardType;
+        // m_pSlotQualityImage.sprite = pCard.CardInfo.sprite;
     }
 
     public void RequestPlay()
     {
-        if (null == refCard)
+        if (null == m_pRefCard)
         {
             return;
         }
 
-        CGameInstance.Instance.TryPlayCard(refCard);
+        CGameInstance.Instance.TryPlayCard(m_pRefCard);
     }
 
     public void RequestDiscard()
     {
-        if (null == refCard)
+        if (null == m_pRefCard)
         {
             return;
         }
 
-        CGameInstance.Instance.TryDiscardCard(refCard);
+        CGameInstance.Instance.TryDiscardCard(m_pRefCard);
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    public void OnPointerClick(PointerEventData pEventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Left)
+        if (pEventData.button == PointerEventData.InputButton.Left)
         {
             RequestPlay();
         }
-        else if (eventData.button == PointerEventData.InputButton.Right)
+        else if (pEventData.button == PointerEventData.InputButton.Right)
         {
             RequestDiscard();
         }
@@ -78,6 +85,6 @@ public class CardCanvas : MonoBehaviour, IPointerClickHandler, IPoolable
 
     public void OnDespawn()
     {
-        refCard = null;
+        m_pRefCard = null;
     }
 }

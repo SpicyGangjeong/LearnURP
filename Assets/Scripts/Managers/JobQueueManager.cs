@@ -6,23 +6,23 @@ using UnityEngine;
 
 class JobQueueManager
 {
-    Queue<IJob> qJobs = new Queue<IJob>();
-    bool bProcessing = false;
+    Queue<IJob> m_vJobs = new Queue<IJob>();
+    bool m_bProcessing = false;
     public async UniTask ExecuteJobsAsync()
     {
-        if (true == bProcessing)
+        if (true == m_bProcessing)
         {
             return;
         }
-        bProcessing = true;
-        while (0 != qJobs.Count) {
-            await qJobs.Dequeue().Run();
+        m_bProcessing = true;
+        while (0 != m_vJobs.Count) {
+            await m_vJobs.Dequeue().Run();
         }
-        bProcessing = false;
+        m_bProcessing = false;
     }
-    public void EnqueueJob(IJob queue)
+    public void EnqueueJob(IJob pJob)
     {
-        qJobs.Enqueue(queue);
+        m_vJobs.Enqueue(pJob);
         ExecuteJobsAsync().Forget();
     }
 }

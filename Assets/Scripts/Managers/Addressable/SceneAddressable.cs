@@ -4,59 +4,62 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
+using UnityEngine.Serialization;
 
 public class SceneAddressable
 {
-    public AssetReference sceneRef;
-    [SerializeField] LoadSceneMode loadSceneMode = LoadSceneMode.Single;
-    private AsyncOperationHandle<SceneInstance> sceneLoadHandle;
+    [FormerlySerializedAs("sceneRef")]
+    public AssetReference m_pSceneRef;
+    [FormerlySerializedAs("loadSceneMode")]
+    [SerializeField] LoadSceneMode m_iLoadSceneMode = LoadSceneMode.Single;
+    AsyncOperationHandle<SceneInstance> m_hSceneLoadHandle;
 
-    public SceneAddressable(AssetReference sceneRef)
+    public SceneAddressable(AssetReference pSceneRef)
     {
-        this.sceneRef = sceneRef;
+        m_pSceneRef = pSceneRef;
     }
     public async Task LoadScene()
     {
-        if (false == sceneRef.RuntimeKeyIsValid())
+        if (false == m_pSceneRef.RuntimeKeyIsValid())
         {
             return;
         }
-        sceneLoadHandle = Addressables.LoadSceneAsync(sceneRef, loadSceneMode);
-        await sceneLoadHandle.Task;
+        m_hSceneLoadHandle = Addressables.LoadSceneAsync(m_pSceneRef, m_iLoadSceneMode);
+        await m_hSceneLoadHandle.Task;
 
-        if (sceneLoadHandle.Status == AsyncOperationStatus.Succeeded)
+        if (m_hSceneLoadHandle.Status == AsyncOperationStatus.Succeeded)
         {
-            Debug.Log($"Scene '{sceneRef.editorAsset.name}' loaded successfully.");
+            Debug.Log($"Scene '{m_pSceneRef.editorAsset.name}' loaded successfully.");
         } 
         else
         {
-            Debug.LogError($"Failed to Load scene from AssetReference: {sceneRef.AssetGUID}");
+            Debug.LogError($"Failed to Load scene from AssetReference: {m_pSceneRef.AssetGUID}");
         }
     }
 
     public async Task UnloadScene()
     {
-        if (sceneLoadHandle.IsValid())
+        if (m_hSceneLoadHandle.IsValid())
         {
-            var unloadHandle = Addressables.UnloadSceneAsync(sceneLoadHandle);
-            await unloadHandle.Task;
+            AsyncOperationHandle<SceneInstance> hUnloadHandle = Addressables.UnloadSceneAsync(m_hSceneLoadHandle);
+            await hUnloadHandle.Task;
 
-            if (unloadHandle.Status == AsyncOperationStatus.Succeeded)
+            if (hUnloadHandle.Status == AsyncOperationStatus.Succeeded)
             {
-                Debug.Log($"Scene '{sceneRef.editorAsset.name}' unloaded successfully.");
+                Debug.Log($"Scene '{m_pSceneRef.editorAsset.name}' unloaded successfully.");
             }
             else
             {
-                Debug.LogError($"Failed to Unload scene from AssetReference: {sceneRef.AssetGUID}");
+                Debug.LogError($"Failed to Unload scene from AssetReference: {m_pSceneRef.AssetGUID}");
             }
         }
     }
 
     void ChangeScene()
     {
-        if (sceneLoadHandle.IsValid() && sceneLoadHandle.Status == AsyncOperationStatus.Succeeded)
+        if (m_hSceneLoadHandle.IsValid() && m_hSceneLoadHandle.Status == AsyncOperationStatus.Succeeded)
         {
-            Addressables.UnloadSceneAsync(sceneLoadHandle);
+            Addressables.UnloadSceneAsync(m_hSceneLoadHandle);
         }
     }
 }

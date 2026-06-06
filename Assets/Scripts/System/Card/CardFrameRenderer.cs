@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class CardFrameRenderer : MonoBehaviour
 {
-    CGameInstance GameInstance = null;
+    CGameInstance m_pGameInstance = null;
     void Awake()
     {
-        GameInstance = CGameInstance.Instance;
+        m_pGameInstance = CGameInstance.Instance;
     }
 
     void Update()
