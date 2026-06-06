@@ -6,74 +6,74 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 class AssetManager
 {
-    Dictionary<string, AsyncOperationHandle<Object>> assetHandles =
+    Dictionary<string, AsyncOperationHandle<Object>> m_vAssetHandles =
         new Dictionary<string, AsyncOperationHandle<Object>>();
-    Dictionary<string, AsyncOperationHandle<IList<Object>>> assetLabelHandles =
+    Dictionary<string, AsyncOperationHandle<IList<Object>>> m_vAssetLabelHandles =
         new Dictionary<string, AsyncOperationHandle<IList<Object>>>();
-    public async Task<AsyncOperationHandle<Object>> LoadAddressAssetAsync(string assetName)
+    public async Task<AsyncOperationHandle<Object>> LoadAddressAssetAsync(string strAssetName)
     {
-        if (assetHandles.ContainsKey(assetName))
+        if (m_vAssetHandles.ContainsKey(strAssetName))
         {
-            return assetHandles[assetName];
+            return m_vAssetHandles[strAssetName];
         }
 
-        AsyncOperationHandle<Object> handle = Addressables.LoadAssetAsync<Object>(assetName);
-        await handle.Task;
+        AsyncOperationHandle<Object> hHandle = Addressables.LoadAssetAsync<Object>(strAssetName);
+        await hHandle.Task;
 
-        if (handle.Status == AsyncOperationStatus.Succeeded)
+        if (hHandle.Status == AsyncOperationStatus.Succeeded)
         {
-            assetHandles[assetName] = handle;
-            return handle;
+            m_vAssetHandles[strAssetName] = hHandle;
+            return hHandle;
         } else {
-            Debug.LogError($"Failed to load asset: '{assetName}'");
-            if (handle.IsValid())
+            Debug.LogError($"Failed to load asset: '{strAssetName}'");
+            if (hHandle.IsValid())
             {
-                Addressables.Release(handle);
+                Addressables.Release(hHandle);
             }   
             return default;
         }
     }
-    public async Task<AsyncOperationHandle<IList<Object>>> LoadLabelAssetsAsync(string assetLabelName)
+    public async Task<AsyncOperationHandle<IList<Object>>> LoadLabelAssetsAsync(string strAssetLabelName)
     {
-        if (assetLabelHandles.ContainsKey(assetLabelName))
+        if (m_vAssetLabelHandles.ContainsKey(strAssetLabelName))
         {
-            return assetLabelHandles[assetLabelName];
+            return m_vAssetLabelHandles[strAssetLabelName];
         }
 
-        AsyncOperationHandle<IList<Object>> handle = Addressables.LoadAssetsAsync<Object>(
-            assetLabelName,
+        AsyncOperationHandle<IList<Object>> hHandle = Addressables.LoadAssetsAsync<Object>(
+            strAssetLabelName,
             null,
             Addressables.MergeMode.Union);
 
-        await handle.Task;
+        await hHandle.Task;
 
-        if (handle.Status == AsyncOperationStatus.Succeeded)
+        if (hHandle.Status == AsyncOperationStatus.Succeeded)
         {
-            assetLabelHandles[assetLabelName] = handle;
-            return handle;
+            m_vAssetLabelHandles[strAssetLabelName] = hHandle;
+            return hHandle;
         } else {
-            Debug.LogError($"Failed to load assets with label: '{assetLabelName}'");
-            if (handle.IsValid())
+            Debug.LogError($"Failed to load assets with label: '{strAssetLabelName}'");
+            if (hHandle.IsValid())
             {
-                Addressables.Release(handle);
+                Addressables.Release(hHandle);
             }
             return default;
         }
     }
 
     public void ReleaseAssets(){
-        foreach (var handle in assetLabelHandles)
+        foreach (KeyValuePair<string, AsyncOperationHandle<IList<Object>>> pPair in m_vAssetLabelHandles)
         {
-            if (handle.Value.IsValid())
+            if (pPair.Value.IsValid())
             {
-                Addressables.Release(handle.Value);
+                Addressables.Release(pPair.Value);
             }
         }
-        foreach (var handle in assetHandles)
+        foreach (KeyValuePair<string, AsyncOperationHandle<Object>> pPair in m_vAssetHandles)
         {
-            if (handle.Value.IsValid())
+            if (pPair.Value.IsValid())
             {
-                Addressables.Release(handle.Value);
+                Addressables.Release(pPair.Value);
             }
         }
     }

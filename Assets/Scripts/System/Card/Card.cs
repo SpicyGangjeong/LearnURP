@@ -1,155 +1,162 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using System.Text;
 
 
-public delegate void DrawCard();
-public delegate void PlayCard();
-public delegate void DiscardCard();
-public delegate void ReturnCard();
-public delegate void DisappearCard();
-public delegate void ShuffleCard();
 public class Card
 {
-    CardInfo cardInfo = null;
-    public CardInfo CardInfo => cardInfo;
+    CardInfo m_pCardInfo = null;
+    public CardInfo CardInfo => m_pCardInfo;
 
-    public Card(CardInfo Info)
+    public Card(CardInfo pInfo)
     {
-        cardInfo = new CardInfo(Info);
+        m_pCardInfo = new CardInfo(pInfo);
     }
-    public Card(int cardID = 0)
+    public Card(int iCardID = 0)
     {
-        cardInfo = CGameInstance.Instance.GetCardInfo(cardID);
-        if (null == cardInfo)
+        m_pCardInfo = CGameInstance.Instance.GetCardInfo(iCardID);
+        if (null == m_pCardInfo)
         {
-            Debug.LogError($"Card not found in CardDocuments: {cardID}");
+            Debug.LogError($"Card not found in CardDocuments: {iCardID}");
             return;
         }
     }
 
-    public DrawCard drawCard = null;
-    public PlayCard playCard = null;
-    public DiscardCard discardCard = null;
-    public ReturnCard returnCard = null;
-    public DisappearCard disappearCard = null;
-    public ShuffleCard shuffleCard = null;
+    public event DrawCard m_pOnDrawCard;
+    public event PlayCard m_pOnPlayCard;
+    public event DiscardCard m_pOnDiscardCard;
+    public event ReturnCard m_pOnReturnCard;
+    public event DisappearCard m_pOnDisappearCard;
+    public event ShuffleCard m_pOnShuffleCard;
 }
 
 [Serializable]
 public class CardEffect
 {
-    public DEFINES.CardEffectTriggerType eCardEffectTriggerType;
-    public DEFINES.CardEffectTargetType eCardEffectTargetType;
-    public DEFINES.CardEffectValueType eCardEffectValueType;
-    public int iCardEffectValue;
-    public bool bCardEffectOptional;
-    public int iCardEffectOptionalValue;
+    [FormerlySerializedAs("eCardEffectTriggerType")]
+    public DEFINES.CardEffectTriggerType m_iCardEffectTriggerType;
+    [FormerlySerializedAs("eCardEffectTargetType")]
+    public DEFINES.CardEffectTargetType m_iCardEffectTargetType;
+    [FormerlySerializedAs("eCardEffectValueType")]
+    public DEFINES.CardEffectValueType m_iCardEffectValueType;
+    [FormerlySerializedAs("iCardEffectValue")]
+    public int m_iCardEffectValue;
+    [FormerlySerializedAs("bCardEffectOptional")]
+    public bool m_bCardEffectOptional;
+    [FormerlySerializedAs("iCardEffectOptionalValue")]
+    public int m_iCardEffectOptionalValue;
 }
 
 [Serializable]
 public class CardInfo
 {
-    public int iCardID;
-    public DEFINES.CardType eCardType;
-    public int iCardCost;
-    public string strCardName;
-    [SerializeField] public List<CardEffect> listCardEffects = new List<CardEffect>();
-    public string strCardDescription;
+    [FormerlySerializedAs("iCardID")]
+    public int m_iCardID;
+    [FormerlySerializedAs("eCardType")]
+    public DEFINES.CardType m_iCardType;
+    [FormerlySerializedAs("iCardCost")]
+    public int m_iCardCost;
+    [FormerlySerializedAs("strCardName")]
+    public string m_strCardName;
+    [FormerlySerializedAs("listCardEffects")]
+    [SerializeField] public List<CardEffect> m_vCardEffects = new List<CardEffect>();
+    [FormerlySerializedAs("strCardDescription")]
+    public string m_strCardDescription;
 
     public CardInfo() { }
-    public CardInfo(CardInfo Info)
+    public CardInfo(CardInfo pInfo)
     {
-        iCardID = Info.iCardID;
-        eCardType = Info.eCardType;
-        iCardCost = Info.iCardCost;
-        strCardName = Info.strCardName;
-        listCardEffects = new List<CardEffect>(Info.listCardEffects);
-        strCardDescription = Info.strCardDescription;
+        m_iCardID = pInfo.m_iCardID;
+        m_iCardType = pInfo.m_iCardType;
+        m_iCardCost = pInfo.m_iCardCost;
+        m_strCardName = pInfo.m_strCardName;
+        m_vCardEffects = new List<CardEffect>(pInfo.m_vCardEffects);
+        m_strCardDescription = pInfo.m_strCardDescription;
     }
 
 
     public void BuildCardDescription()
     {
-        StringBuilder sb = new StringBuilder();
-        foreach (CardEffect cardEffect in listCardEffects)
+        StringBuilder pSb = new StringBuilder();
+        foreach (CardEffect pCardEffect in m_vCardEffects)
         {
-            sb.Append("When ");
-            switch (cardEffect.eCardEffectTriggerType)
+            pSb.Append("When ");
+            switch (pCardEffect.m_iCardEffectTriggerType)
             {
                 case DEFINES.CardEffectTriggerType.NONE:
                     break;
                 case DEFINES.CardEffectTriggerType.DRAW:
-                    sb.Append("Draw");
+                    pSb.Append("Draw");
                     break;
                 case DEFINES.CardEffectTriggerType.PLAY:
-                    sb.Append("Play");
+                    pSb.Append("Play");
                     break;
                 case DEFINES.CardEffectTriggerType.DISCARD:
-                    sb.Append("Discard");
+                    pSb.Append("Discard");
                     break;
                 case DEFINES.CardEffectTriggerType.RETURN:
-                    sb.Append("Return");
+                    pSb.Append("Return");
                     break;
                 case DEFINES.CardEffectTriggerType.DISAPPEAR:
-                    sb.Append("Disappear");
+                    pSb.Append("Disappear");
                     break;
                 case DEFINES.CardEffectTriggerType.SHUFFLE:
-                    sb.Append("Shuffle");
+                    pSb.Append("Shuffle");
                     break;
                 case DEFINES.CardEffectTriggerType.END:
-                    sb.Append("End");
+                    pSb.Append("End");
                     break;
             }
-            sb.Append(", ");
-            switch (cardEffect.eCardEffectTargetType)
+            pSb.Append(", ");
+            switch (pCardEffect.m_iCardEffectTargetType)
             {
                 case DEFINES.CardEffectTargetType.NONE:
                     break;
                 case DEFINES.CardEffectTargetType.SELF:
-                    sb.Append("Self ");
+                    pSb.Append("Self ");
                     break;
                 case DEFINES.CardEffectTargetType.SELECTED:
-                    sb.Append("Selected Unit ");
+                    pSb.Append("Selected Unit ");
                     break;
                 case DEFINES.CardEffectTargetType.ALL:
-                    sb.Append("All ");
+                    pSb.Append("All ");
                     break;
                 case DEFINES.CardEffectTargetType.END:
-                    sb.Append("End ");
+                    pSb.Append("End ");
                     break;
             }
-            switch (cardEffect.eCardEffectValueType)
+            switch (pCardEffect.m_iCardEffectValueType)
             {
                 case DEFINES.CardEffectValueType.NONE:
                     break;
                 case DEFINES.CardEffectValueType.DAMAGE:
-                    sb.Append("Damage ");
+                    pSb.Append("Damage ");
                     break;
                 case DEFINES.CardEffectValueType.HEAL:
-                    sb.Append("Heal ");
+                    pSb.Append("Heal ");
                     break;
                 case DEFINES.CardEffectValueType.SHIELD:
-                    sb.Append("Shield ");
+                    pSb.Append("Shield ");
                     break;
                 case DEFINES.CardEffectValueType.BUFF:
-                    sb.Append("Buff ");
+                    pSb.Append("Buff ");
                     break;
                 case DEFINES.CardEffectValueType.DEBUFF:
-                    sb.Append("Debuff ");
+                    pSb.Append("Debuff ");
                     break;
                 case DEFINES.CardEffectValueType.END:
-                    sb.Append("End ");
+                    pSb.Append("End ");
                     break;
             }
-            sb.AppendFormat("by {0} points.", cardEffect.iCardEffectValue);
-            if (cardEffect.bCardEffectOptional)
+            pSb.AppendFormat("by {0} points.", pCardEffect.m_iCardEffectValue);
+            if (pCardEffect.m_bCardEffectOptional)
             {
-                sb.AppendFormat(" (Optional: {0} points)", cardEffect.iCardEffectOptionalValue);
+                pSb.AppendFormat(" (Optional: {0} points)", pCardEffect.m_iCardEffectOptionalValue);
             }
-            sb.AppendLine();
+            pSb.AppendLine();
         }
-        strCardDescription = sb.ToString();
+        m_strCardDescription = pSb.ToString();
     }
 }

@@ -1,5 +1,20 @@
 {
+  "dotnet.defaultSolution": "LearnURP.slnx",
   "files.exclude": {
     "**/*.meta": true
+  },
+  "files.watcherExclude": {
+    "**/Library/**": true,
+    "**/Temp/**": true,
+    "**/Obj/**": true,
+    "**/Logs/**": true,
+    "**/Build/**": true,
+    "**/Builds/**": true
+  },
+  "search.exclude": {
+    "**/Library/**": true,
+    "**/Temp/**": true,
+    "**/Obj/**": true,
+    "**/Logs/**": true
   }
 }

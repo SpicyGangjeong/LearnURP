@@ -1,118 +1,213 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+public delegate void DrawCard(Card pCard);
+public delegate void PlayCard(Card pCard);
+public delegate void DiscardCard(Card pCard);
+public delegate void ReturnCard(Card pCard);
+public delegate void DisappearCard(Card pCard);
+public delegate void ShuffleCard();
+public delegate void EndTurn();
 class DeckManager
 {
-    List<Card> deckOriginal = new List<Card>();
-    CardPileCollection piles = new CardPileCollection();
+    const int s_iHandDrawCount = 5;
 
-    public void Initialize(CardInitialSetSO initialSetSO)
+    static void EmptyEvent() { }
+    static void EmptyEvent(Card pCard) { }
+
+    public event DrawCard m_pOnDrawCard;
+    public event PlayCard m_pOnPlayCard;
+    public event DiscardCard m_pOnDiscardCard;
+    public event ReturnCard m_pOnReturnCard;
+    public event DisappearCard m_pOnDisappearCard;
+    public event ShuffleCard m_pOnShuffleCard;
+    public event EndTurn m_pOnEndTurn;
+    List<Card> m_vDeckOriginal = new List<Card>();
+    CardPileCollection m_pPiles = new CardPileCollection();
+
+    public void Initialize(CardInitialSetSO pInitialSetSO)
     {
-        IReadOnlyDictionary<CardInfo, int> cardInitialSet = initialSetSO.GetCardInitialSet();
-        foreach (KeyValuePair<CardInfo, int> entry in cardInitialSet)
+        IReadOnlyDictionary<CardInfo, int> vCardInitialSet = pInitialSetSO.GetCardInitialSet();
+        foreach (KeyValuePair<CardInfo, int> pEntry in vCardInitialSet)
         {
-            CardInfo cardInfo = entry.Key;
-            int count = entry.Value;
-            for (int i = 0; i < count; i++)
+            CardInfo pCardInfo = pEntry.Key;
+            int iCount = pEntry.Value;
+            for (int i = 0; i < iCount; i++)
             {
-                Card card = new Card(cardInfo);
-                deckOriginal.Add(card);
+                Card pCard = new Card(pCardInfo);
+                m_vDeckOriginal.Add(pCard);
             }
         }
+        m_pOnDrawCard += EmptyEvent;
+        m_pOnPlayCard += EmptyEvent;
+        m_pOnDiscardCard += EmptyEvent;
+        m_pOnReturnCard += EmptyEvent;
+        m_pOnDisappearCard += EmptyEvent;
+        m_pOnShuffleCard += EmptyEvent;
+        m_pOnEndTurn += EmptyEvent;
     }
-
-    public void Initialize(List<Card> deckOriginal)
+    public void Initialize(List<Card> vDeckOriginal)
     {
-        if (null == deckOriginal)
+        if (null == vDeckOriginal)
         {
             Debug.LogError("deckOriginal is null");
             return;
         }
 
-        this.deckOriginal = new List<Card>(deckOriginal);
-        piles.ClearAll();
+        m_vDeckOriginal = new List<Card>(vDeckOriginal);
+        m_pPiles.ClearAll();
     }
 
     public void StartGame()
     {
-        piles.ClearAll();
-        piles.AddRange(deckOriginal, DEFINES.CardPile.DECK);
+        m_pPiles.ClearAll();
+        m_pPiles.AddRange(m_vDeckOriginal, DEFINES.CardPile.DECK);
         ShuffleDeck();
-        DrawCard(5);
+        DrawCard(s_iHandDrawCount);
     }
 
-    public IReadOnlyList<Card> GetCards(DEFINES.CardPile pileType)
+    public void EndTurn(int iDrawCount = s_iHandDrawCount)
     {
-        return piles.GetCards(pileType);
+        DiscardAllHand();
+        DrawCard(iDrawCount);
+        m_pOnEndTurn();
+    }
+
+    void DiscardAllHand()
+    {
+        List<Card> vHandSnapshot = new List<Card>(m_pPiles.GetCards(DEFINES.CardPile.HAND));
+        foreach (Card pCard in vHandSnapshot)
+        {
+            MoveCard(pCard, DEFINES.CardPile.HAND, DEFINES.CardPile.DISCARD);
+            m_pOnDiscardCard(pCard);
+        }
+    }
+    public bool PlayCard(Card pCard)
+    {
+        if (false == IsInHand(pCard))
+        {
+            return false;
+        }
+
+        MoveCard(pCard, DEFINES.CardPile.HAND, DEFINES.CardPile.DISCARD);
+        m_pOnPlayCard(pCard);
+        return true;
+    }
+
+    public IReadOnlyList<Card> GetCards(DEFINES.CardPile iPileType)
+    {
+        return m_pPiles.GetCards(iPileType);
     }
 
     public void ShuffleDeck()
     {
-        piles.Shuffle(DEFINES.CardPile.DECK);
+        m_pPiles.Shuffle(DEFINES.CardPile.DECK);
+        m_pOnShuffleCard();
     }
 
-    public void DrawCard(int count)
+    public void DrawCard(int iCount)
     {
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < iCount; i++)
         {
-            if (0 == piles.GetCount(DEFINES.CardPile.DECK))
+            if (0 == m_pPiles.GetCount(DEFINES.CardPile.DECK))
             {
                 ReCycleCard();
-                if (0 == piles.GetCount(DEFINES.CardPile.DECK))
+                if (0 == m_pPiles.GetCount(DEFINES.CardPile.DECK))
                 {
                     return;
                 }
             }
 
-            Card card = piles.GetTopCard(DEFINES.CardPile.DECK);
-            if (null == card)
+            Card pCard = m_pPiles.GetTopCard(DEFINES.CardPile.DECK);
+            if (null == pCard)
             {
                 return;
             }
 
-            MoveCard(card, DEFINES.CardPile.DECK, DEFINES.CardPile.HAND);
+            MoveCard(pCard, DEFINES.CardPile.DECK, DEFINES.CardPile.HAND);
+            m_pOnDrawCard(pCard);
         }
     }
 
     public void ReCycleCard()
     {
-        piles.AddRange(piles.GetCards(DEFINES.CardPile.DISCARD), DEFINES.CardPile.DECK);
-        piles.Clear(DEFINES.CardPile.DISCARD);
+        List<Card> vDiscardSnapshot = new List<Card>(m_pPiles.GetCards(DEFINES.CardPile.DISCARD));
+        if (0 == vDiscardSnapshot.Count)
+        {
+            return;
+        }
+
+        foreach (Card pCard in vDiscardSnapshot)
+        {
+            MoveCard(pCard, DEFINES.CardPile.DISCARD, DEFINES.CardPile.DECK);
+        }
+
+        foreach (Card pCard in vDiscardSnapshot)
+        {
+            m_pOnReturnCard(pCard);
+        }
+
         ShuffleDeck();
     }
 
-    public void DiscardCard(Card card)
+    public bool DiscardCard(Card pCard)
     {
-        MoveCard(card, DEFINES.CardPile.HAND, DEFINES.CardPile.DISCARD);
+        if (false == IsInHand(pCard))
+        {
+            return false;
+        }
+
+        MoveCard(pCard, DEFINES.CardPile.HAND, DEFINES.CardPile.DISCARD);
+        m_pOnDiscardCard(pCard);
+        return true;
     }
 
-    public void DisappearCard(Card card)
+    public void DisappearCard(Card pCard)
     {
-        MoveCard(card, DEFINES.CardPile.HAND, DEFINES.CardPile.DISAPPEARED);
+        MoveCard(pCard, DEFINES.CardPile.HAND, DEFINES.CardPile.DISAPPEARED);
+        m_pOnDisappearCard(pCard);
     }
 
-    public void MoveCard(Card card, DEFINES.CardPile fromPile, DEFINES.CardPile toPile)
+    public void MoveCard(Card pCard, DEFINES.CardPile iFromPile, DEFINES.CardPile iToPile)
     {
-        piles.Move(card, fromPile, toPile);
+        m_pPiles.Move(pCard, iFromPile, iToPile);
     }
 
-    public void AddCard(Card card, DEFINES.CardPile pileType)
+    public void AddCard(Card pCard, DEFINES.CardPile iPileType)
     {
-        piles.Add(card, pileType);
+        m_pPiles.Add(pCard, iPileType);
     }
 
-    public void RemoveCard(Card card, DEFINES.CardPile pileType)
+    public void RemoveCard(Card pCard, DEFINES.CardPile iPileType)
     {
-        piles.Remove(card, pileType);
+        m_pPiles.Remove(pCard, iPileType);
     }
 
-    public int GetPileCount(DEFINES.CardPile pileType)
+    public int GetPileCount(DEFINES.CardPile iPileType)
     {
-        return piles.GetCount(pileType);
+        return m_pPiles.GetCount(iPileType);
     }
 
-    public IReadOnlyList<Card> GetPileCards(DEFINES.CardPile pileType)
+    public IReadOnlyList<Card> GetPileCards(DEFINES.CardPile iPileType)
     {
-        return piles.GetCards(pileType);
+        return m_pPiles.GetCards(iPileType);
+    }
+
+    bool IsInHand(Card pCard)
+    {
+        if (null == pCard)
+        {
+            return false;
+        }
+
+        foreach (Card pHandCard in m_pPiles.GetCards(DEFINES.CardPile.HAND))
+        {
+            if (pHandCard == pCard)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

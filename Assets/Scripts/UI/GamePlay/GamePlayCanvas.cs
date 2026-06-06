@@ -1,28 +1,44 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class GamePlayCanvas : MonoBehaviour
 {
-    CGameInstance gameInstance = null;
+    CGameInstance m_pGameInstance = null;
+    [FormerlySerializedAs("tmpDeckPile")]
     [SerializeField]
-    private TextMeshProUGUI tmpDeckPile = null;
+    TextMeshProUGUI m_pTmpDeckPile = null;
+    [FormerlySerializedAs("tmpDiscardPile")]
     [SerializeField]
-    private TextMeshProUGUI tmpDiscardPile = null;
+    TextMeshProUGUI m_pTmpDiscardPile = null;
+    [FormerlySerializedAs("tmpDisappearPile")]
     [SerializeField]
-    private TextMeshProUGUI tmpDisappearPile = null;
+    TextMeshProUGUI m_pTmpDisappearPile = null;
+
+    bool m_bDirty = false;
 
     void Start()
     {
-        gameInstance = CGameInstance.Instance;
+        m_pGameInstance = CGameInstance.Instance;
     }
 
     void Update()
     {
-        if (tmpDeckPile != null)
+        ChangePileSize();
+    }
+
+    void ChangePileSize()
+    {
+        if (m_pTmpDeckPile != null)
         {
-            tmpDeckPile.text = gameInstance.GetPileCount(DEFINES.CardPile.DECK).ToString();
-            tmpDiscardPile.text = gameInstance.GetPileCount(DEFINES.CardPile.DISCARD).ToString();
-            tmpDisappearPile.text = gameInstance.GetPileCount(DEFINES.CardPile.DISAPPEARED).ToString();
+            m_pTmpDeckPile.text = m_pGameInstance.GetPileCount(DEFINES.CardPile.DECK).ToString();
+            m_pTmpDiscardPile.text = m_pGameInstance.GetPileCount(DEFINES.CardPile.DISCARD).ToString();
+            m_pTmpDisappearPile.text = m_pGameInstance.GetPileCount(DEFINES.CardPile.DISAPPEARED).ToString();
         }
+    }
+
+    public void RequestEndTurn()
+    {
+        CGameInstance.Instance.TryEndTurn();
     }
 }
