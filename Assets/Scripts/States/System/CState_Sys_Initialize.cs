@@ -8,19 +8,19 @@ public class CState_Sys_Initialize : CState_Sys
     public delegate Task BootstrapAsyncDelegate();
     public class STATE_SYS_INITIALIZE_DESC : STATE_SYS_DESC
     {
-        public STATE_SYS_INITIALIZE_DESC(int StateID, MonoBehaviour Owner, CFSM FSM, CGameInstance GameInstance, 
-        BootstrapAsyncDelegate delegateBootstrapAsync) : base(StateID, Owner, FSM, GameInstance)
+        public STATE_SYS_INITIALIZE_DESC(int iStateID, MonoBehaviour pOwner, CFSM pFsm, CGameInstance pGameInstance, 
+        BootstrapAsyncDelegate pDelegateBootstrapAsync) : base(iStateID, pOwner, pFsm, pGameInstance)
         {
-            this.delegateBootstrapAsync = delegateBootstrapAsync;
+            this.delegateBootstrapAsync = pDelegateBootstrapAsync;
         }
         public BootstrapAsyncDelegate delegateBootstrapAsync { get; private set; } = null;
     }
-    public CState_Sys_Initialize(STATE_SYS_INITIALIZE_DESC refOwner) : base(refOwner)
+    public CState_Sys_Initialize(STATE_SYS_INITIALIZE_DESC pRefOwner) : base(pRefOwner)
     {
-        delegateBootstrapAsync = refOwner.delegateBootstrapAsync;
+        m_pDelegateBootstrapAsync = pRefOwner.delegateBootstrapAsync;
     }
-    private BootstrapAsyncDelegate delegateBootstrapAsync = null;
-    private bool isLoading = false;
+    BootstrapAsyncDelegate m_pDelegateBootstrapAsync = null;
+    bool m_bIsLoading = false;
 
 
     public override void Enter()
@@ -34,14 +34,14 @@ public class CState_Sys_Initialize : CState_Sys
     }
     async public override void Update_State()
     {
-        if (null != delegateBootstrapAsync)
+        if (null != m_pDelegateBootstrapAsync)
         {
-            if (false == isLoading)
+            if (false == m_bIsLoading)
             {
-                isLoading = true;
-                await delegateBootstrapAsync.Invoke();
-                isLoading = false;
-                delegateBootstrapAsync = null;
+                m_bIsLoading = true;
+                await m_pDelegateBootstrapAsync.Invoke();
+                m_bIsLoading = false;
+                m_pDelegateBootstrapAsync = null;
                 FSM.Change_State((int)DEFINES.SystemState.IDLE);
             }
         }

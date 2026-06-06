@@ -1,39 +1,41 @@
 ﻿using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.Serialization;
 
 // Inspector에서 할당한 AssetReference를 사용하여
 // 프리팹을 로드하고 인스턴스화하는 예제입니다.
 public class LoadFromAssetReference : MonoBehaviour
 {
-    public AssetReferenceGameObject playerPrefabRef;
-    private AsyncOperationHandle<GameObject> loadHandle;
+    [FormerlySerializedAs("playerPrefabRef")]
+    public AssetReferenceGameObject m_pPlayerPrefabRef;
+    AsyncOperationHandle<GameObject> m_hLoadHandle;
 
     async void Start()
     {
-        if (null == playerPrefabRef || false == playerPrefabRef.RuntimeKeyIsValid())
+        if (null == m_pPlayerPrefabRef || false == m_pPlayerPrefabRef.RuntimeKeyIsValid())
         {
             Debug.LogError("AssetReference is Not set or Invalid.");
             return;
         }
 
-        loadHandle = playerPrefabRef.LoadAssetAsync<GameObject>();
-        await loadHandle.Task;
-        if (loadHandle.Status == AsyncOperationStatus.Succeeded)
+        m_hLoadHandle = m_pPlayerPrefabRef.LoadAssetAsync<GameObject>();
+        await m_hLoadHandle.Task;
+        if (m_hLoadHandle.Status == AsyncOperationStatus.Succeeded)
         {
-            Instantiate(loadHandle.Result);
+            Instantiate(m_hLoadHandle.Result);
             Debug.Log("Loaded and instantiated via AssetReference.");
         } else
         {
-            Debug.LogError($"Failed to Load Prefab from AssetReference: {playerPrefabRef.AssetGUID}");
+            Debug.LogError($"Failed to Load Prefab from AssetReference: {m_pPlayerPrefabRef.AssetGUID}");
         }
     }
 
     private void OnDestroy()
     {
-        if (loadHandle.IsValid())
+        if (m_hLoadHandle.IsValid())
         {
-            playerPrefabRef.ReleaseAsset();
+            m_pPlayerPrefabRef.ReleaseAsset();
         }
     }
 }

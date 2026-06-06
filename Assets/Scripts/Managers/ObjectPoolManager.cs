@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public interface IPoolable
 {
@@ -11,216 +12,206 @@ public interface IPoolable
 
 public static class PoolKeys
 {
-    public const string CardCanvas = "CardCanvas";
+    public const string s_strCardCanvas = "CardCanvas";
 }
 
-interface IObjectPool
-
+public interface IComponentObjectPool
 {
+    Component Get(Transform pParent);
+    void Release(Component pInstance);
     void Clear();
-    int TotalCount { get; }
-    int InactiveCount { get; }
+    int CountInactive { get; }
 }
 
-public class ObjectPool<T> : IObjectPool where T : Component
+public class ComponentObjectPool<T> : IComponentObjectPool where T : Component
 {
-    readonly Stack<T> inactive = new Stack<T>();
-    readonly List<T> allInstances = new List<T>();
-    readonly T prefab;
-    readonly Transform poolRoot;
-    readonly int maxSize;
-    int totalCount;
+    ObjectPool<T> m_pPool;
+    Transform m_pPoolRoot;
 
-    public int TotalCount => totalCount;
-    public int InactiveCount => inactive.Count;
+    public int CountInactive => m_pPool.CountInactive;
 
-    public ObjectPool(T prefab, Transform poolRoot, int warmCount, int maxSize)
+    public ComponentObjectPool(T pPrefab, Transform pPoolRoot, int iInitialCount, int iMaxSize)
     {
-        this.prefab = prefab;
-        this.poolRoot = poolRoot;
-        this.maxSize = maxSize;
+        m_pPoolRoot = pPoolRoot;
 
-        int initialCount = Mathf.Max(0, warmCount);
-        for (int i = 0; i < initialCount; i++)
+        int iCapacity = Mathf.Max(0, iInitialCount);
+        int iPoolMaxSize = iMaxSize <= 0 ? int.MaxValue : iMaxSize;
+
+        m_pPool = new ObjectPool<T>(
+            () => CreateInstance(pPrefab),
+            OnGet,
+            OnRelease,
+            OnDestroy,
+            collectionCheck: true,
+            defaultCapacity: iCapacity,
+            maxSize: iPoolMaxSize
+        );
+
+        for (int i = 0; i < iCapacity; i++)
         {
-            inactive.Push(CreateInstance());
+            m_pPool.Release(m_pPool.Get());
         }
     }
 
-    void ExpandPool()
+    T CreateInstance(T pPrefab)
     {
-        if (maxSize > 0 && totalCount >= maxSize)
+        T pInstance = Object.Instantiate(pPrefab, m_pPoolRoot);
+        pInstance.gameObject.SetActive(false);
+
+        if (pInstance is IPoolable pPoolable)
+        {
+            pPoolable.OnCreate();
+        }
+
+        return pInstance;
+    }
+
+    void OnGet(T pInstance)
+    {
+        pInstance.gameObject.SetActive(true);
+
+        if (pInstance is IPoolable pPoolable)
+        {
+            pPoolable.OnSpawn();
+        }
+    }
+
+    void OnRelease(T pInstance)
+    {
+        if (pInstance is IPoolable pPoolable)
+        {
+            pPoolable.OnDespawn();
+        }
+
+        pInstance.gameObject.SetActive(false);
+        pInstance.transform.SetParent(m_pPoolRoot, false);
+    }
+
+    void OnDestroy(T pInstance)
+    {
+        if (pInstance is IPoolable pPoolable)
+        {
+            pPoolable.OnDestroy();
+        }
+
+        Object.Destroy(pInstance.gameObject);
+    }
+
+    public T Get(Transform pParent)
+    {
+        T pInstance = m_pPool.Get();
+
+        if (null != pParent)
+        {
+            pInstance.transform.SetParent(pParent, false);
+        }
+
+        return pInstance;
+    }
+
+    public void Release(T pInstance)
+    {
+        if (null == pInstance)
         {
             return;
         }
 
-        int growCount = Mathf.Max(1, totalCount / 2);
-        if (maxSize > 0)
-        {
-            growCount = Mathf.Min(growCount, maxSize - totalCount);
-        }
-
-        for (int i = 0; i < growCount; i++)
-        {
-            inactive.Push(CreateInstance());
-        }
+        m_pPool.Release(pInstance);
     }
 
-    T CreateInstance()
+    Component IComponentObjectPool.Get(Transform pParent) => Get(pParent);
+
+    void IComponentObjectPool.Release(Component pInstance)
     {
-        T instance = Object.Instantiate(prefab, poolRoot);
-        instance.gameObject.SetActive(false);
-        allInstances.Add(instance);
-        totalCount++;
-
-        IPoolable poolable = instance as IPoolable;
-        if (null != poolable)
+        if (pInstance is T pTypedInstance)
         {
-            poolable.OnCreate();
-        }
-
-        return instance;
-    }
-
-    public T Get(Transform parent)
-    {
-        if (0 == inactive.Count)
-        {
-            ExpandPool();
-        }
-
-        if (0 == inactive.Count)
-        {
-            Debug.LogError($"ObjectPool<{typeof(T).Name}> exhausted (total {totalCount}, max {(maxSize <= 0 ? "unlimited" : maxSize.ToString())}).");
-            return null;
-        }
-
-        T instance = inactive.Pop();
-
-        Transform instanceTransform = instance.transform;
-        if (null != parent)
-        {
-            instanceTransform.SetParent(parent, false);
-        }
-
-        instance.gameObject.SetActive(true);
-
-        IPoolable poolable = instance as IPoolable;
-        if (null != poolable)
-        {
-            poolable.OnSpawn();
-        }
-
-        return instance;
-    }
-
-    public void Release(T instance)
-    {
-        if (null == instance)
-        {
+            Release(pTypedInstance);
             return;
         }
 
-        IPoolable poolable = instance as IPoolable;
-        if (null != poolable)
-        {
-            poolable.OnDespawn();
-        }
-
-        instance.gameObject.SetActive(false);
-        instance.transform.SetParent(poolRoot, false);
-        inactive.Push(instance);
+        Debug.LogError($"ComponentObjectPool<{typeof(T).Name}>.Release: type mismatch ({pInstance.GetType().Name}).");
     }
 
     public void Clear()
     {
-        for (int i = allInstances.Count - 1; i >= 0; i--)
-        {
-            T instance = allInstances[i];
-            if (null == instance)
-            {
-                continue;
-            }
-
-            IPoolable poolable = instance as IPoolable;
-            if (null != poolable)
-            {
-                poolable.OnDestroy();
-            }
-
-            Object.Destroy(instance.gameObject);
-        }
-
-        allInstances.Clear();
-        inactive.Clear();
-        totalCount = 0;
+        m_pPool.Clear();
     }
 }
 
 public class ObjectPoolManager
 {
-    readonly Dictionary<string, IObjectPool> pools = new Dictionary<string, IObjectPool>();
-    readonly Transform poolRoot;
+    readonly Dictionary<string, IComponentObjectPool> m_vPools = new Dictionary<string, IComponentObjectPool>();
+    readonly Transform m_pPoolRoot;
 
-    public ObjectPoolManager(Transform poolRoot)
+    public ObjectPoolManager(Transform pPoolRoot)
     {
-        this.poolRoot = poolRoot;
+        m_pPoolRoot = pPoolRoot;
     }
 
-    public void Register<T>(string key, T prefab, int warmCount, int maxSize = 0) where T : Component
+    public void Register<T>(string strKey, T pPrefab, int iStartCount, int iMaxSize = 0) where T : Component
     {
-        if (null == prefab)
+        if (null == pPrefab)
         {
-            Debug.LogError($"ObjectPoolManager.Register: prefab is null for key '{key}'.");
+            Debug.LogError($"ObjectPoolManager.Register: prefab is null for key '{strKey}'.");
             return;
         }
 
-        pools[key] = new ObjectPool<T>(prefab, poolRoot, warmCount, maxSize);
+        m_vPools[strKey] = new ComponentObjectPool<T>(pPrefab, m_pPoolRoot, iStartCount, iMaxSize);
     }
 
-    public T Get<T>(string key, Transform parent = null) where T : Component
+    public Component Get(string strKey, Transform pParent = null)
     {
-        if (false == pools.TryGetValue(key, out IObjectPool pool))
+        if (false == m_vPools.TryGetValue(strKey, out IComponentObjectPool pPool))
         {
-            Debug.LogError($"ObjectPoolManager.Get: pool not registered for key '{key}'.");
+            Debug.LogError($"ObjectPoolManager.Get: pool not registered for key '{strKey}'.");
             return null;
         }
 
-        return ((ObjectPool<T>)pool).Get(parent);
+        return pPool.Get(pParent);
     }
 
-    public void Release<T>(string key, T instance) where T : Component
+    public T Get<T>(string strKey, Transform pParent = null) where T : Component
     {
-        if (false == pools.TryGetValue(key, out IObjectPool pool))
+        return Get(strKey, pParent) as T;
+    }
+
+    public void Release(string strKey, Component pInstance)
+    {
+        if (false == m_vPools.TryGetValue(strKey, out IComponentObjectPool pPool))
         {
-            Debug.LogError($"ObjectPoolManager.Release: pool not registered for key '{key}'.");
+            Debug.LogError($"ObjectPoolManager.Release: pool not registered for key '{strKey}'.");
             return;
         }
 
-        ((ObjectPool<T>)pool).Release(instance);
+        pPool.Release(pInstance);
     }
 
-    public bool IsRegistered(string key)
+    public void Release<T>(string strKey, T pInstance) where T : Component
     {
-        return pools.ContainsKey(key);
+        Release(strKey, (Component)pInstance);
     }
 
-    public void ClearPool(string key)
+    public bool IsRegistered(string strKey)
     {
-        if (pools.TryGetValue(key, out IObjectPool pool))
+        return m_vPools.ContainsKey(strKey);
+    }
+
+    public void ClearPool(string strKey)
+    {
+        if (m_vPools.TryGetValue(strKey, out IComponentObjectPool pPool))
         {
-            pool.Clear();
-            pools.Remove(key);
+            pPool.Clear();
+            m_vPools.Remove(strKey);
         }
     }
 
     public void ClearAll()
     {
-        foreach (IObjectPool pool in pools.Values)
+        foreach (IComponentObjectPool pPool in m_vPools.Values)
         {
-            pool.Clear();
+            pPool.Clear();
         }
 
-        pools.Clear();
+        m_vPools.Clear();
     }
 }

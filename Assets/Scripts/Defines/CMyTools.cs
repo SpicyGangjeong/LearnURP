@@ -7,9 +7,9 @@ public class CMyTools
     {
         return (T)(object)str;
     }
-    public static string TypeToString<T>(T value)
+    public static string TypeToString<T>(T pValue)
     {
-        return (string)(object)value;
+        return (string)(object)pValue;
     }
     #endregion
 

@@ -2,21 +2,25 @@ using NUnit.Framework;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Serialization;
 
 public class MainMenuCanvas : MonoBehaviour
 {
-    CGameInstance gameInstance = null;
+    CGameInstance m_pGameInstance = null;
 
+    [FormerlySerializedAs("btnSet0")]
     [SerializeField]
-    private Button btnSet0 = null;
+    Button m_pBtnSet0 = null;
+    [FormerlySerializedAs("btnSet1")]
     [SerializeField]
-    private Button btnSet1 = null;
+    Button m_pBtnSet1 = null;
+    [FormerlySerializedAs("btnSet2")]
     [SerializeField]
-    private Button btnSet2 = null;
+    Button m_pBtnSet2 = null;
 
     void Start()
     {
-        gameInstance = CGameInstance.Instance;
+        m_pGameInstance = CGameInstance.Instance;
     }
 
     void Update()
@@ -24,7 +28,7 @@ public class MainMenuCanvas : MonoBehaviour
     }
     public void StartDeck(int i)
     {
-        gameInstance.StartDeck(i);
+        m_pGameInstance.StartDeck(i);
         Destroy(gameObject);
     }
 }

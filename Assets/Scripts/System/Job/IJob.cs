@@ -10,10 +10,10 @@ public interface IJob
 }
 public class JobPlayCard : IJob
 {
-    Card card = null;
-    public JobPlayCard(Card card)
+    Card m_pCard = null;
+    public JobPlayCard(Card pCard)
     {
-        this.card = card;
+        m_pCard = pCard;
     }
     public UniTask Run()
     {
@@ -23,10 +23,10 @@ public class JobPlayCard : IJob
 
 public class JobDrawCard : IJob
 {
-    Card card = null;
-    public JobDrawCard(Card card)
+    Card m_pCard = null;
+    public JobDrawCard(Card pCard)
     {
-        this.card = card;
+        m_pCard = pCard;
     }
 
     public UniTask Run()

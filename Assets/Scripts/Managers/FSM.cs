@@ -4,59 +4,59 @@ using UnityEngine;
 
 public class CFSM : MonoBehaviour
 {
-    public Dictionary<int, CState> states = null;
-    CState currState = null;
-    CState prevState = null;
+    public Dictionary<int, CState> m_vStates = null;
+    CState m_pCurrState = null;
+    CState m_pPrevState = null;
     static void EmptyTick() { }
 
-    Action onFixedUpdateTick = EmptyTick;
-    Action onUpdateTick = EmptyTick;
-    Action onLateUpdateTick = EmptyTick;
+    Action m_pOnFixedUpdateTick = EmptyTick;
+    Action m_pOnUpdateTick = EmptyTick;
+    Action m_pOnLateUpdateTick = EmptyTick;
 
-    public bool IsCurrentState(int stateID)
+    public bool IsCurrentState(int iStateID)
     {
-        return currState != null && currState.StateID == stateID;
+        return m_pCurrState != null && m_pCurrState.StateID == iStateID;
     }
 
-    void ResubscribeStateTicks(CState next)
+    void ResubscribeStateTicks(CState pNext)
     {
-        onFixedUpdateTick = EmptyTick;
-        onUpdateTick = EmptyTick;
-        onLateUpdateTick = EmptyTick;
-        if (next == null)
+        m_pOnFixedUpdateTick = EmptyTick;
+        m_pOnUpdateTick = EmptyTick;
+        m_pOnLateUpdateTick = EmptyTick;
+        if (pNext == null)
             return;
-        onFixedUpdateTick += next.Fixed_Update_State;
-        onUpdateTick += next.Update_State;
-        onLateUpdateTick += next.Late_Update_State;
+        m_pOnFixedUpdateTick += pNext.Fixed_Update_State;
+        m_pOnUpdateTick += pNext.Update_State;
+        m_pOnLateUpdateTick += pNext.Late_Update_State;
     }
 
     public void Change_State(int iStateID)
     {
-        if (null != currState)
+        if (null != m_pCurrState)
         {
-            currState.Exit();
-            prevState = currState;
+            m_pCurrState.Exit();
+            m_pPrevState = m_pCurrState;
         }
-        if (false == states.TryGetValue(iStateID, out currState))
+        if (false == m_vStates.TryGetValue(iStateID, out m_pCurrState))
         {
-            Debug.LogError($"State not found: {iStateID} {states.Count}");
+            Debug.LogError($"State not found: {iStateID} {m_vStates.Count}");
             return;
         }
-        ResubscribeStateTicks(currState);
-        if (null != currState)
+        ResubscribeStateTicks(m_pCurrState);
+        if (null != m_pCurrState)
         {
-            currState.Enter();
+            m_pCurrState.Enter();
         }
     }
     public bool Is_Valid_FSM(int iStateEndID){
-        if (null == states)
+        if (null == m_vStates)
         {
             Debug.LogError("FSM is not valid: states is null");
             return false;
         }
         for (int i = 0; i < iStateEndID; i++)
         {
-            if (false == states.TryGetValue(i, out CState state)){
+            if (false == m_vStates.TryGetValue(i, out CState pState)){
                 Debug.LogError($"FSM is not valid: {i} is not found in states");
                 return false;
             }
@@ -65,24 +65,24 @@ public class CFSM : MonoBehaviour
     }
     public void Fixed_Update_State()
     {
-        onFixedUpdateTick();
+        m_pOnFixedUpdateTick();
     }
 
     public void Update_State()
     {
-        onUpdateTick();
+        m_pOnUpdateTick();
     }
     public void Late_Update_State()
     {
-        onLateUpdateTick();
+        m_pOnLateUpdateTick();
     }
     public CState Get_PrevState()
     {
-        return prevState;
+        return m_pPrevState;
     }
     public CState Get_CurrentState()
     {
-        return currState;
+        return m_pCurrState;
     }
     void Awake() { }
     void Start() { }
