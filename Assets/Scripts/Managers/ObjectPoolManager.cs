@@ -15,6 +15,7 @@ public static class PoolKeys
 }
 
 interface IObjectPool
+
 {
     void Clear();
     int TotalCount { get; }
