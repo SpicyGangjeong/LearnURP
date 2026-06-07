@@ -13,6 +13,7 @@ public class Card
     public Card(CardInfo pInfo)
     {
         m_pCardInfo = new CardInfo(pInfo);
+        BuildCardEffect();
     }
     public Card(int iCardID = 0)
     {
@@ -30,6 +31,93 @@ public class Card
     public event ReturnCard m_pOnReturnCard;
     public event DisappearCard m_pOnDisappearCard;
     public event ShuffleCard m_pOnShuffleCard;
+
+    public void OnDrawCard()
+    {
+        m_pOnDrawCard.Invoke(this);
+    }
+    public void OnPlayCard()
+    {
+        m_pOnPlayCard.Invoke(this);
+    }
+    public void OnDiscardCard()
+    {
+        m_pOnDiscardCard.Invoke(this);
+    }
+    public void OnReturnCard()
+    {
+        m_pOnReturnCard.Invoke(this);
+    }
+    public void OnDisappearCard()
+    {
+        m_pOnDisappearCard.Invoke(this);
+    }
+    public void OnShuffleCard()
+    {
+        m_pOnShuffleCard.Invoke();
+    }
+    private void EmptyEvent()
+    {
+        EmptyEvent(null);
+    }
+    private void EmptyEvent(Card card)
+    {
+    }
+    private void TriggerEvent()
+    {
+        TriggerEvent(null);
+    }
+    private void TriggerEvent(Card card)
+    {
+        Debug.Log($"Event triggered for card: {CardInfo.m_strCardName}");
+        foreach (CardEffect pCardEffect in CardInfo.m_vCardEffects)
+        {
+            Debug.Log($"Card Effect: TriggerType={pCardEffect.m_iCardEffectTriggerType}, " +
+                                     $"TargetType={pCardEffect.m_iCardEffectTargetType}, " +
+                                     $"ValueType={pCardEffect.m_iCardEffectValueType}, " +
+                                     $"Value={pCardEffect.m_iCardEffectValue}, " +
+                                     $"Optional={pCardEffect.m_bCardEffectOptional}, " +
+                                     $"OptionalValue={pCardEffect.m_iCardEffectOptionalValue}");
+        }
+    }
+    public void BuildCardEffect()
+    {
+        m_pOnDrawCard += EmptyEvent;
+        m_pOnPlayCard += EmptyEvent;
+        m_pOnDiscardCard += EmptyEvent;
+        m_pOnReturnCard += EmptyEvent;
+        m_pOnDisappearCard += EmptyEvent;
+        m_pOnShuffleCard += EmptyEvent;
+
+        foreach (CardEffect pCardEffect in CardInfo.m_vCardEffects)
+        {
+            switch (pCardEffect.m_iCardEffectTriggerType)
+            {
+                case DEFINES.CardEffectTriggerType.NONE:
+                    break;
+                case DEFINES.CardEffectTriggerType.DRAW:
+                    m_pOnDrawCard += TriggerEvent;
+                    break;
+                case DEFINES.CardEffectTriggerType.PLAY:
+                    m_pOnPlayCard += TriggerEvent;
+                    break;
+                case DEFINES.CardEffectTriggerType.DISCARD:
+                    m_pOnDiscardCard += TriggerEvent;
+                    break;
+                case DEFINES.CardEffectTriggerType.RETURN:
+                    m_pOnReturnCard += TriggerEvent;
+                    break;
+                case DEFINES.CardEffectTriggerType.DISAPPEAR:
+                    m_pOnDisappearCard += TriggerEvent;
+                    break;
+                case DEFINES.CardEffectTriggerType.SHUFFLE:
+                    m_pOnShuffleCard += TriggerEvent;
+                    break;
+                case DEFINES.CardEffectTriggerType.END:
+                    break;
+            }
+        }
+    }
 }
 
 [Serializable]

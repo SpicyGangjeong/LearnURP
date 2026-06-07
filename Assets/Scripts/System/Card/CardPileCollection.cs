@@ -132,5 +132,9 @@ class CardPileCollection
             vPile[i] = vPile[iRandomIndex];
             vPile[iRandomIndex] = pTempCard;
         }
+        foreach (Card p in vPile)
+        {
+            p.OnShuffleCard();
+        }
     }
 }

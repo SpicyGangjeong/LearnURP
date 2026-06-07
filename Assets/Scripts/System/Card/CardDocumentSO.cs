@@ -50,6 +50,7 @@ public class CardDocumentSO : ScriptableObject
 
             m_vCardNameLookup.Add(pCardInfo.m_strCardName, pCardInfo);
         }
+        RebuildCardDescription();
     }
 
     public bool TryGetCard(int iCardID, out CardInfo pCardInfo)

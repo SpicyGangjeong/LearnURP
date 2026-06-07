@@ -4,10 +4,10 @@ using UnityEngine.Pool;
 
 public interface IPoolable
 {
-    void OnCreate();
-    void OnDestroy();
-    void OnSpawn();
-    void OnDespawn();
+    abstract void OnCreate();
+    abstract void OnExtinct();
+    abstract void OnSpawn();
+    abstract void OnDespawn();
 }
 
 public static class PoolKeys
@@ -41,7 +41,7 @@ public class ComponentObjectPool<T> : IComponentObjectPool where T : Component
             () => CreateInstance(pPrefab),
             OnGet,
             OnRelease,
-            OnDestroy,
+            OnExtinct,
             collectionCheck: true,
             defaultCapacity: iCapacity,
             maxSize: iPoolMaxSize
@@ -87,11 +87,11 @@ public class ComponentObjectPool<T> : IComponentObjectPool where T : Component
         pInstance.transform.SetParent(m_pPoolRoot, false);
     }
 
-    void OnDestroy(T pInstance)
+    void OnExtinct(T pInstance)
     {
         if (pInstance is IPoolable pPoolable)
         {
-            pPoolable.OnDestroy();
+            pPoolable.OnExtinct();
         }
 
         Object.Destroy(pInstance.gameObject);

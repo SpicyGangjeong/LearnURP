@@ -14,6 +14,8 @@ public class GamePlayCanvas : MonoBehaviour
     [FormerlySerializedAs("tmpDisappearPile")]
     [SerializeField]
     TextMeshProUGUI m_pTmpDisappearPile = null;
+    [SerializeField]
+    GameObject m_pCardDrawTable = null;
 
     bool m_bDirty = false;
 
@@ -35,6 +37,31 @@ public class GamePlayCanvas : MonoBehaviour
             m_pTmpDiscardPile.text = m_pGameInstance.GetPileCount(DEFINES.CardPile.DISCARD).ToString();
             m_pTmpDisappearPile.text = m_pGameInstance.GetPileCount(DEFINES.CardPile.DISAPPEARED).ToString();
         }
+    }
+
+    [EnumAction(typeof(DEFINES.CardPile))]
+    public void RenderDrawTable(int pPile)
+    {
+        DEFINES.CardPile pile = (DEFINES.CardPile)pPile;
+        switch (pile)
+        {
+            case DEFINES.CardPile.DECK:
+                m_pCardDrawTable.SetActive(true);
+                break;
+            case DEFINES.CardPile.DISCARD:
+                m_pCardDrawTable.SetActive(true);
+                break;
+            case DEFINES.CardPile.DISAPPEARED:
+                m_pCardDrawTable.SetActive(true);
+                break;
+            case DEFINES.CardPile.ALL:
+                m_pCardDrawTable.SetActive(true);
+                break;
+            default:
+                m_pCardDrawTable.SetActive(false);
+                break;
+        }
+        m_pCardDrawTable.GetComponent<DrawTable>().ShowCards(pile);
     }
 
     public void RequestEndTurn()

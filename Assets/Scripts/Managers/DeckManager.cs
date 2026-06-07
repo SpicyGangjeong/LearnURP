@@ -78,8 +78,7 @@ class DeckManager
         List<Card> vHandSnapshot = new List<Card>(m_pPiles.GetCards(DEFINES.CardPile.HAND));
         foreach (Card pCard in vHandSnapshot)
         {
-            MoveCard(pCard, DEFINES.CardPile.HAND, DEFINES.CardPile.DISCARD);
-            m_pOnDiscardCard(pCard);
+            DiscardCard(pCard);
         }
     }
     public bool PlayCard(Card pCard)
@@ -91,6 +90,7 @@ class DeckManager
 
         MoveCard(pCard, DEFINES.CardPile.HAND, DEFINES.CardPile.DISCARD);
         m_pOnPlayCard(pCard);
+        pCard.OnPlayCard();
         return true;
     }
 
@@ -111,7 +111,7 @@ class DeckManager
         {
             if (0 == m_pPiles.GetCount(DEFINES.CardPile.DECK))
             {
-                ReCycleCard();
+                ReturnCard();
                 if (0 == m_pPiles.GetCount(DEFINES.CardPile.DECK))
                 {
                     return;
@@ -126,10 +126,11 @@ class DeckManager
 
             MoveCard(pCard, DEFINES.CardPile.DECK, DEFINES.CardPile.HAND);
             m_pOnDrawCard(pCard);
+            pCard.OnDrawCard();
         }
     }
 
-    public void ReCycleCard()
+    public void ReturnCard()
     {
         List<Card> vDiscardSnapshot = new List<Card>(m_pPiles.GetCards(DEFINES.CardPile.DISCARD));
         if (0 == vDiscardSnapshot.Count)
@@ -145,6 +146,7 @@ class DeckManager
         foreach (Card pCard in vDiscardSnapshot)
         {
             m_pOnReturnCard(pCard);
+            pCard.OnReturnCard();
         }
 
         ShuffleDeck();
@@ -159,6 +161,7 @@ class DeckManager
 
         MoveCard(pCard, DEFINES.CardPile.HAND, DEFINES.CardPile.DISCARD);
         m_pOnDiscardCard(pCard);
+        pCard.OnDiscardCard();
         return true;
     }
 
@@ -166,6 +169,7 @@ class DeckManager
     {
         MoveCard(pCard, DEFINES.CardPile.HAND, DEFINES.CardPile.DISAPPEARED);
         m_pOnDisappearCard(pCard);
+        pCard.OnDisappearCard();
     }
 
     public void MoveCard(Card pCard, DEFINES.CardPile iFromPile, DEFINES.CardPile iToPile)

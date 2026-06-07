@@ -74,11 +74,6 @@ public class CardCanvas : MonoBehaviour, IPointerClickHandler, IPoolable
     public void OnCreate()
     {
     }
-
-    public void OnDestroy()
-    {
-    }
-
     public void OnSpawn()
     {
     }
@@ -86,5 +81,12 @@ public class CardCanvas : MonoBehaviour, IPointerClickHandler, IPoolable
     public void OnDespawn()
     {
         m_pRefCard = null;
+    }
+
+    public void OnExtinct()
+    {
+    }
+    public void OnDestroy()
+    {
     }
 }

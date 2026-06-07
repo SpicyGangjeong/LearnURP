@@ -25,7 +25,8 @@ namespace DEFINES
         DISCARD = 1,
         DECK = 2,
         DISAPPEARED = 3,
-        END = 4,
+        ALL = 4,
+        END = 5,
     }
     public enum CardType : int
     {
