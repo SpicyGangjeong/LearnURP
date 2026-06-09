@@ -54,7 +54,8 @@ namespace DEFINES
         SELF = 0,
         SELECTED = 1,
         ALL = 2,
-        END = 3,
+        CARD = 3,
+        END,
     }
     public enum CardEffectValueType
     {

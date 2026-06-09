@@ -493,12 +493,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddf7effc18cf0614fa18687c88c4cad8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  slotName: {fileID: 2040776777517736996}
-  slotCost: {fileID: 1282960293676923378}
-  slotDescription: {fileID: 3955268108539304859}
-  slotImage: {fileID: 0}
-  slotTypeImage: {fileID: 0}
-  slotQualityImage: {fileID: 0}
+  m_pSlotName: {fileID: 2040776777517736996}
+  m_pSlotCost: {fileID: 1282960293676923378}
+  m_pSlotDescription: {fileID: 3955268108539304859}
+  m_pSlotImage: {fileID: 6188304192822307664}
+  m_pSlotTypeImage: {fileID: 9083128780259816344}
+  m_pSlotQualityImage: {fileID: 7755393003610352492}
+  m_pSlotHighlight: {fileID: 183048945155642835}
 --- !u!1 &2541645191823654853
 GameObject:
   m_ObjectHideFlags: 0
@@ -760,6 +761,7 @@ GameObject:
   - component: {fileID: 5898552460196927269}
   - component: {fileID: 6032629758274791568}
   - component: {fileID: 310226923136088173}
+  - component: {fileID: 183048945155642835}
   m_Layer: 5
   m_Name: Card
   m_TagString: Untagged
@@ -830,6 +832,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &183048945155642835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4395568179668383207}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.3679245, g: 0.3679245, b: 0.3679245, a: 0.59607846}
+  m_EffectDistance: {x: 5, y: 5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &4954538745378010276
 GameObject:
   m_ObjectHideFlags: 0

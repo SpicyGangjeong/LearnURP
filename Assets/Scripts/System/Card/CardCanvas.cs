@@ -1,28 +1,33 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using UnityEngine.Serialization;
+using static UnityEngine.EventSystems.PointerEventData;
 
-public class CardCanvas : MonoBehaviour, IPointerClickHandler, IPoolable
+interface ICardPointerHandler :
+    IPointerEnterHandler, IPointerExitHandler,
+    IPointerMoveHandler, IPointerUpHandler, IPointerDownHandler
 {
-    [FormerlySerializedAs("slotName")]
+}
+
+public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
+{
     [SerializeField] TextMeshProUGUI m_pSlotName = null;
-    [FormerlySerializedAs("slotCost")]
     [SerializeField] TextMeshProUGUI m_pSlotCost = null;
-    [FormerlySerializedAs("slotDescription")]
     [SerializeField] TextMeshProUGUI m_pSlotDescription = null;
-    [FormerlySerializedAs("slotImage")]
-    [SerializeField] Image m_pSlotImage = null;
-    [FormerlySerializedAs("slotTypeImage")]
-    [SerializeField] Image m_pSlotTypeImage = null;
-    [FormerlySerializedAs("slotQualityImage")]
-    [SerializeField] Image m_pSlotQualityImage = null;
+
+    [SerializeField] UnityEngine.UI.Image m_pSlotImage = null;
+    [SerializeField] UnityEngine.UI.Image m_pSlotTypeImage = null;
+    [SerializeField] UnityEngine.UI.Image m_pSlotQualityImage = null;
+    [SerializeField] Outline m_pSlotHighlight = null;
 
     Card m_pRefCard = null;
-
     public Card BoundCard => m_pRefCard;
-
+    public bool bHighlighted { get; private set; } = false;
+    public void Update()
+    {
+    }
     public void BindCard(Card pCard)
     {
         m_pRefCard = pCard;
@@ -38,7 +43,6 @@ public class CardCanvas : MonoBehaviour, IPointerClickHandler, IPoolable
         // m_pSlotTypeImage.sprite = pCard.CardInfo.m_iCardType;
         // m_pSlotQualityImage.sprite = pCard.CardInfo.sprite;
     }
-
     public void RequestPlay()
     {
         if (null == m_pRefCard)
@@ -48,7 +52,6 @@ public class CardCanvas : MonoBehaviour, IPointerClickHandler, IPoolable
 
         CGameInstance.Instance.TryPlayCard(m_pRefCard);
     }
-
     public void RequestDiscard()
     {
         if (null == m_pRefCard)
@@ -58,35 +61,73 @@ public class CardCanvas : MonoBehaviour, IPointerClickHandler, IPoolable
 
         CGameInstance.Instance.TryDiscardCard(m_pRefCard);
     }
-
-    public void OnPointerClick(PointerEventData pEventData)
-    {
-        if (pEventData.button == PointerEventData.InputButton.Left)
-        {
-            RequestPlay();
-        }
-        else if (pEventData.button == PointerEventData.InputButton.Right)
-        {
-            RequestDiscard();
-        }
-    }
-
     public void OnCreate()
     {
     }
     public void OnSpawn()
     {
     }
-
     public void OnDespawn()
     {
         m_pRefCard = null;
+        OffHighlight();
     }
-
     public void OnExtinct()
     {
     }
     public void OnDestroy()
     {
+    }
+
+    public void OnPointerMove(PointerEventData eventData)
+    {
+        if (eventData.dragging && 
+            eventData.button == InputButton.Left) {
+            
+        }
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (eventData.button == InputButton.Left)
+        {
+            CGameInstance.Instance.TryPlayCard(m_pRefCard);
+        }
+        if (eventData.button == InputButton.Right)
+        {
+            CGameInstance.Instance.TryDiscardCard(m_pRefCard);
+        }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        OnHighlight();
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        OffHighlight();
+    }
+
+    private void OffHighlight()
+    {
+        if (true == bHighlighted)
+        {
+            bHighlighted = false;
+            m_pSlotHighlight.enabled = bHighlighted;
+        }
+    }
+
+    private void OnHighlight()
+    {
+        if (false == bHighlighted)
+        {
+            bHighlighted = true;
+            m_pSlotHighlight.enabled = bHighlighted;
+        }
     }
 }
