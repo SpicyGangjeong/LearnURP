@@ -8,11 +8,11 @@ public class HandBoard : MonoBehaviour
     static private readonly int s_iMaxHandSlots = 10;
     static private readonly float s_fCurveHeight = 120f;
 
-    [SerializeField] private int m_iMaxSlots = s_iMaxHandSlots;
+    [SerializeField] private readonly int m_iMaxSlots = s_iMaxHandSlots;
     [SerializeField] private float m_fCurveHeight = s_fCurveHeight;
     CGameInstance m_pGameInstance = null;
     IReadOnlyList<Card> m_vHandCards = null;
-    CardCanvas[] m_vCardCanvasSlots = new CardCanvas[s_iMaxHandSlots];
+    readonly CardCanvas[] m_vCardCanvasSlots = new CardCanvas[s_iMaxHandSlots];
 
     Vector3 m_pStartPos;
     Vector3 m_pEndPos;
@@ -24,13 +24,15 @@ public class HandBoard : MonoBehaviour
     void ScanCurrentHand()
     {
         int iActiveCount = 0;
-        for (int i = 0; i < m_vCardCanvasSlots.Length; i++)
-        {
-            if (true == m_vCardCanvasSlots[i].gameObject.activeInHierarchy)
-            {
-                iActiveCount++;
-            }
 
+        for (int i = 0; i < m_iMaxSlots; i++)
+        {
+            CardCanvas pCardCanvas = m_vCardCanvasSlots[i];
+            if (null == pCardCanvas)
+            {
+                continue;
+            }
+            iActiveCount++;
         }
         m_fCurveHeight = (iActiveCount + 1) * s_fCurveHeight;
 
@@ -39,7 +41,7 @@ public class HandBoard : MonoBehaviour
 
     private void CalcHandPos(Vector3 pCenterPos)
     {
-        Vector3 GetQuadraticBezierPoint(float fT, Vector3 p0, Vector3 p1, Vector3 p2)
+        static Vector3 GetQuadraticBezierPoint(float fT, Vector3 p0, Vector3 p1, Vector3 p2)
         {
             float fOneMinusT = 1f - fT;
             return fOneMinusT * fOneMinusT * p0 + 2f * fOneMinusT * fT * p1 + fT * fT * p2;

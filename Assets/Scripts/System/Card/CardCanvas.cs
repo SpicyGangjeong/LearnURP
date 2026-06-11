@@ -69,14 +69,19 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
     }
     public void OnDespawn()
     {
-        m_pRefCard = null;
-        OffHighlight();
+        CustomFinalize();
     }
     public void OnExtinct()
     {
+        CustomFinalize();
     }
-    public void OnDestroy()
+    public void OnEnable()
     {
+        CustomFinalize();
+    }
+    public void OnDisable()
+    {
+        CustomFinalize();
     }
 
     public void OnPointerMove(PointerEventData eventData)
@@ -129,5 +134,16 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
             bHighlighted = true;
             m_pSlotHighlight.enabled = bHighlighted;
         }
+    }
+    private void CustomFinalize(){
+        m_pRefCard = null;
+        OffHighlight();
+        m_pSlotName.text = string.Empty;
+        m_pSlotCost.text = string.Empty;
+        m_pSlotDescription.text = string.Empty;
+        m_pSlotImage.sprite = null;
+        m_pSlotTypeImage.sprite = null;
+        m_pSlotQualityImage.sprite = null;
+        m_pSlotHighlight.enabled = false;
     }
 }
