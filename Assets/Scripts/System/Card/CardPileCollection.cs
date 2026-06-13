@@ -8,39 +8,25 @@ class CardPileCollection
     
     public CardPileCollection()
     {
-        m_vPiles[DEFINES.ENUMS.CardPile.HAND] = new List<Card>();
-        m_vPiles[DEFINES.ENUMS.CardPile.DISCARD] = new List<Card>();
-        m_vPiles[DEFINES.ENUMS.CardPile.DECK] = new List<Card>();
-        m_vPiles[DEFINES.ENUMS.CardPile.DISAPPEARED] = new List<Card>();
-    }
-
-    public static bool IsValidPile(DEFINES.ENUMS.CardPile iPileType)
-    {
-        return iPileType == DEFINES.ENUMS.CardPile.HAND
-            || iPileType == DEFINES.ENUMS.CardPile.DISCARD
-            || iPileType == DEFINES.ENUMS.CardPile.DECK
-            || iPileType == DEFINES.ENUMS.CardPile.DISAPPEARED;
-    }
-
-    public List<Card> GetPile(DEFINES.ENUMS.CardPile iPileType)
-    {
-        if (false == IsValidPile(iPileType))
+        for (DEFINES.ENUMS.CardPile ePile = DEFINES.ENUMS.CardPile.NONE + 1; 
+            ePile != DEFINES.ENUMS.CardPile.ALL; ePile++)
         {
-            Debug.LogError($"Invalid card pile type: {iPileType}");
-            return null;
+            m_vPiles[ePile] = new List<Card>();
         }
-
-        return m_vPiles[iPileType];
+    }
+    public List<Card> GetPile(DEFINES.ENUMS.CardPile ePileType)
+    {
+        return m_vPiles[ePileType];
     }
 
-    public IReadOnlyList<Card> GetCards(DEFINES.ENUMS.CardPile iPileType)
+    public IReadOnlyList<Card> GetCards(DEFINES.ENUMS.CardPile ePileType)
     {
-        return GetPile(iPileType);
+        return GetPile(ePileType);
     }
 
-    public int GetCount(DEFINES.ENUMS.CardPile iPileType)
+    public int GetCount(DEFINES.ENUMS.CardPile ePileType)
     {
-        List<Card> vPile = GetPile(iPileType);
+        List<Card> vPile = GetPile(ePileType);
         if (null == vPile)
         {
             return 0;
@@ -57,58 +43,60 @@ class CardPileCollection
         }
     }
 
-    public void Clear(DEFINES.ENUMS.CardPile iPileType)
+    public void Clear(DEFINES.ENUMS.CardPile ePileType)
     {
-        List<Card> vPile = GetPile(iPileType);
+        List<Card> vPile = GetPile(ePileType);
         if (null != vPile)
         {
             vPile.Clear();
         }
     }
 
-    public void Add(Card pCard, DEFINES.ENUMS.CardPile iPileType)
+    public void Add(Card pCard, DEFINES.ENUMS.CardPile ePileType)
     {
-        List<Card> vPile = GetPile(iPileType);
+        List<Card> vPile = GetPile(ePileType);
+        pCard.CardInfo.m_eCurrentPile = ePileType;
+
         if (null != vPile)
         {
             vPile.Add(pCard);
         }
     }
-
-    public bool Remove(Card pCard, DEFINES.ENUMS.CardPile iPileType)
+    public void AddRange(IEnumerable<Card> vCards, DEFINES.ENUMS.CardPile ePileType)
     {
-        List<Card> vPile = GetPile(iPileType);
+        foreach (Card pCard in vCards)
+        {
+            Add(pCard, ePileType);
+        }
+    }
+
+    public bool Remove(Card pCard)
+    {
+        List<Card> vPile = GetPile(pCard.CardInfo.m_eCurrentPile);
         if (null == vPile)
         {
+            pCard.CardInfo.m_eCurrentPile = DEFINES.ENUMS.CardPile.END;
             return false;
         }
 
         return vPile.Remove(pCard);
     }
 
-    public bool Move(Card pCard, DEFINES.ENUMS.CardPile iFromPile, DEFINES.ENUMS.CardPile iToPile)
+    public bool Move(Card pCard, DEFINES.ENUMS.CardPile eToPile)
     {
-        if (false == Remove(pCard, iFromPile))
+        if (false == Remove(pCard))
         {
             return false;
         }
 
-        Add(pCard, iToPile);
+        Add(pCard, eToPile);
         return true;
     }
 
-    public void AddRange(IEnumerable<Card> vCards, DEFINES.ENUMS.CardPile iPileType)
-    {
-        List<Card> vPile = GetPile(iPileType);
-        if (null != vPile)
-        {
-            vPile.AddRange(vCards);
-        }
-    }
 
-    public Card GetTopCard(DEFINES.ENUMS.CardPile iPileType)
+    public Card GetTopCard(DEFINES.ENUMS.CardPile ePileType)
     {
-        List<Card> vPile = GetPile(iPileType);
+        List<Card> vPile = GetPile(ePileType);
         if (null == vPile || 0 == vPile.Count)
         {
             return null;
@@ -117,9 +105,9 @@ class CardPileCollection
         return vPile[0];
     }
 
-    public void Shuffle(DEFINES.ENUMS.CardPile iPileType)
+    public void Shuffle(DEFINES.ENUMS.CardPile ePileType)
     {
-        List<Card> vPile = GetPile(iPileType);
+        List<Card> vPile = GetPile(ePileType);
         if (null == vPile)
         {
             return;

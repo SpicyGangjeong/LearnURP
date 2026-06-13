@@ -9,7 +9,6 @@ public class Card
 {
     CardInfo m_pCardInfo = null;
     public CardInfo CardInfo => m_pCardInfo;
-
     public Card(CardInfo pInfo)
     {
         m_pCardInfo = new CardInfo(pInfo);
@@ -138,6 +137,7 @@ public class CardInfo
     public DEFINES.ENUMS.CardType m_iCardType;
     public int m_iCardCost;
     public string m_strCardName;
+    public DEFINES.ENUMS.CardPile m_eCurrentPile = DEFINES.ENUMS.CardPile.END;
     [SerializeField] public List<CardEffect> m_vCardEffects = new List<CardEffect>();
     public string m_strCardDescription;
 

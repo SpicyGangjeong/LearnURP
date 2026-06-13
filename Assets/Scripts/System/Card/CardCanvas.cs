@@ -1,3 +1,5 @@
+using DEFINES;
+using DEFINES.STRUCTURES;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -14,6 +16,7 @@ interface ICardPointerHandler :
 }
 public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
 {
+    private static int s_iCardCanvasPoolID = 0;
     [SerializeField] TextMeshProUGUI m_pSlotName = null;
     [SerializeField] TextMeshProUGUI m_pSlotCost = null;
     [SerializeField] TextMeshProUGUI m_pSlotDescription = null;
@@ -24,60 +27,26 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
     [SerializeField] Outline m_pSlotHighlight = null;
 
     Card m_pRefCard = null;
-    public Card BoundCard => m_pRefCard;
     public bool bHighlighted { get; private set; } = false;
 
-    DEFINES.STRUCTURES.MoveInfo m_SrcMove = new DEFINES.STRUCTURES.MoveInfo();
-    DEFINES.STRUCTURES.MoveInfo m_DstMove = new DEFINES.STRUCTURES.MoveInfo();
-    bool bMoving = false;
-    Vector2 m_vLerpTimer = Vector2.up;
+    LerpInfo m_LerpInfo;
 
-    public void StartMove(DEFINES.STRUCTURES.MoveInfo pDstMove)
+    public void StartMove(in LerpInfo lerpInfo)
     {
-        m_SrcMove.vRotQ = transform.rotation;
-        m_SrcMove.vPosition = transform.position;
-
-        m_DstMove = pDstMove;
-
-        bMoving = true;
-        m_vLerpTimer = Vector2.up;
+        m_LerpInfo = lerpInfo;
     }
-    private void LerpTransfrom(float fRatio = 0.5f)
+    private void InstantMove(in MoveInfo moveinfo)
     {
-        Vector3 vNewPosition = Vector3.Slerp(m_SrcMove.vPosition, m_DstMove.vPosition, fRatio);
-        Quaternion vNewQuaternion = Quaternion.Slerp(m_SrcMove.vRotQ, m_DstMove.vRotQ, fRatio);
-
-        transform.SetPositionAndRotation(vNewPosition, vNewQuaternion);
-    }
-    private void MoveTransform(DEFINES.STRUCTURES.MoveInfo pDstMove)
-    {
-        StartMove(pDstMove);
-        m_vLerpTimer.x = m_vLerpTimer.y;
-        float fRatio = 1.0f;
-        LerpTransfrom(fRatio);
-
-        Vector3 vNewPosition = Vector3.Slerp(m_SrcMove.vPosition, m_DstMove.vPosition, fRatio);
-        Quaternion vNewQuaternion = Quaternion.Slerp(m_SrcMove.vRotQ, m_DstMove.vRotQ, fRatio);
-        transform.SetPositionAndRotation(vNewPosition, vNewQuaternion);
+        m_LerpInfo.SetFinish();
+        HELPERS.ApplyMoveInfo(moveinfo, transform);
     }
 
     public void Update()
     {
-        if (true == bMoving)
+        if (true == m_LerpInfo.IsLerping)
         {
-            if (m_vLerpTimer.x != m_vLerpTimer.y) // Lerping
-            {
-                m_vLerpTimer.x += Time.deltaTime;
-                float fRatio = m_vLerpTimer.x / m_vLerpTimer.y;
-                if (fRatio >= 1f)
-                {
-                    bMoving = false;
-                    fRatio = 1f;
-                    m_vLerpTimer.x = m_vLerpTimer.y;
-                }
-                LerpTransfrom(fRatio);
-            }
-
+            m_LerpInfo.Progress();
+            HELPERS.ApplyMoveInfo(m_LerpInfo.GetMoveInfo(), transform);
         }
     }
     public void BindCard(Card pCard)
@@ -95,26 +64,27 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
         // m_pSlotTypeImage.sprite = pCard.CardInfo.m_iCardType;
         // m_pSlotQualityImage.sprite = pCard.CardInfo.sprite;
     }
-    public void RequestPlay()
+    public void StartLinearMove(float fDuration, in MoveInfo pDstMove, LerpModelCallback callback)
     {
-        if (null == m_pRefCard)
-        {
-            return;
-        }
-
-        CGameInstance.Instance.TryPlayCard(m_pRefCard);
+        HELPERS.ExtractMoveInfo(out MoveInfo pStartMove, transform);
+        StartMove(LerpInfo.Linear(fDuration, in pStartMove, in pDstMove, callback));
     }
-    public void RequestDiscard()
+    public void StartBezierMove(float fDuration, in MoveInfo pCenterMove, in MoveInfo pDstMove, LerpModelCallback callback)
     {
-        if (null == m_pRefCard)
-        {
-            return;
-        }
-
-        CGameInstance.Instance.TryDiscardCard(m_pRefCard);
+        HELPERS.ExtractMoveInfo(out MoveInfo pStartMove, transform);
+        StartMove(LerpInfo.Bezier(fDuration, in pStartMove, in pCenterMove, in pDstMove, callback));
+    }
+    public void RequestHandboardPop()
+    {
+        CGameInstance.Instance.TryHandboardPopCard(m_pRefCard);
+    }
+    public void RequestHandboardInsert()
+    {
+        CGameInstance.Instance.TryHandboardInsertCard(m_pRefCard, this);
     }
     public void OnCreate()
     {
+        gameObject.name = "CardCanvas_" + s_iCardCanvasPoolID++;
     }
     public void OnSpawn()
     {
@@ -148,7 +118,7 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
     {
         if (eventData.button == PointerEventData.InputButton.Right)
         {
-            RequestDiscard();
+            CGameInstance.Instance.RequestDiscardCard(m_pRefCard, this);
         }
     }
 
@@ -195,8 +165,9 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
     {
         if (eventData.button == PointerEventData.InputButton.Left)
         {
-            MoveTransform(
-                new DEFINES.STRUCTURES.MoveInfo(eventData.position, Quaternion.identity)
+            RequestHandboardPop();
+            InstantMove(
+                new MoveInfo(eventData.position, Quaternion.identity)
                 );
         }
     }
@@ -205,8 +176,8 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
     {
         if (eventData.button == PointerEventData.InputButton.Left)
         {
-            MoveTransform(
-                new DEFINES.STRUCTURES.MoveInfo(eventData.position, Quaternion.identity)
+            InstantMove(
+                new MoveInfo(eventData.position, Quaternion.identity)
                 );
         }
     }
@@ -220,7 +191,10 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
             rectTransform.GetWorldCorners(vCorners);
             if (eventData.position.y > vCorners[1].y)
             {
-                RequestPlay();
+                CGameInstance.Instance.RequestPlayCard(m_pRefCard, this);
+            } else
+            {
+                RequestHandboardInsert();
             }
         }
     }

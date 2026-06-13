@@ -5,6 +5,27 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using UnityEngine.Serialization;
+using Cysharp.Threading.Tasks;
+
+public delegate void RequestPlayCard(Card pCard, CardCanvas pCardCanvas);
+public delegate void RequestDrawCard(Card pCard, CardCanvas pCardCanvas);
+public delegate void RequestDiscardCard(Card pCard, CardCanvas pCardCanvas);
+public delegate void RequestReturnCard(Card pCard, CardCanvas pCardCanvas);
+public delegate void RequestDisappearCard(Card pCard, CardCanvas pCardCanvas);
+
+public delegate void DrawCard(Card pCard);
+public delegate void PlayCard(Card pCard);
+public delegate void DiscardCard(Card pCard);
+public delegate void ReturnCard(Card pCard);
+public delegate void DisappearCard(Card pCard);
+
+public delegate void HandboardPopCard(Card pCard);
+public delegate void HandboardInsertCard(Card pCard, CardCanvas pCardCanvas);
+
+public delegate void ShuffleCard();
+public delegate void EndTurn();
+public delegate void LerpModelCallback();
+
 
 public class CGameInstance : MonoBehaviour
 {
@@ -24,13 +45,23 @@ public class CGameInstance : MonoBehaviour
 
     public ObjectPoolManager ObjectPools => m_pObjectPoolManager;
 
-    public event DrawCard       OnDrawCard { add { m_pDeckManager.m_pOnDrawCard += value; } remove { m_pDeckManager.m_pOnDrawCard -= value; } }
-    public event PlayCard       OnPlayCard { add { m_pDeckManager.m_pOnPlayCard += value; } remove { m_pDeckManager.m_pOnPlayCard -= value; } }
-    public event DiscardCard    OnDiscardCard { add { m_pDeckManager.m_pOnDiscardCard += value; } remove { m_pDeckManager.m_pOnDiscardCard -= value; } }
-    public event ReturnCard     OnReturnCard { add { m_pDeckManager.m_pOnReturnCard += value; } remove { m_pDeckManager.m_pOnReturnCard -= value; } }
-    public event DisappearCard  OnDisappearCard { add { m_pDeckManager.m_pOnDisappearCard += value; } remove { m_pDeckManager.m_pOnDisappearCard -= value; } }
-    public event ShuffleCard    OnShuffleCard { add { m_pDeckManager.m_pOnShuffleCard += value; } remove { m_pDeckManager.m_pOnShuffleCard -= value; } }
-    public event EndTurn        OnEndTurn { add { m_pDeckManager.m_pOnEndTurn += value; } remove { m_pDeckManager.m_pOnEndTurn -= value; } }
+    public event DrawCard OnDrawCard { add { m_pDeckManager.m_pOnDrawCard += value; } remove { m_pDeckManager.m_pOnDrawCard -= value; } }
+    public event PlayCard OnPlayCard { add { m_pDeckManager.m_pOnPlayCard += value; } remove { m_pDeckManager.m_pOnPlayCard -= value; } }
+    public event DiscardCard OnDiscardCard { add { m_pDeckManager.m_pOnDiscardCard += value; } remove { m_pDeckManager.m_pOnDiscardCard -= value; } }
+    public event ReturnCard OnReturnCard { add { m_pDeckManager.m_pOnReturnCard += value; } remove { m_pDeckManager.m_pOnReturnCard -= value; } }
+    public event DisappearCard OnDisappearCard { add { m_pDeckManager.m_pOnDisappearCard += value; } remove { m_pDeckManager.m_pOnDisappearCard -= value; } }
+    public event ShuffleCard OnShuffleCard { add { m_pDeckManager.m_pOnShuffleCard += value; } remove { m_pDeckManager.m_pOnShuffleCard -= value; } }
+    public event EndTurn OnEndTurn { add { m_pDeckManager.m_pOnEndTurn += value; } remove { m_pDeckManager.m_pOnEndTurn -= value; } }
+
+    public event HandboardPopCard       m_pOnHandboardPopCard;
+    public event HandboardInsertCard    m_pOnHandboardInsertCard;
+
+    public event RequestPlayCard        m_pRequestPlayCard;
+    public event RequestDrawCard        m_pRequestDrawCard;
+    public event RequestDiscardCard     m_pRequestDiscardCard;
+    public event RequestReturnCard      m_pRequestReturnCard;
+    public event RequestDisappearCard   m_pRequestDisappearCar;
+
     CFSM m_pFsm = null;
     public CardDocumentSO CardDocuments => m_pCardDocumentSO;
 
@@ -38,7 +69,11 @@ public class CGameInstance : MonoBehaviour
     {
         m_pJobQueueManager.EnqueueJob(pJob);
     }
-
+    public void Awake()
+    {
+        Init();
+    }
+    
     private static void Init()
     {
         if (null == s_pInstance)
@@ -84,6 +119,12 @@ public class CGameInstance : MonoBehaviour
     }
     private static bool Initialize(ref CGameInstance pInstance)
     {
+        pInstance.m_pRequestPlayCard += DEFINES.HELPERS.EmptyEvent;
+        pInstance.m_pRequestDrawCard += DEFINES.HELPERS.EmptyEvent;
+        pInstance.m_pRequestDiscardCard += DEFINES.HELPERS.EmptyEvent;
+        pInstance.m_pRequestReturnCard += DEFINES.HELPERS.EmptyEvent;
+        pInstance.m_pRequestDisappearCar += DEFINES.HELPERS.EmptyEvent;
+
         pInstance.m_pContentUpdater = pInstance.gameObject.AddComponent<ContentUpdater>();
         pInstance.m_pAssetManager = new AssetManager();
         pInstance.m_pDeckManager = new DeckManager();
@@ -147,52 +188,69 @@ public class CGameInstance : MonoBehaviour
             m_pDeckManager.StartGame();
         }
     }
-    public int GetPileCount(DEFINES.ENUMS.CardPile iPileType)
+    public int GetPileCount(DEFINES.ENUMS.CardPile ePileType)
     {
-        return m_pDeckManager.GetPileCount(iPileType);
+        return m_pDeckManager.GetPileCount(ePileType);
     }
-    public IReadOnlyList<Card> GetCards(DEFINES.ENUMS.CardPile iPileType)
+    public IReadOnlyList<Card> GetCards(DEFINES.ENUMS.CardPile ePileType)
     {
-        return m_pDeckManager.GetCards(iPileType);
+        return m_pDeckManager.GetCards(ePileType);
     }
-
-    public bool TryPlayCard(Card pCard)
+    public void MoveToFieldCard(Card pCard)
     {
-        if (false == CanPlayHandCard())
-        {
-            return false;
-        }
-
-        return m_pDeckManager.PlayCard(pCard);
+        m_pDeckManager.MoveToFieldCard(pCard);
     }
-
-    public bool TryDiscardCard(Card pCard)
+    public void RequestPlayCard(Card pCard, CardCanvas pCardCanvas)
     {
-        if (false == CanPlayHandCard())
-        {
-            return false;
-        }
-
-        return m_pDeckManager.DiscardCard(pCard);
+        m_pRequestPlayCard(pCard, pCardCanvas);
     }
-
-    public bool TryEndTurn()
+    public void RequestDrawCard(Card pCard, CardCanvas pCardCanvas)
     {
-        if (false == CanPlayHandCard())
-        {
-            return false;
-        }
-
-        m_pDeckManager.EndTurn();
-        return true;
+        m_pRequestDrawCard(pCard, pCardCanvas);
     }
-
-    bool CanPlayHandCard()
+    public void RequestDiscardCard(Card pCard, CardCanvas pCardCanvas)
     {
-        return m_pFsm.IsCurrentState((int)DEFINES.ENUMS.SystemState.IDLE)
-            || m_pFsm.IsCurrentState((int)DEFINES.ENUMS.SystemState.PLAYING);
+        m_pRequestDiscardCard(pCard, pCardCanvas);
+    }
+    public void RequestReturnCard(Card pCard, CardCanvas pCardCanvas)
+    {
+        m_pRequestReturnCard(pCard, pCardCanvas);
+    }
+    public void RequestDisappearCar(Card pCard, CardCanvas pCardCanvas)
+    {
+        m_pRequestDisappearCar(pCard, pCardCanvas);
+    }
+    public bool TryPlayCard(Card pCard, CardCanvas pCardCanvas)
+    {
+        bool bReturn = m_pDeckManager.PlayCard(pCard);
+        ReleasePooled<CardCanvas>(PoolKeys.s_strCardCanvas, pCardCanvas);
+        return bReturn;
     }
 
+    public bool TryDiscardCard(Card pCard, CardCanvas pCardCanvas)
+    {
+        bool bReturn = m_pDeckManager.DiscardCard(pCard);
+        ReleasePooled<CardCanvas>(PoolKeys.s_strCardCanvas, pCardCanvas);
+        return bReturn;
+    }
+
+    public void TryEndTurn()
+    {
+        StartCoroutine(m_pDeckManager.EndTurn());
+    }
+    public void TryDrawCards(int iDrawCount)
+    {
+        m_pDeckManager.DrawCards(iDrawCount);
+    }
+
+    public void TryHandboardPopCard(Card pCard)
+    {
+        m_pOnHandboardPopCard(pCard);
+    }
+    public void TryHandboardInsertCard(Card pCard, CardCanvas pCardCanvas)
+    {
+        m_pOnHandboardInsertCard(pCard, pCardCanvas);
+    }
     public async Task<Object> LoadAddressAssetAsync(string strAssetName)
     {
         AsyncOperationHandle<Object> hHandle = await m_pAssetManager.LoadAddressAssetAsync(strAssetName);
@@ -252,7 +310,6 @@ public class CGameInstance : MonoBehaviour
             pCardInitialSet.SetCardDocumentSO(m_pCardDocumentSO);
         }
     }
-
     public CardInfo GetCardInfo(int iCardID)
     {
         if (null == m_pCardDocumentSO)
@@ -263,19 +320,9 @@ public class CGameInstance : MonoBehaviour
 
         return m_pCardDocumentSO.GetCard(iCardID);
     }
-
     public void ChangeScene(DEFINES.ENUMS.SceneID iSceneID)
     {
         m_pLevelManager.ChangeScene(iSceneID);
-    }
-
-    private void Awake()
-    {
-        
-    }
-    private void Start()
-    {
-        Init();
     }
     public async Task BootstrapAsync()
     {
@@ -283,7 +330,6 @@ public class CGameInstance : MonoBehaviour
         await LoadCardDocumentsAsync();
         await LoadCardInitialSetAsync();
     }
-
     private void OnDestroy()
     {
         if (null != m_pObjectPoolManager)
