@@ -163,9 +163,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c384e4687b662024ebd592501d0deb03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CGameInstance
-  sceneSO: {fileID: 11400000, guid: 4850e63303c81824fa06c3546a99ae50, type: 2}
-  cardDocuments: {fileID: 0}
-  cardInitialSets: []
+  m_pSceneSO: {fileID: 11400000, guid: 4850e63303c81824fa06c3546a99ae50, type: 2}
+  m_pCardDocumentSO: {fileID: 11400000, guid: ada8f796206790c4eb1c84b91dc73ffc, type: 2}
+  m_vCardInitialSetSO: []
 --- !u!1 &1320848860
 GameObject:
   m_ObjectHideFlags: 0
