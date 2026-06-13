@@ -5,13 +5,10 @@ using UnityEngine.Serialization;
 public class GamePlayCanvas : MonoBehaviour
 {
     CGameInstance m_pGameInstance = null;
-    [FormerlySerializedAs("tmpDeckPile")]
     [SerializeField]
     TextMeshProUGUI m_pTmpDeckPile = null;
-    [FormerlySerializedAs("tmpDiscardPile")]
     [SerializeField]
     TextMeshProUGUI m_pTmpDiscardPile = null;
-    [FormerlySerializedAs("tmpDisappearPile")]
     [SerializeField]
     TextMeshProUGUI m_pTmpDisappearPile = null;
     [SerializeField]
@@ -33,28 +30,28 @@ public class GamePlayCanvas : MonoBehaviour
     {
         if (m_pTmpDeckPile != null)
         {
-            m_pTmpDeckPile.text = m_pGameInstance.GetPileCount(DEFINES.CardPile.DECK).ToString();
-            m_pTmpDiscardPile.text = m_pGameInstance.GetPileCount(DEFINES.CardPile.DISCARD).ToString();
-            m_pTmpDisappearPile.text = m_pGameInstance.GetPileCount(DEFINES.CardPile.DISAPPEARED).ToString();
+            m_pTmpDeckPile.text = m_pGameInstance.GetPileCount(DEFINES.ENUMS.CardPile.DECK).ToString();
+            m_pTmpDiscardPile.text = m_pGameInstance.GetPileCount(DEFINES.ENUMS.CardPile.DISCARD).ToString();
+            m_pTmpDisappearPile.text = m_pGameInstance.GetPileCount(DEFINES.ENUMS.CardPile.DISAPPEARED).ToString();
         }
     }
 
-    [EnumAction(typeof(DEFINES.CardPile))]
+    [EnumAction(typeof(DEFINES.ENUMS.CardPile))]
     public void RenderDrawTable(int pPile)
     {
-        DEFINES.CardPile pile = (DEFINES.CardPile)pPile;
+        DEFINES.ENUMS.CardPile pile = (DEFINES.ENUMS.CardPile)pPile;
         switch (pile)
         {
-            case DEFINES.CardPile.DECK:
+            case DEFINES.ENUMS.CardPile.DECK:
                 m_pCardDrawTable.SetActive(true);
                 break;
-            case DEFINES.CardPile.DISCARD:
+            case DEFINES.ENUMS.CardPile.DISCARD:
                 m_pCardDrawTable.SetActive(true);
                 break;
-            case DEFINES.CardPile.DISAPPEARED:
+            case DEFINES.ENUMS.CardPile.DISAPPEARED:
                 m_pCardDrawTable.SetActive(true);
                 break;
-            case DEFINES.CardPile.ALL:
+            case DEFINES.ENUMS.CardPile.ALL:
                 m_pCardDrawTable.SetActive(true);
                 break;
             default:

@@ -11,11 +11,8 @@ public class CGameInstance : MonoBehaviour
     static CGameInstance s_pInstance = null;
     public static CGameInstance Instance { get { Init(); return s_pInstance; } }
 
-    [FormerlySerializedAs("sceneSO")]
     [SerializeField] SceneSO m_pSceneSO = null;
-    [FormerlySerializedAs("cardDocumentSO")]
     [SerializeField] CardDocumentSO m_pCardDocumentSO = null;
-    [FormerlySerializedAs("cardInitialSetSO")]
     [SerializeField] List<CardInitialSetSO> m_vCardInitialSetSO = null;
     ContentUpdater m_pContentUpdater = null;
     DeckManager m_pDeckManager = null;
@@ -73,16 +70,16 @@ public class CGameInstance : MonoBehaviour
             return;
         }
         s_pInstance.m_pFsm.m_vStates = new Dictionary<int, CState>();
-        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.SystemState.INITIALIZE, new CState_Sys_Initialize(
-            new CState_Sys_Initialize.STATE_SYS_INITIALIZE_DESC((int)DEFINES.SystemState.INITIALIZE, s_pInstance, s_pInstance.m_pFsm, s_pInstance, s_pInstance.BootstrapAsync)));
-        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.SystemState.IDLE, new CState_Sys_Idle(
-            new CState_Sys_Idle.STATE_SYS_IDLE_DESC((int)DEFINES.SystemState.IDLE, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
-        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.SystemState.PLAYING, new CState_Sys_Playing(
-            new CState_Sys_Playing.STATE_SYS_PLAYING_DESC((int)DEFINES.SystemState.PLAYING, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
+        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.ENUMS.SystemState.INITIALIZE, new CState_Sys_Initialize(
+            new CState_Sys_Initialize.STATE_SYS_INITIALIZE_DESC((int)DEFINES.ENUMS.SystemState.INITIALIZE, s_pInstance, s_pInstance.m_pFsm, s_pInstance, s_pInstance.BootstrapAsync)));
+        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.ENUMS.SystemState.IDLE, new CState_Sys_Idle(
+            new CState_Sys_Idle.STATE_SYS_IDLE_DESC((int)DEFINES.ENUMS.SystemState.IDLE, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
+        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.ENUMS.SystemState.PLAYING, new CState_Sys_Playing(
+            new CState_Sys_Playing.STATE_SYS_PLAYING_DESC((int)DEFINES.ENUMS.SystemState.PLAYING, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
             
-        if (true == s_pInstance.m_pFsm.Is_Valid_FSM((int)DEFINES.SystemState.END))
+        if (true == s_pInstance.m_pFsm.Is_Valid_FSM((int)DEFINES.ENUMS.SystemState.END))
         {
-            s_pInstance.m_pFsm.Change_State((int)DEFINES.SystemState.INITIALIZE);
+            s_pInstance.m_pFsm.Change_State((int)DEFINES.ENUMS.SystemState.INITIALIZE);
         }
     }
     private static bool Initialize(ref CGameInstance pInstance)
@@ -144,17 +141,17 @@ public class CGameInstance : MonoBehaviour
     }
     public void StartDeck(int iInitialSetIndex)
     {
-        if (m_pFsm.IsCurrentState((int)DEFINES.SystemState.IDLE))
+        if (m_pFsm.IsCurrentState((int)DEFINES.ENUMS.SystemState.IDLE))
         {
             m_pDeckManager.Initialize(m_vCardInitialSetSO[iInitialSetIndex]);
             m_pDeckManager.StartGame();
         }
     }
-    public int GetPileCount(DEFINES.CardPile iPileType)
+    public int GetPileCount(DEFINES.ENUMS.CardPile iPileType)
     {
         return m_pDeckManager.GetPileCount(iPileType);
     }
-    public IReadOnlyList<Card> GetCards(DEFINES.CardPile iPileType)
+    public IReadOnlyList<Card> GetCards(DEFINES.ENUMS.CardPile iPileType)
     {
         return m_pDeckManager.GetCards(iPileType);
     }
@@ -192,8 +189,8 @@ public class CGameInstance : MonoBehaviour
 
     bool CanPlayHandCard()
     {
-        return m_pFsm.IsCurrentState((int)DEFINES.SystemState.IDLE)
-            || m_pFsm.IsCurrentState((int)DEFINES.SystemState.PLAYING);
+        return m_pFsm.IsCurrentState((int)DEFINES.ENUMS.SystemState.IDLE)
+            || m_pFsm.IsCurrentState((int)DEFINES.ENUMS.SystemState.PLAYING);
     }
 
     public async Task<Object> LoadAddressAssetAsync(string strAssetName)
@@ -267,7 +264,7 @@ public class CGameInstance : MonoBehaviour
         return m_pCardDocumentSO.GetCard(iCardID);
     }
 
-    public void ChangeScene(DEFINES.SceneID iSceneID)
+    public void ChangeScene(DEFINES.ENUMS.SceneID iSceneID)
     {
         m_pLevelManager.ChangeScene(iSceneID);
     }

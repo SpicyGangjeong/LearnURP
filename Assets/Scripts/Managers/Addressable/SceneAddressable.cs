@@ -8,9 +8,7 @@ using UnityEngine.Serialization;
 
 public class SceneAddressable
 {
-    [FormerlySerializedAs("sceneRef")]
     public AssetReference m_pSceneRef;
-    [FormerlySerializedAs("loadSceneMode")]
     [SerializeField] LoadSceneMode m_iLoadSceneMode = LoadSceneMode.Single;
     AsyncOperationHandle<SceneInstance> m_hSceneLoadHandle;
 

@@ -14,7 +14,7 @@ public class CardFrameRenderer : MonoBehaviour
     float3[] m_vCardSlotPositions = null;
     int m_iColumnCount = 1;
 
-    public void RenderCardFrames(DEFINES.CardPile iPileType)
+    public void RenderCardFrames(DEFINES.ENUMS.CardPile iPileType)
     {
         m_vCards = m_pGameInstance.GetCards(iPileType);
         if (null == m_vCards || 0 == m_vCards.Count)

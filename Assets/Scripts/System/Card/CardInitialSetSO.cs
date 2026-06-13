@@ -6,20 +6,15 @@ using UnityEngine.Serialization;
 [Serializable]
 public struct CardNameCount
 {
-    [FormerlySerializedAs("strCardName")]
     public string m_strCardName;
-    [FormerlySerializedAs("iCount")]
     public int m_iCount;
 }
 
 [CreateAssetMenu(fileName = "CardInitialSetSO", menuName = "Scriptable Objects/CardInitialSetSO")]
 public class CardInitialSetSO : ScriptableObject
 {
-    [FormerlySerializedAs("strCardInitialSetName")]
     [SerializeField] string m_strCardInitialSetName = string.Empty;
-    [FormerlySerializedAs("cardDocumentSO")]
     [SerializeField] CardDocumentSO m_pCardDocumentSO = null;
-    [FormerlySerializedAs("cardEntries")]
     [SerializeField] List<CardNameCount> m_vCardEntries = new List<CardNameCount>();
     Dictionary<CardInfo, int> m_vCardInitialSetLookup = null;
     

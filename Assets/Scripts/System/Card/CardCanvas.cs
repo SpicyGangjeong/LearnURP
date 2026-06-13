@@ -10,7 +10,6 @@ interface ICardPointerHandler :
     IPointerMoveHandler, IPointerUpHandler, IPointerDownHandler
 {
 }
-
 public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
 {
     [SerializeField] TextMeshProUGUI m_pSlotName = null;
@@ -25,8 +24,48 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
     Card m_pRefCard = null;
     public Card BoundCard => m_pRefCard;
     public bool bHighlighted { get; private set; } = false;
+
+    DEFINES.STRUCTURES.MoveInfo m_SrcMove = new DEFINES.STRUCTURES.MoveInfo();
+    DEFINES.STRUCTURES.MoveInfo m_DstMove = new DEFINES.STRUCTURES.MoveInfo();
+    bool bMoving = false;
+    Vector2 m_vLerpTimer = Vector2.up;
+
+    public void StartMove(DEFINES.STRUCTURES.MoveInfo pDstMove)
+    {
+        m_SrcMove.vRotQ = transform.rotation;
+        m_SrcMove.vPosition = transform.position;
+
+        m_DstMove = pDstMove;
+
+        bMoving = true;
+        m_vLerpTimer = Vector2.up;
+    }
+    private void LerpTransfrom(float fRatio = 0.5f)
+    {
+        Vector3 vNewPosition = Vector3.Slerp(m_SrcMove.vPosition, m_DstMove.vPosition, fRatio);
+        Quaternion vNewQuaternion = Quaternion.Slerp(m_SrcMove.vRotQ, m_DstMove.vRotQ, fRatio);
+
+        transform.SetPositionAndRotation(vNewPosition, vNewQuaternion);
+    }
+
     public void Update()
     {
+        if (true == bMoving)
+        {
+            if (m_vLerpTimer.x != m_vLerpTimer.y) // Lerping
+            {
+                m_vLerpTimer.x += Time.deltaTime;
+                float fRatio = m_vLerpTimer.x / m_vLerpTimer.y;
+                if (fRatio >= 1f)
+                {
+                    bMoving = false;
+                    fRatio = 1f;
+                    m_vLerpTimer.x = m_vLerpTimer.y;
+                }
+                LerpTransfrom(fRatio);
+            }
+
+        }
     }
     public void BindCard(Card pCard)
     {
