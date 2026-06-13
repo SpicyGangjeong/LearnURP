@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f040075336a34b4b91c4e1ee578c05b, type: 3}
   m_Name: SceneSO
   m_EditorClassIdentifier: Assembly-CSharp::SceneSO
-  sceneReferences:
-  - sceneID: 0
-    sceneReference:
+  m_vSceneReferences:
+  - m_iSceneID: 0
+    m_pSceneReference:
       m_AssetGUID: 99c9720ab356a0642a771bea13969a05
       m_SubObjectName: 
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-  - sceneID: 1
-    sceneReference:
+  - m_iSceneID: 1
+    m_pSceneReference:
       m_AssetGUID: 2f827d2a41cfc6b4eb38eeca006ac9a7
       m_SubObjectName: 
       m_SubObjectType: 

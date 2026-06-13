@@ -11,9 +11,18 @@ namespace DEFINES
             public Vector3 vPosition;
         }
     }
-    namespace HELPERS
+    public static class HELPERS
     {
-
+        public static Vector3 GetQuadraticBezierPoint(float fT, Vector3 p0, Vector3 p1, Vector3 p2)
+        {
+            float fOneMinusT = 1f - fT;
+            return fOneMinusT * fOneMinusT * p0 + 2f * fOneMinusT * fT * p1 + fT * fT * p2;
+        }
+        public static Vector3 GetQuadraticBezierTangent(float fT, Vector3 p0, Vector3 p1, Vector3 p2)
+        {
+            float fOneMinusT = 1f - fT;
+            return 2f * fOneMinusT * (p1 - p0) + 2f * fT * (p2 - p1);
+        }
     }
     namespace ENUMS
     {
