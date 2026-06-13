@@ -9,7 +9,18 @@ namespace DEFINES
         {
             public Quaternion vRotQ;
             public Vector3 vPosition;
+
+            public MoveInfo(Vector3 vPosition, Quaternion vRotQ) : this()
+            {
+                this.vPosition = vPosition;
+                this.vRotQ = vRotQ;
+            }
         }
+    }
+    public static class CONSTANTS
+    {
+        public static readonly float FLT_EPSILON7 = 1.2E-7F;
+        public static readonly float FLT_EPSILON5 = 1.2E-5F;
     }
     public static class HELPERS
     {

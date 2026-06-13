@@ -1,13 +1,15 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using static UnityEngine.EventSystems.PointerEventData;
 
 interface ICardPointerHandler :
     IPointerEnterHandler, IPointerExitHandler,
-    IPointerMoveHandler, IPointerUpHandler, IPointerDownHandler
+    IPointerMoveHandler, IPointerUpHandler, IPointerDownHandler,
+    IBeginDragHandler, IDragHandler, IEndDragHandler
 {
 }
 public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
@@ -45,6 +47,17 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
         Vector3 vNewPosition = Vector3.Slerp(m_SrcMove.vPosition, m_DstMove.vPosition, fRatio);
         Quaternion vNewQuaternion = Quaternion.Slerp(m_SrcMove.vRotQ, m_DstMove.vRotQ, fRatio);
 
+        transform.SetPositionAndRotation(vNewPosition, vNewQuaternion);
+    }
+    private void MoveTransform(DEFINES.STRUCTURES.MoveInfo pDstMove)
+    {
+        StartMove(pDstMove);
+        m_vLerpTimer.x = m_vLerpTimer.y;
+        float fRatio = 1.0f;
+        LerpTransfrom(fRatio);
+
+        Vector3 vNewPosition = Vector3.Slerp(m_SrcMove.vPosition, m_DstMove.vPosition, fRatio);
+        Quaternion vNewQuaternion = Quaternion.Slerp(m_SrcMove.vRotQ, m_DstMove.vRotQ, fRatio);
         transform.SetPositionAndRotation(vNewPosition, vNewQuaternion);
     }
 
@@ -125,10 +138,6 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
 
     public void OnPointerMove(PointerEventData eventData)
     {
-        if (eventData.dragging && 
-            eventData.button == InputButton.Left) {
-            
-        }
     }
 
     public void OnPointerUp(PointerEventData eventData)
@@ -137,13 +146,9 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (eventData.button == InputButton.Left)
+        if (eventData.button == PointerEventData.InputButton.Right)
         {
-            CGameInstance.Instance.TryPlayCard(m_pRefCard);
-        }
-        if (eventData.button == InputButton.Right)
-        {
-            CGameInstance.Instance.TryDiscardCard(m_pRefCard);
+            RequestDiscard();
         }
     }
 
@@ -184,5 +189,39 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
         m_pSlotTypeImage.sprite = null;
         m_pSlotQualityImage.sprite = null;
         m_pSlotHighlight.enabled = false;
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            MoveTransform(
+                new DEFINES.STRUCTURES.MoveInfo(eventData.position, Quaternion.identity)
+                );
+        }
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            MoveTransform(
+                new DEFINES.STRUCTURES.MoveInfo(eventData.position, Quaternion.identity)
+                );
+        }
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            RectTransform rectTransform = transform.parent.GetComponent<RectTransform>();
+            Vector3[] vCorners = new Vector3[4];
+            rectTransform.GetWorldCorners(vCorners);
+            if (eventData.position.y > vCorners[1].y)
+            {
+                RequestPlay();
+            }
+        }
     }
 }
