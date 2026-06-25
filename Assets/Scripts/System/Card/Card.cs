@@ -9,7 +9,6 @@ public class Card
 {
     CardInfo m_pCardInfo = null;
     public CardInfo CardInfo => m_pCardInfo;
-
     public Card(CardInfo pInfo)
     {
         m_pCardInfo = new CardInfo(pInfo);
@@ -93,27 +92,27 @@ public class Card
         {
             switch (pCardEffect.m_iCardEffectTriggerType)
             {
-                case DEFINES.CardEffectTriggerType.NONE:
+                case DEFINES.ENUMS.CardEffectTriggerType.NONE:
                     break;
-                case DEFINES.CardEffectTriggerType.DRAW:
+                case DEFINES.ENUMS.CardEffectTriggerType.DRAW:
                     m_pOnDrawCard += TriggerEvent;
                     break;
-                case DEFINES.CardEffectTriggerType.PLAY:
+                case DEFINES.ENUMS.CardEffectTriggerType.PLAY:
                     m_pOnPlayCard += TriggerEvent;
                     break;
-                case DEFINES.CardEffectTriggerType.DISCARD:
+                case DEFINES.ENUMS.CardEffectTriggerType.DISCARD:
                     m_pOnDiscardCard += TriggerEvent;
                     break;
-                case DEFINES.CardEffectTriggerType.RETURN:
+                case DEFINES.ENUMS.CardEffectTriggerType.RETURN:
                     m_pOnReturnCard += TriggerEvent;
                     break;
-                case DEFINES.CardEffectTriggerType.DISAPPEAR:
+                case DEFINES.ENUMS.CardEffectTriggerType.DISAPPEAR:
                     m_pOnDisappearCard += TriggerEvent;
                     break;
-                case DEFINES.CardEffectTriggerType.SHUFFLE:
+                case DEFINES.ENUMS.CardEffectTriggerType.SHUFFLE:
                     m_pOnShuffleCard += TriggerEvent;
                     break;
-                case DEFINES.CardEffectTriggerType.END:
+                case DEFINES.ENUMS.CardEffectTriggerType.END:
                     break;
             }
         }
@@ -123,34 +122,23 @@ public class Card
 [Serializable]
 public class CardEffect
 {
-    [FormerlySerializedAs("eCardEffectTriggerType")]
-    public DEFINES.CardEffectTriggerType m_iCardEffectTriggerType;
-    [FormerlySerializedAs("eCardEffectTargetType")]
-    public DEFINES.CardEffectTargetType m_iCardEffectTargetType;
-    [FormerlySerializedAs("eCardEffectValueType")]
-    public DEFINES.CardEffectValueType m_iCardEffectValueType;
-    [FormerlySerializedAs("iCardEffectValue")]
+    public DEFINES.ENUMS.CardEffectTriggerType m_iCardEffectTriggerType;
+    public DEFINES.ENUMS.CardEffectTargetType m_iCardEffectTargetType;
+    public DEFINES.ENUMS.CardEffectValueType m_iCardEffectValueType;
     public int m_iCardEffectValue;
-    [FormerlySerializedAs("bCardEffectOptional")]
     public bool m_bCardEffectOptional;
-    [FormerlySerializedAs("iCardEffectOptionalValue")]
     public int m_iCardEffectOptionalValue;
 }
 
 [Serializable]
 public class CardInfo
 {
-    [FormerlySerializedAs("iCardID")]
     public int m_iCardID;
-    [FormerlySerializedAs("eCardType")]
-    public DEFINES.CardType m_iCardType;
-    [FormerlySerializedAs("iCardCost")]
+    public DEFINES.ENUMS.CardType m_iCardType;
     public int m_iCardCost;
-    [FormerlySerializedAs("strCardName")]
     public string m_strCardName;
-    [FormerlySerializedAs("listCardEffects")]
+    public DEFINES.ENUMS.CardPile m_eCurrentPile = DEFINES.ENUMS.CardPile.END;
     [SerializeField] public List<CardEffect> m_vCardEffects = new List<CardEffect>();
-    [FormerlySerializedAs("strCardDescription")]
     public string m_strCardDescription;
 
     public CardInfo() { }
@@ -173,68 +161,68 @@ public class CardInfo
             pSb.Append("When ");
             switch (pCardEffect.m_iCardEffectTriggerType)
             {
-                case DEFINES.CardEffectTriggerType.NONE:
+                case DEFINES.ENUMS.CardEffectTriggerType.NONE:
                     break;
-                case DEFINES.CardEffectTriggerType.DRAW:
+                case DEFINES.ENUMS.CardEffectTriggerType.DRAW:
                     pSb.Append("Draw");
                     break;
-                case DEFINES.CardEffectTriggerType.PLAY:
+                case DEFINES.ENUMS.CardEffectTriggerType.PLAY:
                     pSb.Append("Play");
                     break;
-                case DEFINES.CardEffectTriggerType.DISCARD:
+                case DEFINES.ENUMS.CardEffectTriggerType.DISCARD:
                     pSb.Append("Discard");
                     break;
-                case DEFINES.CardEffectTriggerType.RETURN:
+                case DEFINES.ENUMS.CardEffectTriggerType.RETURN:
                     pSb.Append("Return");
                     break;
-                case DEFINES.CardEffectTriggerType.DISAPPEAR:
+                case DEFINES.ENUMS.CardEffectTriggerType.DISAPPEAR:
                     pSb.Append("Disappear");
                     break;
-                case DEFINES.CardEffectTriggerType.SHUFFLE:
+                case DEFINES.ENUMS.CardEffectTriggerType.SHUFFLE:
                     pSb.Append("Shuffle");
                     break;
-                case DEFINES.CardEffectTriggerType.END:
+                case DEFINES.ENUMS.CardEffectTriggerType.END:
                     pSb.Append("End");
                     break;
             }
             pSb.Append(", ");
             switch (pCardEffect.m_iCardEffectTargetType)
             {
-                case DEFINES.CardEffectTargetType.NONE:
+                case DEFINES.ENUMS.CardEffectTargetType.NONE:
                     break;
-                case DEFINES.CardEffectTargetType.SELF:
+                case DEFINES.ENUMS.CardEffectTargetType.SELF:
                     pSb.Append("Self ");
                     break;
-                case DEFINES.CardEffectTargetType.SELECTED:
+                case DEFINES.ENUMS.CardEffectTargetType.SELECTED:
                     pSb.Append("Selected Unit ");
                     break;
-                case DEFINES.CardEffectTargetType.ALL:
+                case DEFINES.ENUMS.CardEffectTargetType.ALL:
                     pSb.Append("All ");
                     break;
-                case DEFINES.CardEffectTargetType.END:
+                case DEFINES.ENUMS.CardEffectTargetType.END:
                     pSb.Append("End ");
                     break;
             }
             switch (pCardEffect.m_iCardEffectValueType)
             {
-                case DEFINES.CardEffectValueType.NONE:
+                case DEFINES.ENUMS.CardEffectValueType.NONE:
                     break;
-                case DEFINES.CardEffectValueType.DAMAGE:
+                case DEFINES.ENUMS.CardEffectValueType.DAMAGE:
                     pSb.Append("Damage ");
                     break;
-                case DEFINES.CardEffectValueType.HEAL:
+                case DEFINES.ENUMS.CardEffectValueType.HEAL:
                     pSb.Append("Heal ");
                     break;
-                case DEFINES.CardEffectValueType.SHIELD:
+                case DEFINES.ENUMS.CardEffectValueType.SHIELD:
                     pSb.Append("Shield ");
                     break;
-                case DEFINES.CardEffectValueType.BUFF:
+                case DEFINES.ENUMS.CardEffectValueType.BUFF:
                     pSb.Append("Buff ");
                     break;
-                case DEFINES.CardEffectValueType.DEBUFF:
+                case DEFINES.ENUMS.CardEffectValueType.DEBUFF:
                     pSb.Append("Debuff ");
                     break;
-                case DEFINES.CardEffectValueType.END:
+                case DEFINES.ENUMS.CardEffectValueType.END:
                     pSb.Append("End ");
                     break;
             }

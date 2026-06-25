@@ -41,7 +41,7 @@ public class DrawTable : MonoBehaviour
         
     }
 
-    public void ShowCards(DEFINES.CardPile cardPile)
+    public void ShowCards(DEFINES.ENUMS.CardPile cardPile)
     {
         m_pCardFrameRenderer.RenderCardFrames(cardPile);
     }

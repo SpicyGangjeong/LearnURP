@@ -1,189 +1,169 @@
+using DEFINES;
+using DEFINES.STRUCTURES;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Serialization;
+using UnityEngine.InputSystem;
+using static UnityEngine.Rendering.DebugUI;
 
 public class HandBoard : MonoBehaviour
 {
-    private const int s_iMaxHandSlots = 10;
-    [FormerlySerializedAs("_maxSlots")]
-    [SerializeField] private int m_iMaxSlots = s_iMaxHandSlots;
-    [FormerlySerializedAs("_curveHeight")]
-    [SerializeField] private float m_fCurveHeight = 120f;
-    CGameInstance m_pGameInstance = null;
+    static private readonly int s_iMaxHandSlots = 10;
+    static private readonly float s_fCurveHeight = 120f;
+
+    readonly Dictionary<Card, CardCanvas> m_vCardCanvases = new Dictionary<Card, CardCanvas>();
     IReadOnlyList<Card> m_vHandCards = null;
-    CardCanvas[] m_vCardCanvasSlots = new CardCanvas[s_iMaxHandSlots];
+    CGameInstance m_pGameInstance = null;
 
-    Vector3 m_pStartPos;
-    Vector3 m_pEndPos;
-    Vector3 m_pControlPos;
-    Vector3[] m_vHandPos;
-
-    int m_iCurrentHand = 10;
-
-    private void CalcHandPos(Vector3 pCenterPos)
-    {
-        m_vHandPos = new Vector3[Mathf.Max(1, m_iMaxSlots)];
-        if (m_iCurrentHand == 1)
-        {
-            m_vHandPos[0] = pCenterPos;
-            return;
-        }
-
-        float fSlotStep = 1f / Mathf.Max(1, m_iMaxSlots - 1);
-        float fSpan = fSlotStep * (m_iCurrentHand - 1);
-        float fStartT = 0.5f - fSpan * 0.5f;
-
-        for (int i = 0; i < m_iCurrentHand; i++)
-        {
-            float fT = Mathf.Clamp01(fStartT + i * fSlotStep);
-            m_vHandPos[i] = GetQuadraticBezierPoint(fT, m_pStartPos, m_pControlPos, m_pEndPos);
-        }
-    }
-    public Vector3 GetSlotPosition(int iIndex)
-    {
-        if (m_vHandPos == null || m_vHandPos.Length == 0)
-            return transform.position;
-
-        iIndex = Mathf.Clamp(iIndex, 0, m_vHandPos.Length - 1);
-        return m_vHandPos[iIndex];
-    }
-    private Vector3 GetQuadraticBezierPoint(float fT, Vector3 p0, Vector3 p1, Vector3 p2)
-    {
-        float fOneMinusT = 1f - fT;
-        return fOneMinusT * fOneMinusT * p0 + 2f * fOneMinusT * fT * p1 + fT * fT * p2;
-    }
-
-    void Awake()
-    {
-        RectTransform pRectTransform = GetComponent<RectTransform>();
-        Vector3[] vCorners = new Vector3[4];
-        pRectTransform.GetWorldCorners(vCorners);
-
-        m_pStartPos = Vector3.Lerp(vCorners[0], vCorners[1], 0.5f); // 좌측 중앙
-        m_pEndPos = Vector3.Lerp(vCorners[3], vCorners[2], 0.5f);   // 우측 중앙
-        Vector3 pCenterPos = Vector3.Lerp(m_pStartPos, m_pEndPos, 0.5f);
-        m_pControlPos = pCenterPos + Vector3.up * m_fCurveHeight;
-
-        CalcHandPos(pCenterPos);
-    }
+    MoveInfo[] m_vHandMoveInfo = new MoveInfo[s_iMaxHandSlots];
 
     void Start()
     {
         m_pGameInstance = CGameInstance.Instance;
+        m_pGameInstance.OnPlayCard += OnPlayCard;
+        m_pGameInstance.OnDiscardCard += OnDiscardCard;
+        m_pGameInstance.OnEndTurn += OnEndTurn;
+        m_pGameInstance.m_pOnHandboardInsertCard += InsertCard;
+        m_pGameInstance.m_pOnHandboardPopCard += PopCard;
+
+        m_vHandCards = m_pGameInstance.GetCards(DEFINES.ENUMS.CardPile.HAND);
+
+        SyncExistingHand();
+        UpdateHandLayout();
+    }
+
+    void OnDestroy()
+    {
+        if (null != m_pGameInstance)
+        {
+            m_pGameInstance.OnPlayCard -= OnPlayCard;
+            m_pGameInstance.OnDiscardCard -= OnDiscardCard;
+            m_pGameInstance.OnEndTurn -= OnEndTurn;
+            m_pGameInstance.m_pOnHandboardInsertCard -= InsertCard;
+            m_pGameInstance.m_pOnHandboardPopCard -= PopCard;
+        }
+
+        ReleaseAllHandCanvases();
+    }
+    public void PopCard(Card pCard)
+    {
+        RemoveHandCard(pCard);
+        UpdateHandLayout();
+    }
+    public void InsertCard(Card pCard, CardCanvas pCardCanvas)
+    {
+        BindCard(pCard, pCardCanvas);
+        UpdateHandLayout();
+    }
+
+    void OnPlayCard(Card pCard)
+    {
+        RemoveHandCard(pCard);
+        UpdateHandLayout();
+    }
+
+    void OnDiscardCard(Card pCard)
+    {
+        CardCanvas pCardCanvas = RemoveHandCard(pCard);
+        UpdateHandLayout();
+    }
+
+    void OnEndTurn()
+    {
+        Dictionary<Card, CardCanvas> CapturedCanvases =  new Dictionary<Card, CardCanvas>(m_vCardCanvases);
+        m_vCardCanvases.Clear();
+        foreach (KeyValuePair<Card, CardCanvas> pairCard in CapturedCanvases)
+        {
+            m_pGameInstance.RequestDiscardCard(pairCard.Key, pairCard.Value);
+        }
+    }
+
+    void SyncExistingHand()
+    {
         if (null == m_vHandCards)
         {
-            m_vHandCards = m_pGameInstance.GetCards(DEFINES.CardPile.HAND);
-        }
-        m_pGameInstance.OnDrawCard += OnHandChanged;
-        m_pGameInstance.OnPlayCard += OnHandChanged;
-        m_pGameInstance.OnDiscardCard += OnHandChanged;
-        m_pGameInstance.OnEndTurn += OnEndTurn;
-        RebuildHand();
-    }
-
-    private void OnDestroy()
-    {
-        if (m_pGameInstance != null)
-        {
-            m_pGameInstance.OnDrawCard -= OnHandChanged;
-            m_pGameInstance.OnPlayCard -= OnHandChanged;
-            m_pGameInstance.OnDiscardCard -= OnHandChanged;
-            m_pGameInstance.OnEndTurn -= OnEndTurn;
-        }
-    }
-
-    private void Update()
-    {
-    }
-    private void OnHandChanged(Card pCard)
-    {
-        RebuildHand();
-    }
-
-    private void OnEndTurn()
-    {
-        RebuildHand();
-    }
-
-    private void RebuildHand()
-    {
-        if (m_vHandCards == null)
-        {
             return;
         }
 
-        int iCardCount = Mathf.Min(m_vHandCards.Count, m_iMaxSlots);
-        m_iCurrentHand = Mathf.Max(1, iCardCount);
-
-        RectTransform pBoardRect = transform as RectTransform;
-        if (pBoardRect == null)
+        foreach (Card pCard in m_vHandCards)
         {
-            Debug.LogError("HandBoard requires RectTransform.");
-            return;
-        }
-
-        Vector3[] vCorners = new Vector3[4];
-        pBoardRect.GetWorldCorners(vCorners);
-        m_pStartPos = Vector3.Lerp(vCorners[0], vCorners[1], 0.5f);
-        m_pEndPos = Vector3.Lerp(vCorners[3], vCorners[2], 0.5f);
-        Vector3 pCenterPos = Vector3.Lerp(m_pStartPos, m_pEndPos, 0.5f);
-        m_pControlPos = pCenterPos + Vector3.up * m_fCurveHeight;
-        CalcHandPos(pCenterPos);
-
-        if (!EnsureCardPool())
-        {
-            return;
-        }
-
-        for (int i = 0; i < iCardCount; i++)
-        {
-            CardCanvas pCardCanvas = m_vCardCanvasSlots[i];
-            if (pCardCanvas == null)
+            if (null == pCard || m_vCardCanvases.ContainsKey(pCard))
             {
                 continue;
             }
 
-            pCardCanvas.gameObject.SetActive(true);
-            pCardCanvas.BindCard(m_vHandCards[i]);
-            pCardCanvas.transform.position = GetSlotPosition(i);
-            pCardCanvas.transform.localScale = Vector3.one;
-        }
-
-        for (int i = iCardCount; i < m_vCardCanvasSlots.Length; i++)
-        {
-            if (m_vCardCanvasSlots[i] != null)
-            {
-                m_vCardCanvasSlots[i].gameObject.SetActive(false);
-            }
+            BindCard(pCard, GetPoolCanvas(pCard));
         }
     }
 
-    private bool EnsureCardPool()
+    CardCanvas GetPoolCanvas(Card pCard)
+    {
+        return m_pGameInstance.GetPooled<CardCanvas>(PoolKeys.s_strCardCanvas, transform);
+    }
+
+    private void BindCard(Card pCard, CardCanvas pCardCanvas)
+    {
+        pCardCanvas.BindCard(pCard);
+        m_vCardCanvases[pCard] = pCardCanvas;
+    }
+
+    CardCanvas RemoveHandCard(Card pCard)
+    {
+        m_vCardCanvases.TryGetValue(pCard, out CardCanvas pCardCanvas);
+        m_vCardCanvases.Remove(pCard);
+        return pCardCanvas;
+    }
+
+    void ReleaseAllHandCanvases()
     {
         if (false == m_pGameInstance.ObjectPools.IsRegistered(PoolKeys.s_strCardCanvas))
         {
-            Debug.LogError("CardCanvas pool is not registered. Run Bootstrap first.");
-            return false;
+            m_vCardCanvases.Clear();
+            return;
         }
 
-        for (int i = 0; i < m_iMaxSlots; i++)
+        foreach (CardCanvas pCardCanvas in m_vCardCanvases.Values)
         {
-            if (m_vCardCanvasSlots[i] != null)
-            {
-                continue;
-            }
-
-            CardCanvas pCardCanvas = m_pGameInstance.GetPooled<CardCanvas>(PoolKeys.s_strCardCanvas, transform);
-            if (pCardCanvas == null)
-            {
-                Debug.LogError("Failed to get CardCanvas from pool.");
-                return false;
-            }
-
-            pCardCanvas.gameObject.SetActive(false);
-            m_vCardCanvasSlots[i] = pCardCanvas;
+            m_pGameInstance.ReleasePooled<CardCanvas>(PoolKeys.s_strCardCanvas, pCardCanvas);
         }
 
-        return true;
+        m_vCardCanvases.Clear();
+    }
+
+    void UpdateHandLayout()
+    {
+        int iActiveCardCount = m_vCardCanvases.Count;
+        if (0 == iActiveCardCount)
+        {
+            return;
+        }
+
+        RectTransform pBoardRect = transform as RectTransform;
+        Vector3[] vCorners = new Vector3[4];
+        pBoardRect.GetWorldCorners(vCorners);
+        Vector3 pStartPos = Vector3.Lerp(vCorners[0], vCorners[1], 0.25f);
+        Vector3 pEndPos = Vector3.Lerp(vCorners[3], vCorners[2], 0.25f);
+        Vector3 pCentralPos = Vector3.Lerp(pStartPos, pEndPos, 0.5f) + Vector3.up * s_fCurveHeight;
+
+        float fSlotStep = 1f / Mathf.Max(1, s_iMaxHandSlots - 1);
+        float fSpan = fSlotStep * (iActiveCardCount - 1);
+        float fStartT = 0.5f - fSpan * 0.5f;
+
+        for (int i = 0; i < iActiveCardCount; i++)
+        {
+            float fT = (1 == iActiveCardCount) ? 0.5f : Mathf.Clamp01(fStartT + i * fSlotStep);
+            Vector3 vPos = DEFINES.HELPERS.GetQuadraticBezierPoint(fT, pStartPos, pCentralPos, pEndPos);
+            Vector3 vTangent = DEFINES.HELPERS.GetQuadraticBezierTangent(fT, pStartPos, pCentralPos, pEndPos);
+            float fRotZ = (vTangent.sqrMagnitude > DEFINES.CONSTANTS.FLT_EPSILON5) ? Mathf.Atan2(vTangent.y, vTangent.x) * Mathf.Rad2Deg : 0f;
+            m_vHandMoveInfo[i].vPosition = vPos;
+            m_vHandMoveInfo[i].vRotQ = Quaternion.Euler(0f, 0f, fRotZ);
+        }
+        {
+            int i = 0;
+            foreach (CardCanvas pCardCanvas in m_vCardCanvases.Values)
+            {
+                pCardCanvas.StartLinearMove(0.5f, m_vHandMoveInfo[i++], DEFINES.HELPERS.EmptyEvent);
+            }
+        }
     }
 }

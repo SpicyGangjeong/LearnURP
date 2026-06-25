@@ -6,7 +6,6 @@ using UnityEngine.Serialization;
 // AssetReference를 사용하여 프리팹을 인스턴스화하는 예제입니다.
 public class InstantiateAddressable : MonoBehaviour
 {
-    [FormerlySerializedAs("enemyPrefabRef")]
     public AssetReferenceGameObject m_pEnemyPrefabRef;
     AsyncOperationHandle<GameObject> m_hInstantiateHandle;
     GameObject m_pSpawnedEnemy;
