@@ -3,6 +3,8 @@ using UnityEngine;
 using DEFINES;
 using DEFINES.ENUMS;
 using DEFINES.STRUCTURES;
+using Cysharp.Threading.Tasks;
+using System;
 
 public class GamePlayCanvas : MonoBehaviour
 {
@@ -93,38 +95,40 @@ public class GamePlayCanvas : MonoBehaviour
     }
     public void RequestDraw(Card pCard, CardCanvas pCardCanvas)
     {
-        if (null == pCardCanvas)
-        {
-            PoolCard(pCard, out pCardCanvas);
-        }
-        CGameInstance.Instance.MoveToFieldCard(pCard);
-        IJob job = new JobDrawCard(pCard, pCardCanvas);
-        pCardCanvas.StartBezierMove(0.5f,
-                                    m_MoveInfos[(int)GamePlayCanvasPvtPos.LEFT],
-                                    m_MoveInfos[(int)GamePlayCanvasPvtPos.HANDBOARD],
-                                    () => {
-                                        CGameInstance.Instance.EnqueueJob(job);
-                                    });
+        IJob jobDraw = new JobDrawAction( async () => 
+        { 
+            await UniTask.Delay(DEFINES.CONSTANTS.TIME_MS_DRAWING_INTERVAL);
+            if (null == pCardCanvas) { PoolCard(pCard, out pCardCanvas); }
+            CGameInstance.Instance.MoveToFieldCard(pCard);
+            await pCardCanvas.StartBezierMoveAsync((float)DEFINES.CONSTANTS.TIME_MS_DRAWING_DURATION / DEFINES.CONSTANTS.TIME_MS_ASEC,
+                            m_MoveInfos[(int)GamePlayCanvasPvtPos.LEFT],
+                            m_MoveInfos[(int)GamePlayCanvasPvtPos.HANDBOARD]);
+            CGameInstance.Instance.TryHandboardInsertCard(pCard, pCardCanvas);
+        });
+        CGameInstance.Instance.EnqueueJob(jobDraw);
     }
     public void RequestPlay(Card pCard, CardCanvas pCardCanvas)
     {
         CGameInstance.Instance.MoveToFieldCard(pCard);
-        IJob job = new JobPlayCard(pCard, pCardCanvas);
-        pCardCanvas.StartBezierMove(0.5f,
+        pCardCanvas.StartBezierMove((float)DEFINES.CONSTANTS.TIME_MS_DISCARD_DURATION / DEFINES.CONSTANTS.TIME_MS_ASEC,
                                     m_MoveInfos[(int)GamePlayCanvasPvtPos.RIGHT], 
                                     m_MoveInfos[(int)GamePlayCanvasPvtPos.DISCARD],
-                                    () => { CGameInstance.Instance.EnqueueJob(job); 
+                                    () => {
+                                        CGameInstance.Instance.TryPlayCard(pCard, pCardCanvas); 
                                 });
     }
     public void RequestDiscard(Card pCard, CardCanvas pCardCanvas)
     {
-        CGameInstance.Instance.MoveToFieldCard(pCard);
-        IJob job = new JobDiscardCard(pCard, pCardCanvas);
-        pCardCanvas.StartBezierMove(0.5f,
-                                    m_MoveInfos[(int)GamePlayCanvasPvtPos.RIGHT],
-                                    m_MoveInfos[(int)GamePlayCanvasPvtPos.DISCARD],
-                                    () => {
-                                        CGameInstance.Instance.EnqueueJob(job);
-                                    });
+        IJob jobDiscard = new JobDiscardAction( async () => 
+        { 
+            await UniTask.Delay(DEFINES.CONSTANTS.TIME_MS_DISCARD_DURATION);
+            CGameInstance.Instance.MoveToFieldCard(pCard);
+            CGameInstance.Instance.TryHandboardPopCard(pCard);
+            await pCardCanvas.StartBezierMoveAsync((float)DEFINES.CONSTANTS.TIME_MS_DISCARD_DURATION / DEFINES.CONSTANTS.TIME_MS_ASEC,
+                            m_MoveInfos[(int)GamePlayCanvasPvtPos.RIGHT],
+                            m_MoveInfos[(int)GamePlayCanvasPvtPos.DISCARD]);
+            CGameInstance.Instance.TryDiscardCard(pCard, pCardCanvas);
+        });
+        CGameInstance.Instance.EnqueueJob(jobDiscard);
     }
 }

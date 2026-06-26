@@ -123,7 +123,11 @@ namespace DEFINES
         public static readonly float FLT_EPSILON7 = 1.2E-7F;
         public static readonly float FLT_EPSILON5 = 1.2E-5F;
 
-        public static readonly float TIME_DISCARD = 0.5f;
+        public static readonly int TIME_MS_ASEC = 1000;
+        public static readonly int TIME_MS_SORTING_TIMEOUT = 120;
+        public static readonly int TIME_MS_DRAWING_DURATION = 300;
+        public static readonly int TIME_MS_DISCARD_DURATION = 250;
+        public static readonly int TIME_MS_DRAWING_INTERVAL = 200;
     }
     public static class HELPERS
     {
@@ -150,6 +154,149 @@ namespace DEFINES
         public static void EmptyEvent() { }
         public static void EmptyEvent(Card pCard) { }
         public static void EmptyEvent(Card pCard, CardCanvas pCardCanvas) { }
+        public static class BIT
+        {
+            // --- byte ---
+            public static bool Has(byte iValue, byte iFlag)
+            {
+                return 0 != (iValue & iFlag);
+            }
+
+            public static bool HasAll(byte iValue, byte iMask)
+            {
+                return iMask == (iValue & iMask);
+            }
+
+            public static byte Set(byte iValue, byte iFlag)
+            {
+                return (byte)(iValue | iFlag);
+            }
+
+            public static byte Clear(byte iValue, byte iFlag)
+            {
+                return (byte)(iValue & ~iFlag);
+            }
+
+            public static byte Toggle(byte iValue, byte iFlag)
+            {
+                return (byte)(iValue ^ iFlag);
+            }
+
+            public static bool IsNone(byte iValue)
+            {
+                return 0 == iValue;
+            }
+
+            // --- int (동일 패턴) ---
+            public static bool Has(int iValue, int iFlag)
+            {
+                return 0 != (iValue & iFlag);
+            }
+
+            public static bool HasAll(int iValue, int iMask)
+            {
+                return iMask == (iValue & iMask);
+            }
+
+            public static int Set(int iValue, int iFlag)
+            {
+                return iValue | iFlag;
+            }
+
+            public static int Clear(int iValue, int iFlag)
+            {
+                return iValue & ~iFlag;
+            }
+
+            public static int Toggle(int iValue, int iFlag)
+            {
+                return iValue ^ iFlag;
+            }
+
+            public static bool IsNone(int iValue)
+            {
+                return 0 == iValue;
+            }
+
+            // --- enum [Flags] ---
+            public static bool Has<TEnum>(TEnum iValue, TEnum iFlag) where TEnum : struct, Enum
+            {
+                return 0 != (ToUInt64(iValue) & ToUInt64(iFlag));
+            }
+
+            public static bool HasAny<TEnum>(TEnum iValue, TEnum iMask) where TEnum : struct, Enum
+            {
+                return 0 != (ToUInt64(iValue) & ToUInt64(iMask));
+            }
+
+            public static bool HasAll<TEnum>(TEnum iValue, TEnum iMask) where TEnum : struct, Enum
+            {
+                ulong uValue = ToUInt64(iValue);
+                ulong uMask = ToUInt64(iMask);
+                return uMask == (uValue & uMask);
+            }
+
+            public static TEnum Set<TEnum>(TEnum iValue, TEnum iFlag) where TEnum : struct, Enum
+            {
+                return FromUInt64<TEnum>(ToUInt64(iValue) | ToUInt64(iFlag));
+            }
+
+            public static TEnum Clear<TEnum>(TEnum iValue, TEnum iFlag) where TEnum : struct, Enum
+            {
+                return FromUInt64<TEnum>(ToUInt64(iValue) & ~ToUInt64(iFlag));
+            }
+
+            public static TEnum Toggle<TEnum>(TEnum iValue, TEnum iFlag) where TEnum : struct, Enum
+            {
+                return FromUInt64<TEnum>(ToUInt64(iValue) ^ ToUInt64(iFlag));
+            }
+
+            public static bool IsNone<TEnum>(TEnum iValue) where TEnum : struct, Enum
+            {
+                return 0 == ToUInt64(iValue);
+            }
+
+            static ulong ToUInt64<TEnum>(TEnum iValue) where TEnum : struct, Enum
+            {
+                return Convert.ToUInt64(iValue);
+            }
+
+            static TEnum FromUInt64<TEnum>(ulong uValue) where TEnum : struct, Enum
+            {
+                Type pUnderlyingType = Enum.GetUnderlyingType(typeof(TEnum));
+
+                if (pUnderlyingType == typeof(byte))
+                {
+                    return (TEnum)(object)(byte)uValue;
+                }
+                if (pUnderlyingType == typeof(sbyte))
+                {
+                    return (TEnum)(object)(sbyte)uValue;
+                }
+                if (pUnderlyingType == typeof(short))
+                {
+                    return (TEnum)(object)(short)uValue;
+                }
+                if (pUnderlyingType == typeof(ushort))
+                {
+                    return (TEnum)(object)(ushort)uValue;
+                }
+                if (pUnderlyingType == typeof(int))
+                {
+                    return (TEnum)(object)(int)uValue;
+                }
+                if (pUnderlyingType == typeof(uint))
+                {
+                    return (TEnum)(object)(uint)uValue;
+                }
+                if (pUnderlyingType == typeof(long))
+                {
+                    return (TEnum)(object)(long)uValue;
+                }
+
+                return (TEnum)(object)uValue;
+            }
+        }
     }
     namespace ENUMS
     {
@@ -227,6 +374,13 @@ namespace DEFINES
             BUFF = 3,
             DEBUFF = 4,
             END = 5,
+        }
+        [Flags]
+        public enum JobStates : byte
+        {
+            NONE            = 0,
+            JOB_DELAY       = 1 << 0, // 1
+            JOB_END_TURN    = 1 << 1, // 2
         }
     }
 }

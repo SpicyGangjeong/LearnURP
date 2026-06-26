@@ -8,51 +8,71 @@ using UnityEngine.UIElements;
 
 public interface IJob
 {
+    public static string Name { get; }
     UniTask Run();
 }
-public class JobDrawCard : IJob
+public class JobDelayAction : IJob
 {
-    Card m_pCard = null;
-    CardCanvas m_pCanvas = null;
-    public JobDrawCard(Card pCard, CardCanvas pCardCanvas)
+    private const string s_strName = "JobDelayAction";
+    public static string Name { get { return s_strName; } }
+
+    Action m_Action;
+    int m_iDelayMili;
+    public JobDelayAction(Action action, int iDelayMili)
     {
-        m_pCard = pCard;
-        m_pCanvas = pCardCanvas;
+        m_Action = action;
+        m_iDelayMili = iDelayMili;
     }
-    public UniTask Run()
+
+    public async UniTask Run()
     {
-        CGameInstance.Instance.TryHandboardInsertCard(m_pCard, m_pCanvas);
-        return UniTask.CompletedTask;
-    }
-}
-public class JobPlayCard : IJob
-{
-    Card m_pCard = null;
-    CardCanvas m_pCanvas = null;
-    public JobPlayCard(Card pCard, CardCanvas pCardCanvas)
-    {
-        m_pCard = pCard;
-        m_pCanvas = pCardCanvas;
-    }
-    public UniTask Run()
-    {
-        CGameInstance.Instance.TryPlayCard(m_pCard, m_pCanvas);
-        return UniTask.CompletedTask;
+        await UniTask.Delay(m_iDelayMili);
+        m_Action();
     }
 }
 
-public class JobDiscardCard : IJob
+public class JobEndTurnAction : IJob
 {
-    Card m_pCard = null;
-    CardCanvas m_pCanvas = null;
-    public JobDiscardCard(Card pCard, CardCanvas pCardCanvas)
+    private const string s_strName = "JobEndTurnAction";
+    public static string Name { get { return s_strName; } }
+    Func<UniTask> m_Action;
+    public JobEndTurnAction(Func<UniTask> action)
     {
-        m_pCard = pCard;
-        m_pCanvas = pCardCanvas;
+        m_Action = action;
+        
     }
-    public UniTask Run()
+    public async UniTask Run()
     {
-        CGameInstance.Instance.TryDiscardCard(m_pCard, m_pCanvas);
-        return UniTask.CompletedTask;
+        await m_Action();
+    }
+}
+public class JobDiscardAction : IJob
+{
+    private const string s_strName = "JobDiscardAction";
+    public static string Name { get { return s_strName; } }
+    Func<UniTask> m_Action;
+    public JobDiscardAction(Func<UniTask> action)
+    {
+        m_Action = action;
+
+    }
+    public async UniTask Run()
+    {
+        await m_Action();
+    }
+}
+public class JobDrawAction : IJob
+{
+    private const string s_strName = "JobDrawAction";
+    public static string Name { get { return s_strName; } }
+    Func<UniTask> m_Action;
+    public JobDrawAction(Func<UniTask> action)
+    {
+        m_Action = action;
+
+    }
+    public async UniTask Run()
+    {
+        await m_Action();
     }
 }

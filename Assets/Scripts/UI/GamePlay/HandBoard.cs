@@ -21,7 +21,6 @@ public class HandBoard : MonoBehaviour
     {
         m_pGameInstance = CGameInstance.Instance;
         m_pGameInstance.OnPlayCard += OnPlayCard;
-        m_pGameInstance.OnDiscardCard += OnDiscardCard;
         m_pGameInstance.OnEndTurn += OnEndTurn;
         m_pGameInstance.m_pOnHandboardInsertCard += InsertCard;
         m_pGameInstance.m_pOnHandboardPopCard += PopCard;
@@ -37,10 +36,9 @@ public class HandBoard : MonoBehaviour
         if (null != m_pGameInstance)
         {
             m_pGameInstance.OnPlayCard -= OnPlayCard;
-            m_pGameInstance.OnDiscardCard -= OnDiscardCard;
             m_pGameInstance.OnEndTurn -= OnEndTurn;
             m_pGameInstance.m_pOnHandboardInsertCard -= InsertCard;
-            m_pGameInstance.m_pOnHandboardPopCard -= PopCard;
+            m_pGameInstance.m_pOnHandboardPopCard += PopCard;
         }
 
         ReleaseAllHandCanvases();
@@ -53,6 +51,7 @@ public class HandBoard : MonoBehaviour
     public void InsertCard(Card pCard, CardCanvas pCardCanvas)
     {
         BindCard(pCard, pCardCanvas);
+        CGameInstance.Instance.TryDrawCard(pCard, pCardCanvas);
         UpdateHandLayout();
     }
 
@@ -62,16 +61,9 @@ public class HandBoard : MonoBehaviour
         UpdateHandLayout();
     }
 
-    void OnDiscardCard(Card pCard)
-    {
-        CardCanvas pCardCanvas = RemoveHandCard(pCard);
-        UpdateHandLayout();
-    }
-
     void OnEndTurn()
     {
         Dictionary<Card, CardCanvas> CapturedCanvases =  new Dictionary<Card, CardCanvas>(m_vCardCanvases);
-        m_vCardCanvases.Clear();
         foreach (KeyValuePair<Card, CardCanvas> pairCard in CapturedCanvases)
         {
             m_pGameInstance.RequestDiscardCard(pairCard.Key, pairCard.Value);
@@ -162,7 +154,8 @@ public class HandBoard : MonoBehaviour
             int i = 0;
             foreach (CardCanvas pCardCanvas in m_vCardCanvases.Values)
             {
-                pCardCanvas.StartLinearMove(0.5f, m_vHandMoveInfo[i++], DEFINES.HELPERS.EmptyEvent);
+                pCardCanvas.StartLinearMove((float)DEFINES.CONSTANTS.TIME_MS_SORTING_TIMEOUT / DEFINES.CONSTANTS.TIME_MS_ASEC,
+                    m_vHandMoveInfo[i++], DEFINES.HELPERS.EmptyEvent);
             }
         }
     }
