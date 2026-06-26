@@ -3,6 +3,8 @@ using UnityEngine;
 using DEFINES;
 using DEFINES.ENUMS;
 using DEFINES.STRUCTURES;
+using Cysharp.Threading.Tasks;
+using System;
 
 public class GamePlayCanvas : MonoBehaviour
 {
@@ -93,38 +95,50 @@ public class GamePlayCanvas : MonoBehaviour
     }
     public void RequestDraw(Card pCard, CardCanvas pCardCanvas)
     {
-        if (null == pCardCanvas)
+        void DrawEvent(Card pCard, CardCanvas pCardCanvas)
         {
-            PoolCard(pCard, out pCardCanvas);
+            if (null == pCardCanvas)
+            {
+                PoolCard(pCard, out pCardCanvas);
+            }
+            CGameInstance.Instance.MoveToFieldCard(pCard);
+            pCardCanvas.StartBezierMove((float)DEFINES.CONSTANTS.TIME_MS_DRAWING_DURATION / DEFINES.CONSTANTS.TIME_MS_ASEC,
+                                        m_MoveInfos[(int)GamePlayCanvasPvtPos.LEFT],
+                                        m_MoveInfos[(int)GamePlayCanvasPvtPos.HANDBOARD],
+                                        () => {
+                                            CGameInstance.Instance.TryHandboardInsertCard(pCard, pCardCanvas);
+                                        });
         }
-        CGameInstance.Instance.MoveToFieldCard(pCard);
-        IJob job = new JobDrawCard(pCard, pCardCanvas);
-        pCardCanvas.StartBezierMove(0.5f,
-                                    m_MoveInfos[(int)GamePlayCanvasPvtPos.LEFT],
-                                    m_MoveInfos[(int)GamePlayCanvasPvtPos.HANDBOARD],
-                                    () => {
-                                        CGameInstance.Instance.EnqueueJob(job);
-                                    });
+        IJob jobDelay = new JobDelayAction(
+                    () => { DrawEvent(pCard, pCardCanvas); }
+                , DEFINES.CONSTANTS.TIME_MS_DRAWING_INTERVAL);
+        CGameInstance.Instance.EnqueueJob(jobDelay);
     }
     public void RequestPlay(Card pCard, CardCanvas pCardCanvas)
     {
         CGameInstance.Instance.MoveToFieldCard(pCard);
-        IJob job = new JobPlayCard(pCard, pCardCanvas);
-        pCardCanvas.StartBezierMove(0.5f,
+        pCardCanvas.StartBezierMove((float)DEFINES.CONSTANTS.TIME_MS_DISCARD_DURATION / DEFINES.CONSTANTS.TIME_MS_ASEC,
                                     m_MoveInfos[(int)GamePlayCanvasPvtPos.RIGHT], 
                                     m_MoveInfos[(int)GamePlayCanvasPvtPos.DISCARD],
-                                    () => { CGameInstance.Instance.EnqueueJob(job); 
+                                    () => {
+                                        CGameInstance.Instance.TryPlayCard(pCard, pCardCanvas); 
                                 });
     }
     public void RequestDiscard(Card pCard, CardCanvas pCardCanvas)
     {
-        CGameInstance.Instance.MoveToFieldCard(pCard);
-        IJob job = new JobDiscardCard(pCard, pCardCanvas);
-        pCardCanvas.StartBezierMove(0.5f,
-                                    m_MoveInfos[(int)GamePlayCanvasPvtPos.RIGHT],
-                                    m_MoveInfos[(int)GamePlayCanvasPvtPos.DISCARD],
-                                    () => {
-                                        CGameInstance.Instance.EnqueueJob(job);
-                                    });
+        void DiscardEvent(Card pCard, CardCanvas pCardCanvas)
+        {
+            CGameInstance.Instance.MoveToFieldCard(pCard);
+            pCardCanvas.StartBezierMove((float)DEFINES.CONSTANTS.TIME_MS_DISCARD_DURATION / DEFINES.CONSTANTS.TIME_MS_ASEC,
+                                        m_MoveInfos[(int)GamePlayCanvasPvtPos.RIGHT],
+                                        m_MoveInfos[(int)GamePlayCanvasPvtPos.DISCARD],
+                                        () => {
+                                            CGameInstance.Instance.TryDiscardCard(pCard, pCardCanvas);
+                                        });
+        }
+        IJob jobDelay = new JobDelayAction(
+                    () => { DiscardEvent(pCard, pCardCanvas); }
+                , DEFINES.CONSTANTS.TIME_MS_DISCARD_DURATION);
+        CGameInstance.Instance.EnqueueJob(jobDelay);
     }
 }

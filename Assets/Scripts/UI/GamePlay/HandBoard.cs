@@ -162,7 +162,8 @@ public class HandBoard : MonoBehaviour
             int i = 0;
             foreach (CardCanvas pCardCanvas in m_vCardCanvases.Values)
             {
-                pCardCanvas.StartLinearMove(0.5f, m_vHandMoveInfo[i++], DEFINES.HELPERS.EmptyEvent);
+                pCardCanvas.StartLinearMove((float)DEFINES.CONSTANTS.TIME_MS_SORTING_TIMEOUT / DEFINES.CONSTANTS.TIME_MS_ASEC,
+                    m_vHandMoveInfo[i++], DEFINES.HELPERS.EmptyEvent);
             }
         }
     }

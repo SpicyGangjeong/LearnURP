@@ -44,6 +44,7 @@ public class CGameInstance : MonoBehaviour
     Transform m_pPoolRoot = null;
 
     public ObjectPoolManager ObjectPools => m_pObjectPoolManager;
+    public JobQueueManager JobQueues => m_pJobQueueManager;
 
     public event DrawCard OnDrawCard { add { m_pDeckManager.m_pOnDrawCard += value; } remove { m_pDeckManager.m_pOnDrawCard -= value; } }
     public event PlayCard OnPlayCard { add { m_pDeckManager.m_pOnPlayCard += value; } remove { m_pDeckManager.m_pOnPlayCard -= value; } }
@@ -236,7 +237,11 @@ public class CGameInstance : MonoBehaviour
 
     public void TryEndTurn()
     {
-        StartCoroutine(m_pDeckManager.EndTurn());
+        IJob jobEndTurn = new JobEndTurnAction(
+            async () => { await m_pDeckManager.EndTurn(); }
+        );
+        m_pJobQueueManager.EnqueueJob(jobEndTurn);
+        
     }
     public void TryDrawCards(int iDrawCount)
     {

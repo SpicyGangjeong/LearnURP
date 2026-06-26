@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Cysharp.Threading.Tasks;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 class DeckManager
@@ -56,11 +57,13 @@ class DeckManager
         CGameInstance.Instance.TryDrawCards(s_iHandDrawCount);
     }
 
-    public IEnumerator EndTurn(int iDrawCount = s_iHandDrawCount)
+    public async UniTask EndTurn(int iDrawCount = s_iHandDrawCount)
     {
+        CGameInstance.Instance.JobQueues.State = DEFINES.HELPERS.BIT.Toggle(CGameInstance.Instance.JobQueues.State, DEFINES.ENUMS.JobStates.JOB_END_TURN);
         m_pOnEndTurn();
-        yield return null;
-        CGameInstance.Instance.TryDrawCards(iDrawCount);
+        await UniTask.WaitWhile(() => !CGameInstance.Instance.JobQueues.IsAwaitingEnd());
+        CGameInstance.Instance.TryDrawC ards(iDrawCount);
+        CGameInstance.Instance.JobQueues.State = DEFINES.HELPERS.BIT.Toggle(CGameInstance.Instance.JobQueues.State, DEFINES.ENUMS.JobStates.JOB_END_TURN);
     }
     public void DrawCards(int iDrawCount = s_iHandDrawCount)
     {
