@@ -234,6 +234,10 @@ public class CGameInstance : MonoBehaviour
         ReleasePooled<CardCanvas>(PoolKeys.s_strCardCanvas, pCardCanvas);
         return bReturn;
     }
+    public void TryDrawCard(Card pCard, CardCanvas pCardCanvas)
+    {
+        m_pDeckManager.DrawCard(pCard);
+    }
 
     public void TryEndTurn()
     {
@@ -242,10 +246,6 @@ public class CGameInstance : MonoBehaviour
         );
         m_pJobQueueManager.EnqueueJob(jobEndTurn);
         
-    }
-    public void TryDrawCards(int iDrawCount)
-    {
-        m_pDeckManager.DrawCards(iDrawCount);
     }
 
     public void TryHandboardPopCard(Card pCard)

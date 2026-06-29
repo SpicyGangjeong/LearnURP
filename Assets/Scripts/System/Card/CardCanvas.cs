@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DEFINES;
 using DEFINES.STRUCTURES;
 using System;
@@ -68,6 +69,11 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
     {
         HELPERS.ExtractMoveInfo(out MoveInfo pStartMove, transform);
         StartMove(LerpInfo.Linear(fDuration, in pStartMove, in pDstMove, callback));
+    }
+    public UniTask StartBezierMoveAsync(float fDuration, in MoveInfo pCenterMove, in MoveInfo pDstMove){
+        UniTaskCompletionSource pCompletion = new UniTaskCompletionSource();
+        StartBezierMove(fDuration, in pCenterMove, in pDstMove, () => { pCompletion.TrySetResult(); });
+        return pCompletion.Task;
     }
     public void StartBezierMove(float fDuration, in MoveInfo pCenterMove, in MoveInfo pDstMove, LerpModelCallback callback)
     {

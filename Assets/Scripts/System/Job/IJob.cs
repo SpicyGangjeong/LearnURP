@@ -61,3 +61,18 @@ public class JobDiscardAction : IJob
         await m_Action();
     }
 }
+public class JobDrawAction : IJob
+{
+    private const string s_strName = "JobDrawAction";
+    public static string Name { get { return s_strName; } }
+    Func<UniTask> m_Action;
+    public JobDrawAction(Func<UniTask> action)
+    {
+        m_Action = action;
+
+    }
+    public async UniTask Run()
+    {
+        await m_Action();
+    }
+}

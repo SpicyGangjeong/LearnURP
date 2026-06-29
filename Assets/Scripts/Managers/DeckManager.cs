@@ -54,23 +54,22 @@ class DeckManager
         m_pPiles.ClearAll();
         m_pPiles.AddRange(m_vDeckOriginal, DEFINES.ENUMS.CardPile.DECK);
         ShuffleDeck();
-        CGameInstance.Instance.TryDrawCards(s_iHandDrawCount);
+        for (int i = 0; i < s_iHandDrawCount; i++)
+        {
+            CGameInstance.Instance.RequestDrawCard(PopFrontDeck(), null);
+        }
     }
 
-    public async UniTask EndTurn(int iDrawCount = s_iHandDrawCount)
+    public async UniTask EndTurn()
     {
         CGameInstance.Instance.JobQueues.State = DEFINES.HELPERS.BIT.Toggle(CGameInstance.Instance.JobQueues.State, DEFINES.ENUMS.JobStates.JOB_END_TURN);
         m_pOnEndTurn();
-        await UniTask.WaitWhile(() => !CGameInstance.Instance.JobQueues.IsAwaitingEnd());
-        CGameInstance.Instance.TryDrawC ards(iDrawCount);
-        CGameInstance.Instance.JobQueues.State = DEFINES.HELPERS.BIT.Toggle(CGameInstance.Instance.JobQueues.State, DEFINES.ENUMS.JobStates.JOB_END_TURN);
-    }
-    public void DrawCards(int iDrawCount = s_iHandDrawCount)
-    {
-        for (int i = 0; i < iDrawCount; i++)
+        await UniTask.CompletedTask;
+        for (int i = 0; i < s_iHandDrawCount; i++)
         {
-            DrawCard();
+            CGameInstance.Instance.RequestDrawCard(PopFrontDeck(), null);
         }
+        CGameInstance.Instance.JobQueues.State = DEFINES.HELPERS.BIT.Toggle(CGameInstance.Instance.JobQueues.State, DEFINES.ENUMS.JobStates.JOB_END_TURN);
     }
     public bool PlayCard(Card pCard)
     {
@@ -91,27 +90,21 @@ class DeckManager
         m_pOnShuffleCard();
     }
 
-    private void DrawCard()
+    public Card PopFrontDeck()
     {
+        Card pCard = null;
         if (0 == m_pPiles.GetCount(DEFINES.ENUMS.CardPile.DECK))
         {
             ReturnCard();
             if (0 == m_pPiles.GetCount(DEFINES.ENUMS.CardPile.DECK))
             {
-                return;
+                return pCard;
             }
         }
 
-        Card pCard = m_pPiles.GetTopCard(DEFINES.ENUMS.CardPile.DECK);
-        if (null == pCard)
-        {
-            return;
-        }
-
-        MoveCard(pCard, DEFINES.ENUMS.CardPile.HAND);
-        CGameInstance.Instance.RequestDrawCard(pCard, null);
-        m_pOnDrawCard(pCard);
-        pCard.OnDrawCard();
+        pCard = m_pPiles.GetTopCard(DEFINES.ENUMS.CardPile.DECK);
+        MoveToFieldCard(pCard);
+        return pCard;
     }
 
     public void ReturnCard()
@@ -141,6 +134,14 @@ class DeckManager
         MoveCard(pCard, DEFINES.ENUMS.CardPile.DISCARD);
         m_pOnDiscardCard(pCard);
         pCard.OnDiscardCard();
+        return true;
+    }
+
+    public bool DrawCard(Card pCard)
+    {
+        MoveCard(pCard, DEFINES.ENUMS.CardPile.HAND);
+        m_pOnDrawCard(pCard);
+        pCard.OnDrawCard();
         return true;
     }
 
