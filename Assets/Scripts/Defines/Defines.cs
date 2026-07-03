@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine.UIElements;
+
 namespace DEFINES
 {
     namespace STRUCTURES
@@ -153,148 +154,57 @@ namespace DEFINES
         }
         public static void EmptyEvent() { }
         public static void EmptyEvent(Card pCard) { }
-        public static void EmptyEvent(Card pCard, CardCanvas pCardCanvas) { }
         public static class BIT
         {
-            // --- byte ---
-            public static bool Has(byte iValue, byte iFlag)
+            static ulong ToUInt64<_Ty>(_Ty iValue) where _Ty : struct
             {
-                return 0 != (iValue & iFlag);
+                if (iValue is Enum iEnum)
+                {
+                    return Convert.ToUInt64(iEnum);
+                }
+
+                return Convert.ToUInt64(iValue);
             }
 
-            public static bool HasAll(byte iValue, byte iMask)
+            static _Ty FromUInt64<_Ty>(ulong iValue) where _Ty : struct
             {
-                return iMask == (iValue & iMask);
+                if (typeof(_Ty).IsEnum)
+                {
+                    return (_Ty)Enum.ToObject(typeof(_Ty), iValue);
+                }
+
+                return (_Ty)Convert.ChangeType(iValue, typeof(_Ty));
             }
 
-            public static byte Set(byte iValue, byte iFlag)
-            {
-                return (byte)(iValue | iFlag);
-            }
-
-            public static byte Clear(byte iValue, byte iFlag)
-            {
-                return (byte)(iValue & ~iFlag);
-            }
-
-            public static byte Toggle(byte iValue, byte iFlag)
-            {
-                return (byte)(iValue ^ iFlag);
-            }
-
-            public static bool IsNone(byte iValue)
-            {
-                return 0 == iValue;
-            }
-
-            // --- int (동일 패턴) ---
-            public static bool Has(int iValue, int iFlag)
-            {
-                return 0 != (iValue & iFlag);
-            }
-
-            public static bool HasAll(int iValue, int iMask)
-            {
-                return iMask == (iValue & iMask);
-            }
-
-            public static int Set(int iValue, int iFlag)
-            {
-                return iValue | iFlag;
-            }
-
-            public static int Clear(int iValue, int iFlag)
-            {
-                return iValue & ~iFlag;
-            }
-
-            public static int Toggle(int iValue, int iFlag)
-            {
-                return iValue ^ iFlag;
-            }
-
-            public static bool IsNone(int iValue)
-            {
-                return 0 == iValue;
-            }
-
-            // --- enum [Flags] ---
-            public static bool Has<TEnum>(TEnum iValue, TEnum iFlag) where TEnum : struct, Enum
+            public static bool Has<_Ty>(_Ty iValue, _Ty iFlag) where _Ty : struct
             {
                 return 0 != (ToUInt64(iValue) & ToUInt64(iFlag));
             }
 
-            public static bool HasAny<TEnum>(TEnum iValue, TEnum iMask) where TEnum : struct, Enum
+            public static bool HasAll<_Ty>(_Ty iValue, _Ty iMask) where _Ty : struct
             {
-                return 0 != (ToUInt64(iValue) & ToUInt64(iMask));
+                ulong iMaskValue = ToUInt64(iMask);
+                return iMaskValue == (ToUInt64(iValue) & iMaskValue);
             }
 
-            public static bool HasAll<TEnum>(TEnum iValue, TEnum iMask) where TEnum : struct, Enum
+            public static _Ty Set<_Ty>(_Ty iValue, _Ty iFlag) where _Ty : struct
             {
-                ulong uValue = ToUInt64(iValue);
-                ulong uMask = ToUInt64(iMask);
-                return uMask == (uValue & uMask);
+                return FromUInt64<_Ty>(ToUInt64(iValue) | ToUInt64(iFlag));
             }
 
-            public static TEnum Set<TEnum>(TEnum iValue, TEnum iFlag) where TEnum : struct, Enum
+            public static _Ty Clear<_Ty>(_Ty iValue, _Ty iFlag) where _Ty : struct
             {
-                return FromUInt64<TEnum>(ToUInt64(iValue) | ToUInt64(iFlag));
+                return FromUInt64<_Ty>(ToUInt64(iValue) & ~ToUInt64(iFlag));
             }
 
-            public static TEnum Clear<TEnum>(TEnum iValue, TEnum iFlag) where TEnum : struct, Enum
+            public static _Ty Toggle<_Ty>(_Ty iValue, _Ty iFlag) where _Ty : struct
             {
-                return FromUInt64<TEnum>(ToUInt64(iValue) & ~ToUInt64(iFlag));
+                return FromUInt64<_Ty>(ToUInt64(iValue) ^ ToUInt64(iFlag));
             }
 
-            public static TEnum Toggle<TEnum>(TEnum iValue, TEnum iFlag) where TEnum : struct, Enum
-            {
-                return FromUInt64<TEnum>(ToUInt64(iValue) ^ ToUInt64(iFlag));
-            }
-
-            public static bool IsNone<TEnum>(TEnum iValue) where TEnum : struct, Enum
+            public static bool IsNone<_Ty>(_Ty iValue) where _Ty : struct
             {
                 return 0 == ToUInt64(iValue);
-            }
-
-            static ulong ToUInt64<TEnum>(TEnum iValue) where TEnum : struct, Enum
-            {
-                return Convert.ToUInt64(iValue);
-            }
-
-            static TEnum FromUInt64<TEnum>(ulong uValue) where TEnum : struct, Enum
-            {
-                Type pUnderlyingType = Enum.GetUnderlyingType(typeof(TEnum));
-
-                if (pUnderlyingType == typeof(byte))
-                {
-                    return (TEnum)(object)(byte)uValue;
-                }
-                if (pUnderlyingType == typeof(sbyte))
-                {
-                    return (TEnum)(object)(sbyte)uValue;
-                }
-                if (pUnderlyingType == typeof(short))
-                {
-                    return (TEnum)(object)(short)uValue;
-                }
-                if (pUnderlyingType == typeof(ushort))
-                {
-                    return (TEnum)(object)(ushort)uValue;
-                }
-                if (pUnderlyingType == typeof(int))
-                {
-                    return (TEnum)(object)(int)uValue;
-                }
-                if (pUnderlyingType == typeof(uint))
-                {
-                    return (TEnum)(object)(uint)uValue;
-                }
-                if (pUnderlyingType == typeof(long))
-                {
-                    return (TEnum)(object)(long)uValue;
-                }
-
-                return (TEnum)(object)uValue;
             }
         }
     }

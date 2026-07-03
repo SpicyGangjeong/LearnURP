@@ -1,18 +1,29 @@
 ﻿using Cysharp.Threading.Tasks;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-class DeckManager
+using UnityEngine.Assertions;
+
+public delegate void CardDrawn(Card pCard);
+public delegate void CardPlayed(Card pCard);
+public delegate void CardDiscarded(Card pCard);
+public delegate void CardReturned(Card pCard);
+public delegate void CardDisappeared(Card pCard);
+public delegate void DeckShuffled();
+public delegate void TurnEnded();
+public delegate void TurnStarted();
+
+public class DeckManager
 {
     const int s_iHandDrawCount = 5;
 
-    public event DrawCard m_pOnDrawCard;
-    public event PlayCard m_pOnPlayCard;
-    public event DiscardCard m_pOnDiscardCard;
-    public event ReturnCard m_pOnReturnCard;
-    public event DisappearCard m_pOnDisappearCard;
-    public event ShuffleCard m_pOnShuffleCard;
-    public event EndTurn m_pOnEndTurn;
+    public event CardDrawn m_pOnCardDrawn;
+    public event CardPlayed m_pOnCardPlayed;
+    public event CardDiscarded m_pOnCardDiscarded;
+    public event CardReturned m_pOnCardReturned;
+    public event CardDisappeared m_pOnCardDisappeared;
+    public event DeckShuffled m_pOnDeckShuffled;
+    public event TurnEnded m_pOnTurnEnded;
+    public event TurnStarted m_pOnTurnStarted;
     List<Card> m_vDeckOriginal = new List<Card>();
     CardPileCollection m_pPiles = new CardPileCollection();
 
@@ -29,13 +40,14 @@ class DeckManager
                 m_vDeckOriginal.Add(pCard);
             }
         }
-        m_pOnDrawCard += DEFINES.HELPERS.EmptyEvent;
-        m_pOnPlayCard += DEFINES.HELPERS.EmptyEvent;
-        m_pOnDiscardCard += DEFINES.HELPERS.EmptyEvent;
-        m_pOnReturnCard += DEFINES.HELPERS.EmptyEvent;
-        m_pOnDisappearCard += DEFINES.HELPERS.EmptyEvent;
-        m_pOnShuffleCard += DEFINES.HELPERS.EmptyEvent;
-        m_pOnEndTurn += DEFINES.HELPERS.EmptyEvent;
+        m_pOnCardDrawn += DEFINES.HELPERS.EmptyEvent;
+        m_pOnCardPlayed += DEFINES.HELPERS.EmptyEvent;
+        m_pOnCardDiscarded += DEFINES.HELPERS.EmptyEvent;
+        m_pOnCardReturned += DEFINES.HELPERS.EmptyEvent;
+        m_pOnCardDisappeared += DEFINES.HELPERS.EmptyEvent;
+        m_pOnDeckShuffled += DEFINES.HELPERS.EmptyEvent;
+        m_pOnTurnEnded += DEFINES.HELPERS.EmptyEvent;
+        m_pOnTurnStarted += DEFINES.HELPERS.EmptyEvent;
     }
     public void Initialize(List<Card> vDeckOriginal)
     {
@@ -54,27 +66,67 @@ class DeckManager
         m_pPiles.ClearAll();
         m_pPiles.AddRange(m_vDeckOriginal, DEFINES.ENUMS.CardPile.DECK);
         ShuffleDeck();
-        for (int i = 0; i < s_iHandDrawCount; i++)
-        {
-            CGameInstance.Instance.RequestDrawCard(PopFrontDeck(), null);
-        }
+        JobQueueManager pJobQueue = CGameInstance.Instance.JobQueues;
+        pJobQueue.State = DEFINES.HELPERS.BIT.Set(pJobQueue.State, DEFINES.ENUMS.JobStates.JOB_END_TURN);
+        CGameInstance.Instance.JobQueues.EnqueueJob(
+            new JobDeferredCallback(async () => { await StartTurn(); }));
     }
 
     public async UniTask EndTurn()
     {
-        CGameInstance.Instance.JobQueues.State = DEFINES.HELPERS.BIT.Toggle(CGameInstance.Instance.JobQueues.State, DEFINES.ENUMS.JobStates.JOB_END_TURN);
-        m_pOnEndTurn();
-        await UniTask.CompletedTask;
+        JobQueueManager pJobQueue = CGameInstance.Instance.JobQueues;
+        if (true == DEFINES.HELPERS.BIT.Has(pJobQueue.State, DEFINES.ENUMS.JobStates.JOB_END_TURN))
+        {
+            // Debug.LogError("EndTurn is already in progress.");
+            return;
+        }
+        pJobQueue.State = DEFINES.HELPERS.BIT.Set(pJobQueue.State, DEFINES.ENUMS.JobStates.JOB_END_TURN);
+
+        m_pOnTurnEnded();
+        await AwaitingEnd();
+    }
+    public async UniTask AwaitingEnd()
+    {
+        JobQueueManager pJobQueue = CGameInstance.Instance.JobQueues;
+        Assert.IsTrue(DEFINES.HELPERS.BIT.Has(pJobQueue.State, DEFINES.ENUMS.JobStates.JOB_END_TURN));
+
+
+        if (true == DEFINES.HELPERS.BIT.Has(pJobQueue.State, DEFINES.ENUMS.JobStates.JOB_END_TURN) &&
+            0 == pJobQueue.JobCount)
+        {// Awaiting Done;
+            CGameInstance.Instance.JobQueues.EnqueueJob(
+                new JobDeferredCallback(async () => { await StartTurn(); }));
+        } else
+        {// Awaiting
+            CGameInstance.Instance.JobQueues.EnqueueJob(
+                new JobDeferredCallback(async () => { await AwaitingEnd(); }));
+        }
+    }
+    public async UniTask StartTurn()
+    {
+        JobQueueManager pJobQueue = CGameInstance.Instance.JobQueues;
+        if (false == DEFINES.HELPERS.BIT.Has(pJobQueue.State, DEFINES.ENUMS.JobStates.JOB_END_TURN))
+        {
+            // Debug.LogError("StartTurn is called without EndTurn.");
+            return;
+        }
+
+        pJobQueue.State = DEFINES.HELPERS.BIT.Clear(pJobQueue.State, DEFINES.ENUMS.JobStates.JOB_END_TURN);
+        m_pOnTurnStarted();
         for (int i = 0; i < s_iHandDrawCount; i++)
         {
-            CGameInstance.Instance.RequestDrawCard(PopFrontDeck(), null);
+            Card pCard = PopFrontDeck();
+            if (null != pCard)
+            {
+                DrawCard(pCard);
+            }
         }
-        CGameInstance.Instance.JobQueues.State = DEFINES.HELPERS.BIT.Toggle(CGameInstance.Instance.JobQueues.State, DEFINES.ENUMS.JobStates.JOB_END_TURN);
+        await UniTask.CompletedTask;
     }
     public bool PlayCard(Card pCard)
     {
         MoveCard(pCard, DEFINES.ENUMS.CardPile.DISCARD);
-        m_pOnPlayCard(pCard);
+        m_pOnCardPlayed(pCard);
         pCard.OnPlayCard();
         return true;
     }
@@ -87,7 +139,7 @@ class DeckManager
     public void ShuffleDeck()
     {
         m_pPiles.Shuffle(DEFINES.ENUMS.CardPile.DECK);
-        m_pOnShuffleCard();
+        m_pOnDeckShuffled();
     }
 
     public Card PopFrontDeck()
@@ -122,7 +174,7 @@ class DeckManager
 
         foreach (Card pCard in vDiscardSnapshot)
         {
-            m_pOnReturnCard(pCard);
+            m_pOnCardReturned(pCard);
             pCard.OnReturnCard();
         }
 
@@ -132,7 +184,7 @@ class DeckManager
     public bool DiscardCard(Card pCard)
     {
         MoveCard(pCard, DEFINES.ENUMS.CardPile.DISCARD);
-        m_pOnDiscardCard(pCard);
+        m_pOnCardDiscarded(pCard);
         pCard.OnDiscardCard();
         return true;
     }
@@ -140,7 +192,7 @@ class DeckManager
     public bool DrawCard(Card pCard)
     {
         MoveCard(pCard, DEFINES.ENUMS.CardPile.HAND);
-        m_pOnDrawCard(pCard);
+        m_pOnCardDrawn(pCard);
         pCard.OnDrawCard();
         return true;
     }
@@ -148,7 +200,7 @@ class DeckManager
     public void DisappearCard(Card pCard)
     {
         MoveCard(pCard, DEFINES.ENUMS.CardPile.DISAPPEARED);
-        m_pOnDisappearCard(pCard);
+        m_pOnCardDisappeared(pCard);
         pCard.OnDisappearCard();
     }
 

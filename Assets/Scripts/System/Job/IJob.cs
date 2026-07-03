@@ -11,68 +11,99 @@ public interface IJob
     public static string Name { get; }
     UniTask Run();
 }
-public class JobDelayAction : IJob
+public class JobDelayCallback : IJob
 {
-    private const string s_strName = "JobDelayAction";
+    private const string s_strName = "JobDelayCallback";
     public static string Name { get { return s_strName; } }
 
-    Action m_Action;
+    Action m_Callback;
     int m_iDelayMili;
-    public JobDelayAction(Action action, int iDelayMili)
+    public JobDelayCallback(Action callback, int iDelayMili)
     {
-        m_Action = action;
+        m_Callback = callback;
         m_iDelayMili = iDelayMili;
     }
 
     public async UniTask Run()
     {
         await UniTask.Delay(m_iDelayMili);
-        m_Action();
+        m_Callback();
+    }
+}
+public class JobDeferredCallback : IJob
+{
+    private const string s_strName = "JobDeferredCallback";
+    public static string Name { get { return s_strName; } }
+    Func<UniTask> m_Callback;
+    public JobDeferredCallback(Func<UniTask> callback)
+    {
+        m_Callback = callback;
+    }
+
+    public async UniTask Run()
+    {
+        await m_Callback();
+
     }
 }
 
-public class JobEndTurnAction : IJob
+public class JobEndTurnCallback : IJob
 {
-    private const string s_strName = "JobEndTurnAction";
+    private const string s_strName = "JobEndTurnCallback";
     public static string Name { get { return s_strName; } }
-    Func<UniTask> m_Action;
-    public JobEndTurnAction(Func<UniTask> action)
+    Func<UniTask> m_Callback;
+    public JobEndTurnCallback(Func<UniTask> callback)
     {
-        m_Action = action;
+        m_Callback = callback;
         
     }
     public async UniTask Run()
     {
-        await m_Action();
+        await m_Callback();
     }
 }
-public class JobDiscardAction : IJob
+public class JobDiscardCallback : IJob
 {
-    private const string s_strName = "JobDiscardAction";
+    private const string s_strName = "JobDiscardCallback";
     public static string Name { get { return s_strName; } }
-    Func<UniTask> m_Action;
-    public JobDiscardAction(Func<UniTask> action)
+    Func<UniTask> m_Callback;
+    public JobDiscardCallback(Func<UniTask> callback)
     {
-        m_Action = action;
+        m_Callback = callback;
 
     }
     public async UniTask Run()
     {
-        await m_Action();
+        await m_Callback();
     }
 }
-public class JobDrawAction : IJob
+public class JobDrawCallback : IJob
 {
-    private const string s_strName = "JobDrawAction";
+    private const string s_strName = "JobDrawCallback";
     public static string Name { get { return s_strName; } }
-    Func<UniTask> m_Action;
-    public JobDrawAction(Func<UniTask> action)
+    Func<UniTask> m_Callback;
+    public JobDrawCallback(Func<UniTask> callback)
     {
-        m_Action = action;
+        m_Callback = callback;
 
     }
     public async UniTask Run()
     {
-        await m_Action();
+        await m_Callback();
+    }
+}
+
+public class JobAwaitingEndCallback : IJob
+{
+    private const string s_strName = "JobAwaitingEndCallback";
+    public static string Name { get { return s_strName; } }
+    Func<UniTask> m_Callback;
+    public JobAwaitingEndCallback(Func<UniTask> callback)
+    {
+        m_Callback = callback;
+    }
+    public async UniTask Run()
+    {
+        await m_Callback();
     }
 }

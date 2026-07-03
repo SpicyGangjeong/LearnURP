@@ -80,14 +80,6 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
         HELPERS.ExtractMoveInfo(out MoveInfo pStartMove, transform);
         StartMove(LerpInfo.Bezier(fDuration, in pStartMove, in pCenterMove, in pDstMove, callback));
     }
-    public void RequestHandboardPop()
-    {
-        CGameInstance.Instance.TryHandboardPopCard(m_pRefCard);
-    }
-    public void RequestHandboardInsert()
-    {
-        CGameInstance.Instance.TryHandboardInsertCard(m_pRefCard, this);
-    }
     public void OnCreate()
     {
         gameObject.name = "CardCanvas_" + s_iCardCanvasPoolID++;
@@ -124,7 +116,11 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
     {
         if (eventData.button == PointerEventData.InputButton.Right)
         {
-            CGameInstance.Instance.RequestDiscardCard(m_pRefCard, this);
+            GamePlayCanvas pController = GamePlayCanvas.Instance;
+            if (null != pController)
+            {
+                pController.PresentDiscard(m_pRefCard, this);
+            }
         }
     }
 
@@ -171,7 +167,11 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
     {
         if (eventData.button == PointerEventData.InputButton.Left)
         {
-            RequestHandboardPop();
+            GamePlayCanvas pController = GamePlayCanvas.Instance;
+            if (null != pController && null != pController.HandBoard)
+            {
+                pController.HandBoard.OnDragBegin(m_pRefCard);
+            }
             InstantMove(
                 new MoveInfo(eventData.position, Quaternion.identity)
                 );
@@ -192,15 +192,25 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
     {
         if (eventData.button == PointerEventData.InputButton.Left)
         {
+            GamePlayCanvas pController = GamePlayCanvas.Instance;
+            if (null == pController)
+            {
+                return;
+            }
+
             RectTransform rectTransform = transform.parent.GetComponent<RectTransform>();
             Vector3[] vCorners = new Vector3[4];
             rectTransform.GetWorldCorners(vCorners);
             if (eventData.position.y > vCorners[1].y)
             {
-                CGameInstance.Instance.RequestPlayCard(m_pRefCard, this);
-            } else
+                pController.PresentPlay(m_pRefCard, this);
+            }
+            else
             {
-                RequestHandboardInsert();
+                if (null != pController.HandBoard)
+                {
+                    pController.HandBoard.OnDragCancel(m_pRefCard, this);
+                }
             }
         }
     }

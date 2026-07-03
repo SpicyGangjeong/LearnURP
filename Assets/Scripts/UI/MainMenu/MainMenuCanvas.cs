@@ -8,13 +8,6 @@ public class MainMenuCanvas : MonoBehaviour
 {
     CGameInstance m_pGameInstance = null;
 
-    [SerializeField]
-    Button m_pBtnSet0 = null;
-    [SerializeField]
-    Button m_pBtnSet1 = null;
-    [SerializeField]
-    Button m_pBtnSet2 = null;
-
     void Start()
     {
         m_pGameInstance = CGameInstance.Instance;

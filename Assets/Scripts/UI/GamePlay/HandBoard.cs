@@ -1,10 +1,7 @@
 using DEFINES;
 using DEFINES.STRUCTURES;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using static UnityEngine.Rendering.DebugUI;
 
 public class HandBoard : MonoBehaviour
 {
@@ -14,18 +11,23 @@ public class HandBoard : MonoBehaviour
     readonly Dictionary<Card, CardCanvas> m_vCardCanvases = new Dictionary<Card, CardCanvas>();
     IReadOnlyList<Card> m_vHandCards = null;
     CGameInstance m_pGameInstance = null;
+    GamePlayCanvas m_pGamePlayCanvas = null;
 
     MoveInfo[] m_vHandMoveInfo = new MoveInfo[s_iMaxHandSlots];
 
     void Start()
     {
         m_pGameInstance = CGameInstance.Instance;
-        m_pGameInstance.OnPlayCard += OnPlayCard;
-        m_pGameInstance.OnEndTurn += OnEndTurn;
-        m_pGameInstance.m_pOnHandboardInsertCard += InsertCard;
-        m_pGameInstance.m_pOnHandboardPopCard += PopCard;
+        m_pGamePlayCanvas = GamePlayCanvas.Instance;
+        if (null == m_pGamePlayCanvas)
+        {
+            m_pGamePlayCanvas = FindFirstObjectByType<GamePlayCanvas>();
+        }
+        m_pGameInstance.Deck.m_pOnCardPlayed += OnCardPlayed;
+        m_pGameInstance.Deck.m_pOnCardDiscarded += OnCardDiscarded;
+        m_pGameInstance.Deck.m_pOnTurnEnded += OnTurnEnded;
 
-        m_vHandCards = m_pGameInstance.GetCards(DEFINES.ENUMS.CardPile.HAND);
+        m_vHandCards = m_pGameInstance.Deck.GetCards(DEFINES.ENUMS.CardPile.HAND);
 
         SyncExistingHand();
         UpdateHandLayout();
@@ -35,94 +37,39 @@ public class HandBoard : MonoBehaviour
     {
         if (null != m_pGameInstance)
         {
-            m_pGameInstance.OnPlayCard -= OnPlayCard;
-            m_pGameInstance.OnEndTurn -= OnEndTurn;
-            m_pGameInstance.m_pOnHandboardInsertCard -= InsertCard;
-            m_pGameInstance.m_pOnHandboardPopCard += PopCard;
+            m_pGameInstance.Deck.m_pOnCardPlayed -= OnCardPlayed;
+            m_pGameInstance.Deck.m_pOnCardDiscarded -= OnCardDiscarded;
+            m_pGameInstance.Deck.m_pOnTurnEnded -= OnTurnEnded;
         }
 
         ReleaseAllHandCanvases();
     }
-    public void PopCard(Card pCard)
+
+    public void PopCardForPresentation(Card pCard)
     {
         RemoveHandCard(pCard);
         UpdateHandLayout();
     }
-    public void InsertCard(Card pCard, CardCanvas pCardCanvas)
+
+    public void OnDragBegin(Card pCard)
+    {
+        RemoveHandCard(pCard);
+        UpdateHandLayout();
+    }
+
+    public void OnDragCancel(Card pCard, CardCanvas pCardCanvas)
     {
         BindCard(pCard, pCardCanvas);
-        CGameInstance.Instance.TryDrawCard(pCard, pCardCanvas);
         UpdateHandLayout();
     }
 
-    void OnPlayCard(Card pCard)
-    {
-        RemoveHandCard(pCard);
-        UpdateHandLayout();
-    }
-
-    void OnEndTurn()
-    {
-        Dictionary<Card, CardCanvas> CapturedCanvases =  new Dictionary<Card, CardCanvas>(m_vCardCanvases);
-        foreach (KeyValuePair<Card, CardCanvas> pairCard in CapturedCanvases)
-        {
-            m_pGameInstance.RequestDiscardCard(pairCard.Key, pairCard.Value);
-        }
-    }
-
-    void SyncExistingHand()
-    {
-        if (null == m_vHandCards)
-        {
-            return;
-        }
-
-        foreach (Card pCard in m_vHandCards)
-        {
-            if (null == pCard || m_vCardCanvases.ContainsKey(pCard))
-            {
-                continue;
-            }
-
-            BindCard(pCard, GetPoolCanvas(pCard));
-        }
-    }
-
-    CardCanvas GetPoolCanvas(Card pCard)
-    {
-        return m_pGameInstance.GetPooled<CardCanvas>(PoolKeys.s_strCardCanvas, transform);
-    }
-
-    private void BindCard(Card pCard, CardCanvas pCardCanvas)
+    public void BindCard(Card pCard, CardCanvas pCardCanvas)
     {
         pCardCanvas.BindCard(pCard);
         m_vCardCanvases[pCard] = pCardCanvas;
     }
 
-    CardCanvas RemoveHandCard(Card pCard)
-    {
-        m_vCardCanvases.TryGetValue(pCard, out CardCanvas pCardCanvas);
-        m_vCardCanvases.Remove(pCard);
-        return pCardCanvas;
-    }
-
-    void ReleaseAllHandCanvases()
-    {
-        if (false == m_pGameInstance.ObjectPools.IsRegistered(PoolKeys.s_strCardCanvas))
-        {
-            m_vCardCanvases.Clear();
-            return;
-        }
-
-        foreach (CardCanvas pCardCanvas in m_vCardCanvases.Values)
-        {
-            m_pGameInstance.ReleasePooled<CardCanvas>(PoolKeys.s_strCardCanvas, pCardCanvas);
-        }
-
-        m_vCardCanvases.Clear();
-    }
-
-    void UpdateHandLayout()
+    public void UpdateHandLayout()
     {
         int iActiveCardCount = m_vCardCanvases.Count;
         if (0 == iActiveCardCount)
@@ -158,5 +105,75 @@ public class HandBoard : MonoBehaviour
                     m_vHandMoveInfo[i++], DEFINES.HELPERS.EmptyEvent);
             }
         }
+    }
+
+    void OnCardPlayed(Card pCard)
+    {
+        RemoveHandCard(pCard);
+        UpdateHandLayout();
+    }
+
+    void OnCardDiscarded(Card pCard)
+    {
+        RemoveHandCard(pCard);
+        UpdateHandLayout();
+    }
+
+    void OnTurnEnded()
+    {
+        Dictionary<Card, CardCanvas> vCapturedCanvases = new Dictionary<Card, CardCanvas>(m_vCardCanvases);
+        foreach (KeyValuePair<Card, CardCanvas> pairCard in vCapturedCanvases)
+        {
+            if (null != m_pGamePlayCanvas)
+            {
+                m_pGamePlayCanvas.PresentDiscard(pairCard.Key, pairCard.Value);
+            }
+        }
+    }
+
+    void SyncExistingHand()
+    {
+        if (null == m_vHandCards)
+        {
+            return;
+        }
+
+        foreach (Card pCard in m_vHandCards)
+        {
+            if (null == pCard || m_vCardCanvases.ContainsKey(pCard))
+            {
+                continue;
+            }
+
+            BindCard(pCard, GetPoolCanvas(pCard));
+        }
+    }
+
+    CardCanvas GetPoolCanvas(Card pCard)
+    {
+        return m_pGameInstance.GetPooled<CardCanvas>(PoolKeys.s_strCardCanvas, transform);
+    }
+
+    CardCanvas RemoveHandCard(Card pCard)
+    {
+        m_vCardCanvases.TryGetValue(pCard, out CardCanvas pCardCanvas);
+        m_vCardCanvases.Remove(pCard);
+        return pCardCanvas;
+    }
+
+    void ReleaseAllHandCanvases()
+    {
+        if (false == m_pGameInstance.ObjectPools.IsRegistered(PoolKeys.s_strCardCanvas))
+        {
+            m_vCardCanvases.Clear();
+            return;
+        }
+
+        foreach (CardCanvas pCardCanvas in m_vCardCanvases.Values)
+        {
+            m_pGameInstance.ReleasePooled<CardCanvas>(PoolKeys.s_strCardCanvas, pCardCanvas);
+        }
+
+        m_vCardCanvases.Clear();
     }
 }

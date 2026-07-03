@@ -16,7 +16,7 @@ public class CardFrameRenderer : MonoBehaviour
 
     public void RenderCardFrames(DEFINES.ENUMS.CardPile ePileType)
     {
-        m_vCards = m_pGameInstance.GetCards(ePileType);
+        m_vCards = m_pGameInstance.Deck.GetCards(ePileType);
         if (null == m_vCards || 0 == m_vCards.Count)
         {
             ClearCanvases();
