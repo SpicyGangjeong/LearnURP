@@ -149,6 +149,7 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
         {
             bHighlighted = true;
             m_pSlotHighlight.enabled = bHighlighted;
+            transform.SetAsLastSibling();
         }
     }
     private void CustomFinalize(){
@@ -185,6 +186,7 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
             InstantMove(
                 new MoveInfo(eventData.position, Quaternion.identity)
                 );
+            transform.SetAsLastSibling();
         }
     }
 

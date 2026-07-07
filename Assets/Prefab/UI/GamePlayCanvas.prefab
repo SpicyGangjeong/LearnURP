@@ -593,10 +593,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 674ccb222b2ecd04a8afa225d8c0f544, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GamePlayCanvas
-  m_pTmpDeckPile: {fileID: 6017230962047815944}
-  m_pTmpDiscardPile: {fileID: 5865054391432750981}
-  m_pTmpDisappearPile: {fileID: 7471019483373188368}
   m_pCardDrawTable: {fileID: 7778337174873262243}
+  m_pHandBoard: {fileID: 0}
   m_pPvts:
   - {fileID: 2810829701065959772}
   - {fileID: 4716176852211220267}
@@ -1409,7 +1407,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf22dcea0ffc3d443981fd7e830dd213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HandBoard
-  m_pGamePlayCanvas: {fileID: 7565263394670104576}
 --- !u!1001 &1751969916428571143
 PrefabInstance:
   m_ObjectHideFlags: 0
