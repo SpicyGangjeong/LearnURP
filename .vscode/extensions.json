@@ -1,7 +1,11 @@
 {
-  "recommendations": [
-    "ms-dotnettools.csharp",
-    "ms-dotnettools.csdevkit",
-    "visualstudiotoolsforunity.vstuc"
-  ]
+    "recommendations": [
+        "nromanov.dotrush",
+        "visualstudiotoolsforunity.vstuc"
+    ],
+    "unwantedRecommendations": [
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.csdevkit",
+        "visualstudiotoolsforunity.vstuc"
+    ]
 }

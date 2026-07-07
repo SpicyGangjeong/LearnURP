@@ -4,10 +4,10 @@ using UnityEngine.Pool;
 
 public interface IPoolable
 {
-    void OnCreate();
-    void OnDestroy();
-    void OnSpawn();
-    void OnDespawn();
+    abstract void OnCreate();
+    abstract void OnExtinct();
+    abstract void OnSpawn();
+    abstract void OnDespawn();
 }
 
 public static class PoolKeys
@@ -41,7 +41,7 @@ public class ComponentObjectPool<T> : IComponentObjectPool where T : Component
             () => CreateInstance(pPrefab),
             OnGet,
             OnRelease,
-            OnDestroy,
+            OnExtinct,
             collectionCheck: true,
             defaultCapacity: iCapacity,
             maxSize: iPoolMaxSize
@@ -49,7 +49,7 @@ public class ComponentObjectPool<T> : IComponentObjectPool where T : Component
 
         for (int i = 0; i < iCapacity; i++)
         {
-            m_pPool.Release(m_pPool.Get());
+            m_pPool.Get();
         }
     }
 
@@ -68,8 +68,6 @@ public class ComponentObjectPool<T> : IComponentObjectPool where T : Component
 
     void OnGet(T pInstance)
     {
-        pInstance.gameObject.SetActive(true);
-
         if (pInstance is IPoolable pPoolable)
         {
             pPoolable.OnSpawn();
@@ -87,11 +85,11 @@ public class ComponentObjectPool<T> : IComponentObjectPool where T : Component
         pInstance.transform.SetParent(m_pPoolRoot, false);
     }
 
-    void OnDestroy(T pInstance)
+    void OnExtinct(T pInstance)
     {
         if (pInstance is IPoolable pPoolable)
         {
-            pPoolable.OnDestroy();
+            pPoolable.OnExtinct();
         }
 
         Object.Destroy(pInstance.gameObject);
@@ -105,6 +103,7 @@ public class ComponentObjectPool<T> : IComponentObjectPool where T : Component
         {
             pInstance.transform.SetParent(pParent, false);
         }
+        pInstance.gameObject.SetActive(true);
 
         return pInstance;
     }
@@ -182,7 +181,7 @@ public class ObjectPoolManager
             Debug.LogError($"ObjectPoolManager.Release: pool not registered for key '{strKey}'.");
             return;
         }
-
+        
         pPool.Release(pInstance);
     }
 

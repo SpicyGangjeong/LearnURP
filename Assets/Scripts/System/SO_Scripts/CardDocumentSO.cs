@@ -5,7 +5,6 @@ using UnityEngine.Serialization;
 [CreateAssetMenu(fileName = "CardDocumentSO", menuName = "Scriptable Objects/CardDocumentSO")]
 public class CardDocumentSO : ScriptableObject
 {
-    [FormerlySerializedAs("cardInfos")]
     [SerializeField] List<CardInfo> m_vCardInfos = new List<CardInfo>();
 
     Dictionary<int, CardInfo> m_vCardLookup = null;
@@ -50,6 +49,7 @@ public class CardDocumentSO : ScriptableObject
 
             m_vCardNameLookup.Add(pCardInfo.m_strCardName, pCardInfo);
         }
+        RebuildCardDescription();
     }
 
     public bool TryGetCard(int iCardID, out CardInfo pCardInfo)

@@ -7,7 +7,6 @@ using UnityEngine.Serialization;
 // 프리팹을 로드하고 인스턴스화하는 예제입니다.
 public class LoadFromAssetReference : MonoBehaviour
 {
-    [FormerlySerializedAs("playerPrefabRef")]
     public AssetReferenceGameObject m_pPlayerPrefabRef;
     AsyncOperationHandle<GameObject> m_hLoadHandle;
 

@@ -3,19 +3,19 @@ using UnityEngine;
 
 public class LevelManager
 {
-    Dictionary<DEFINES.SceneID, SceneAddressable> m_vSceneAddressables = new Dictionary<DEFINES.SceneID, SceneAddressable>();
+    Dictionary<DEFINES.ENUMS.SceneID, SceneAddressable> m_vSceneAddressables = new Dictionary<DEFINES.ENUMS.SceneID, SceneAddressable>();
     public LevelManager(List<SceneReference> vSceneReferences){
         foreach (SceneReference pSceneReference in vSceneReferences)
         {
             m_vSceneAddressables.Add(pSceneReference.m_iSceneID, new SceneAddressable(pSceneReference.m_pSceneReference));
         }
     }
-    DEFINES.SceneID m_iCurrentSceneID = DEFINES.SceneID.NONE;
-    async public void ChangeScene(DEFINES.SceneID iSceneID)
+    DEFINES.ENUMS.SceneID m_iCurrentSceneID = DEFINES.ENUMS.SceneID.NONE;
+    async public void ChangeScene(DEFINES.ENUMS.SceneID iSceneID)
     {
         if (m_vSceneAddressables.TryGetValue(iSceneID, out SceneAddressable pSceneAddressable))
         {
-            if (m_iCurrentSceneID != DEFINES.SceneID.NONE)
+            if (m_iCurrentSceneID != DEFINES.ENUMS.SceneID.NONE)
             {
                 await m_vSceneAddressables[m_iCurrentSceneID].UnloadScene();
             }

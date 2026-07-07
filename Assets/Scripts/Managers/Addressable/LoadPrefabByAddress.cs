@@ -7,7 +7,6 @@ using UnityEngine.Serialization;
 // 주소는 Addressable Asset System에서 설정한 주소와 일치해야 합니다.
 public class LoadPrefabByAddress : MonoBehaviour
 {
-    [FormerlySerializedAs("prefabAddress")]
     public string m_strPrefabAddress = "Assets/Prefabs/MyPrefab.prefab";
     AsyncOperationHandle<GameObject> m_hLoadHandle;
 

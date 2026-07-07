@@ -2,6 +2,7 @@
   <Project Path="UniTask.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="UniTask.Linq.csproj" />
+  <Project Path="Unity.Cursor.Editor.csproj" />
   <Project Path="UniTask.TextMeshPro.csproj" />
   <Project Path="UniTask.Editor.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />

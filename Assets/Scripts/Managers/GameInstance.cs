@@ -5,17 +5,25 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using UnityEngine.Serialization;
+using Cysharp.Threading.Tasks;
+
+public delegate void DrawCard(Card pCard);
+public delegate void PlayCard(Card pCard);
+public delegate void DiscardCard(Card pCard);
+public delegate void ReturnCard(Card pCard);
+public delegate void DisappearCard(Card pCard);
+public delegate void ShuffleCard();
+
+public delegate void LerpModelCallback();
+
 
 public class CGameInstance : MonoBehaviour
 {
     static CGameInstance s_pInstance = null;
     public static CGameInstance Instance { get { Init(); return s_pInstance; } }
 
-    [FormerlySerializedAs("sceneSO")]
     [SerializeField] SceneSO m_pSceneSO = null;
-    [FormerlySerializedAs("cardDocumentSO")]
     [SerializeField] CardDocumentSO m_pCardDocumentSO = null;
-    [FormerlySerializedAs("cardInitialSetSO")]
     [SerializeField] List<CardInitialSetSO> m_vCardInitialSetSO = null;
     ContentUpdater m_pContentUpdater = null;
     DeckManager m_pDeckManager = null;
@@ -25,15 +33,10 @@ public class CGameInstance : MonoBehaviour
     ObjectPoolManager m_pObjectPoolManager = null;
     Transform m_pPoolRoot = null;
 
+    public DeckManager Deck => m_pDeckManager;
     public ObjectPoolManager ObjectPools => m_pObjectPoolManager;
+    public JobQueueManager JobQueues => m_pJobQueueManager;
 
-    public event DrawCard       OnDrawCard { add { m_pDeckManager.m_pOnDrawCard += value; } remove { m_pDeckManager.m_pOnDrawCard -= value; } }
-    public event PlayCard       OnPlayCard { add { m_pDeckManager.m_pOnPlayCard += value; } remove { m_pDeckManager.m_pOnPlayCard -= value; } }
-    public event DiscardCard    OnDiscardCard { add { m_pDeckManager.m_pOnDiscardCard += value; } remove { m_pDeckManager.m_pOnDiscardCard -= value; } }
-    public event ReturnCard     OnReturnCard { add { m_pDeckManager.m_pOnReturnCard += value; } remove { m_pDeckManager.m_pOnReturnCard -= value; } }
-    public event DisappearCard  OnDisappearCard { add { m_pDeckManager.m_pOnDisappearCard += value; } remove { m_pDeckManager.m_pOnDisappearCard -= value; } }
-    public event ShuffleCard    OnShuffleCard { add { m_pDeckManager.m_pOnShuffleCard += value; } remove { m_pDeckManager.m_pOnShuffleCard -= value; } }
-    public event EndTurn        OnEndTurn { add { m_pDeckManager.m_pOnEndTurn += value; } remove { m_pDeckManager.m_pOnEndTurn -= value; } }
     CFSM m_pFsm = null;
     public CardDocumentSO CardDocuments => m_pCardDocumentSO;
 
@@ -41,7 +44,11 @@ public class CGameInstance : MonoBehaviour
     {
         m_pJobQueueManager.EnqueueJob(pJob);
     }
-
+    public void Awake()
+    {
+        Init();
+    }
+    
     private static void Init()
     {
         if (null == s_pInstance)
@@ -73,16 +80,16 @@ public class CGameInstance : MonoBehaviour
             return;
         }
         s_pInstance.m_pFsm.m_vStates = new Dictionary<int, CState>();
-        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.SystemState.INITIALIZE, new CState_Sys_Initialize(
-            new CState_Sys_Initialize.STATE_SYS_INITIALIZE_DESC((int)DEFINES.SystemState.INITIALIZE, s_pInstance, s_pInstance.m_pFsm, s_pInstance, s_pInstance.BootstrapAsync)));
-        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.SystemState.IDLE, new CState_Sys_Idle(
-            new CState_Sys_Idle.STATE_SYS_IDLE_DESC((int)DEFINES.SystemState.IDLE, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
-        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.SystemState.PLAYING, new CState_Sys_Playing(
-            new CState_Sys_Playing.STATE_SYS_PLAYING_DESC((int)DEFINES.SystemState.PLAYING, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
+        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.ENUMS.SystemState.INITIALIZE, new CState_Sys_Initialize(
+            new CState_Sys_Initialize.STATE_SYS_INITIALIZE_DESC((int)DEFINES.ENUMS.SystemState.INITIALIZE, s_pInstance, s_pInstance.m_pFsm, s_pInstance, s_pInstance.BootstrapAsync)));
+        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.ENUMS.SystemState.IDLE, new CState_Sys_Idle(
+            new CState_Sys_Idle.STATE_SYS_IDLE_DESC((int)DEFINES.ENUMS.SystemState.IDLE, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
+        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.ENUMS.SystemState.PLAYING, new CState_Sys_Playing(
+            new CState_Sys_Playing.STATE_SYS_PLAYING_DESC((int)DEFINES.ENUMS.SystemState.PLAYING, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
             
-        if (true == s_pInstance.m_pFsm.Is_Valid_FSM((int)DEFINES.SystemState.END))
+        if (true == s_pInstance.m_pFsm.Is_Valid_FSM((int)DEFINES.ENUMS.SystemState.END))
         {
-            s_pInstance.m_pFsm.Change_State((int)DEFINES.SystemState.INITIALIZE);
+            s_pInstance.m_pFsm.Change_State((int)DEFINES.ENUMS.SystemState.INITIALIZE);
         }
     }
     private static bool Initialize(ref CGameInstance pInstance)
@@ -144,58 +151,12 @@ public class CGameInstance : MonoBehaviour
     }
     public void StartDeck(int iInitialSetIndex)
     {
-        if (m_pFsm.IsCurrentState((int)DEFINES.SystemState.IDLE))
+        if (m_pFsm.IsCurrentState((int)DEFINES.ENUMS.SystemState.IDLE))
         {
             m_pDeckManager.Initialize(m_vCardInitialSetSO[iInitialSetIndex]);
             m_pDeckManager.StartGame();
         }
     }
-    public int GetPileCount(DEFINES.CardPile iPileType)
-    {
-        return m_pDeckManager.GetPileCount(iPileType);
-    }
-    public IReadOnlyList<Card> GetCards(DEFINES.CardPile iPileType)
-    {
-        return m_pDeckManager.GetCards(iPileType);
-    }
-
-    public bool TryPlayCard(Card pCard)
-    {
-        if (false == CanPlayHandCard())
-        {
-            return false;
-        }
-
-        return m_pDeckManager.PlayCard(pCard);
-    }
-
-    public bool TryDiscardCard(Card pCard)
-    {
-        if (false == CanPlayHandCard())
-        {
-            return false;
-        }
-
-        return m_pDeckManager.DiscardCard(pCard);
-    }
-
-    public bool TryEndTurn()
-    {
-        if (false == CanPlayHandCard())
-        {
-            return false;
-        }
-
-        m_pDeckManager.EndTurn();
-        return true;
-    }
-
-    bool CanPlayHandCard()
-    {
-        return m_pFsm.IsCurrentState((int)DEFINES.SystemState.IDLE)
-            || m_pFsm.IsCurrentState((int)DEFINES.SystemState.PLAYING);
-    }
-
     public async Task<Object> LoadAddressAssetAsync(string strAssetName)
     {
         AsyncOperationHandle<Object> hHandle = await m_pAssetManager.LoadAddressAssetAsync(strAssetName);
@@ -255,7 +216,6 @@ public class CGameInstance : MonoBehaviour
             pCardInitialSet.SetCardDocumentSO(m_pCardDocumentSO);
         }
     }
-
     public CardInfo GetCardInfo(int iCardID)
     {
         if (null == m_pCardDocumentSO)
@@ -266,19 +226,9 @@ public class CGameInstance : MonoBehaviour
 
         return m_pCardDocumentSO.GetCard(iCardID);
     }
-
-    public void ChangeScene(DEFINES.SceneID iSceneID)
+    public void ChangeScene(DEFINES.ENUMS.SceneID iSceneID)
     {
         m_pLevelManager.ChangeScene(iSceneID);
-    }
-
-    private void Awake()
-    {
-        
-    }
-    private void Start()
-    {
-        Init();
     }
     public async Task BootstrapAsync()
     {
@@ -286,7 +236,6 @@ public class CGameInstance : MonoBehaviour
         await LoadCardDocumentsAsync();
         await LoadCardInitialSetAsync();
     }
-
     private void OnDestroy()
     {
         if (null != m_pObjectPoolManager)

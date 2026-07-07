@@ -1,0 +1,87 @@
+---
+description: C# / Unity Hungarian 네이밍 및 프로젝트 코딩 컨벤션
+globs: Assets/**/*.cs
+alwaysApply: false
+---
+
+# C# / Unity 네이밍 컨벤션
+
+## 스코프 접두사 (필드만)
+
+| 접두사 | 대상 |
+|--------|------|
+| `m_` | 멤버 변수 |
+| `s_` | static 필드, `const`, `static readonly` |
+| `g_` | namespace / file scope 전역 |
+
+파라미터·지역 변수에는 `m_`/`s_`/`g_` 사용하지 않음.
+
+## 타입 접두사
+
+필드: 스코프 접두사 뒤에 붙임. 파라미터·지역 변수: 타입 접두사만.
+
+| 접두사 | 타입 |
+|--------|------|
+| `i` | int, enum (enum 파라미터도 `iPileType`, `iStateID`) |
+| `b` | bool |
+| `f` | float |
+| `str` | string |
+| `p` | object, Component, Transform, Vector2/Vector3, delegate |
+| `v` | List, Dictionary, array, Queue |
+| `h` | handle (`AsyncOperationHandle` 등) |
+
+## 예시
+
+```csharp
+static CGameInstance s_pInstance = null;
+const int s_iHandDrawCount = 5;
+List<Card> m_vDeckOriginal = new List<Card>();
+DeckManager m_pDeckManager = null;
+event DrawCard m_pOnDrawCard;
+
+void Register(string strKey, Component pPrefab, int iStartCount) { }
+Card pCard = new Card(pCardInfo);
+AsyncOperationHandle<Object> hHandle = await LoadAsync(strAssetName);
+```
+
+## public 프로퍼티 / 이벤트
+
+- 프로퍼티: PascalCase, Hungarian 없음 (`StateID`, `Instance`, `ObjectPools`)
+- public 이벤트 래퍼: `OnDrawCard`, `OnEndTurn` (내부 필드는 `m_pOnDrawCard`)
+
+## 클래스 / 메서드
+
+- FSM·코어 프레임워크: `C` 접두사 (`CGameInstance`, `CFSM`, `CState`, `CMyTools`)
+- 일반 매니저·UI·데이터: PascalCase (`DeckManager`, `HandBoard`, `CardDocumentSO`)
+- FSM 메서드: 언더스코어 (`Change_State`, `Fixed_Update_State`, `Get_PrevState`)
+- 그 외 메서드: PascalCase (`DrawCard`, `RebuildHand`, `TryPlayCard`)
+
+## if 문
+
+- 조건과 본문을 **한 줄에 쓰지 않음**. 중괄호 `{}` 필수, 본문은 다음 줄
+- 중괄호 없는 단문 if 금지
+
+```csharp
+// ❌ BAD
+if (null == pCard) { return; }
+if (null == pCard) return;
+
+// ✅ GOOD
+if (null == pCard)
+{
+    return;
+}
+
+if (false == m_vPools.TryGetValue(strKey, out IComponentObjectPool pPool))
+{
+    return;
+}
+```
+
+`else`, `else if`도 동일하게 중괄호·줄바꿈 적용.
+
+## 기타
+
+- Yoda 비교: `if (null == p)`, `if (false == b)`
+- enum은 `DEFINES` namespace에 정의
+- for 루프 인덱스: `i`
