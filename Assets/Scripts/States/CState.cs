@@ -4,12 +4,24 @@ public abstract class CState
 {
     public class CSTATEDESC
     {
-        public MonoBehaviour pOwner;
+        public CSTATEDESC(int iStateID, MonoBehaviour pOwner, CFSM pFsm)
+        {
+            this.StateID = iStateID;
+            this.Owner = pOwner;
+            this.FSM = pFsm;
+        }
+        public int StateID{ get; private set; }
+        public MonoBehaviour Owner{ get; private set; }
+        public CFSM FSM{ get; private set; } = null;
     }
-    public CState(CSTATEDESC refOwner) {
-        Owner = refOwner.pOwner;
+    public CState(CSTATEDESC pRefOwner) {
+        StateID = pRefOwner.StateID;
+        Owner = pRefOwner.Owner;
+        FSM = pRefOwner.FSM;
     }
-    public MonoBehaviour Owner = null;
+    public int StateID { get; private set; } = -1;
+    public MonoBehaviour Owner { get; private set; } = null;
+    public CFSM FSM { get; private set; } = null;
     public abstract void Enter();
     public abstract void Fixed_Update_State();
     public abstract void Update_State();

@@ -1,98 +1,248 @@
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.Android;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
+using UnityEngine.Serialization;
+using Cysharp.Threading.Tasks;
+
+public delegate void DrawCard(Card pCard);
+public delegate void PlayCard(Card pCard);
+public delegate void DiscardCard(Card pCard);
+public delegate void ReturnCard(Card pCard);
+public delegate void DisappearCard(Card pCard);
+public delegate void ShuffleCard();
+
+public delegate void LerpModelCallback();
+
 
 public class CGameInstance : MonoBehaviour
 {
     static CGameInstance s_pInstance = null;
     public static CGameInstance Instance { get { Init(); return s_pInstance; } }
 
+    [SerializeField] SceneSO m_pSceneSO = null;
+    [SerializeField] CardDocumentSO m_pCardDocumentSO = null;
+    [SerializeField] List<CardInitialSetSO> m_vCardInitialSetSO = null;
+    ContentUpdater m_pContentUpdater = null;
+    DeckManager m_pDeckManager = null;
+    LevelManager m_pLevelManager = null;
+    AssetManager m_pAssetManager = null;
+    JobQueueManager m_pJobQueueManager = null;
+    ObjectPoolManager m_pObjectPoolManager = null;
+    Transform m_pPoolRoot = null;
+
+    public DeckManager Deck => m_pDeckManager;
+    public ObjectPoolManager ObjectPools => m_pObjectPoolManager;
+    public JobQueueManager JobQueues => m_pJobQueueManager;
+
+    CFSM m_pFsm = null;
+    public CardDocumentSO CardDocuments => m_pCardDocumentSO;
+
+    public void EnqueueJob(IJob pJob)
+    {
+        m_pJobQueueManager.EnqueueJob(pJob);
+    }
+    public void Awake()
+    {
+        Init();
+    }
     
-    [SerializeField] CardDocuments cardDocuments = null;
-
-    DeckManager deckManager = null;
-    ContentUpdater contentUpdater = null;
-    AsyncOperationHandle<IList<CardDocuments>> cardDocumentsHandle;
-    public CardDocuments CardDocuments => cardDocuments;
-
-    static private void Init()
+    private static void Init()
     {
         if (null == s_pInstance)
         {
             string strInstance = "@GameInstance";
-            GameObject gameobject = GameObject.Find(strInstance);
-            if (null == gameobject)
+            GameObject pGameObject = GameObject.Find(strInstance);
+            if (null == pGameObject)
             {
-                gameobject = new GameObject(strInstance);
-                gameobject.AddComponent<CGameInstance>();
-                gameobject.AddComponent<CFSM>();
+                pGameObject = new GameObject(strInstance);
+                pGameObject.AddComponent<CGameInstance>();
             }
-            DontDestroyOnLoad(gameobject);
-            s_pInstance = gameobject.GetComponent<CGameInstance>();
-            bool bResult = Initialize(ref s_pInstance);
+            DontDestroyOnLoad(pGameObject);
+            s_pInstance = pGameObject.GetComponent<CGameInstance>();
+            s_pInstance.m_pFsm = pGameObject.AddComponent<CFSM>();
+            Initialize(ref s_pInstance);
         }
     }
-    static private bool Initialize(ref CGameInstance Instance)
+
+    private static void InitializeFSMStates()
     {
-        Instance.contentUpdater = Instance.gameObject.AddComponent<ContentUpdater>();
-        Instance.deckManager = new DeckManager();
-        if (null == Instance.contentUpdater || null == Instance.deckManager)
+        if (null == s_pInstance)
+        {
+            Debug.LogError("s_pInstance is null");
+            return;
+        }
+        if (null == s_pInstance.m_pFsm)
+        {
+            Debug.LogError("fsm is null");
+            return;
+        }
+        s_pInstance.m_pFsm.m_vStates = new Dictionary<int, CState>();
+        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.ENUMS.SystemState.INITIALIZE, new CState_Sys_Initialize(
+            new CState_Sys_Initialize.STATE_SYS_INITIALIZE_DESC((int)DEFINES.ENUMS.SystemState.INITIALIZE, s_pInstance, s_pInstance.m_pFsm, s_pInstance, s_pInstance.BootstrapAsync)));
+        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.ENUMS.SystemState.IDLE, new CState_Sys_Idle(
+            new CState_Sys_Idle.STATE_SYS_IDLE_DESC((int)DEFINES.ENUMS.SystemState.IDLE, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
+        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.ENUMS.SystemState.PLAYING, new CState_Sys_Playing(
+            new CState_Sys_Playing.STATE_SYS_PLAYING_DESC((int)DEFINES.ENUMS.SystemState.PLAYING, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
+            
+        if (true == s_pInstance.m_pFsm.Is_Valid_FSM((int)DEFINES.ENUMS.SystemState.END))
+        {
+            s_pInstance.m_pFsm.Change_State((int)DEFINES.ENUMS.SystemState.INITIALIZE);
+        }
+    }
+    private static bool Initialize(ref CGameInstance pInstance)
+    {
+        pInstance.m_pContentUpdater = pInstance.gameObject.AddComponent<ContentUpdater>();
+        pInstance.m_pAssetManager = new AssetManager();
+        pInstance.m_pDeckManager = new DeckManager();
+        pInstance.m_pLevelManager = new LevelManager(pInstance.m_pSceneSO.m_vSceneReferences);
+        pInstance.m_pJobQueueManager = new JobQueueManager();
+        pInstance.m_pFsm = pInstance.gameObject.GetComponent<CFSM>();
+        pInstance.m_pPoolRoot = EnsurePoolRoot(pInstance.gameObject.transform);
+        pInstance.m_pObjectPoolManager = new ObjectPoolManager(pInstance.m_pPoolRoot);
+        if (null == pInstance.m_pContentUpdater || 
+            null == pInstance.m_pAssetManager ||
+            null == pInstance.m_pDeckManager || 
+            null == pInstance.m_pLevelManager ||
+            null == pInstance.m_pJobQueueManager ||
+            null == pInstance.m_pFsm ||
+            null == pInstance.m_pObjectPoolManager)
         {
             return false;
         }
+        InitializeFSMStates();
         return true;
     }
 
-    async Task LoadCardDocumentsAsync()
+    static Transform EnsurePoolRoot(Transform pParent)
     {
-        if (null != cardDocuments)
+        Transform pExisting = pParent.Find("PoolRoot");
+        if (null != pExisting)
         {
-            return;
+            return pExisting;
         }
 
-        LoadAssetsByLabel<CardDocuments> loader = new LoadAssetsByLabel<CardDocuments>("CardDocuments");
-        cardDocumentsHandle = await loader.LoadAsync();
-        if (false == cardDocumentsHandle.IsValid() ||
-         null == cardDocumentsHandle.Result ||
-          0 == cardDocumentsHandle.Result.Count)
-        {
-            Debug.LogError("CardDocuments not found via Addressables label 'CardDocuments'.");
-            return;
-        }
-
-        cardDocuments = cardDocumentsHandle.Result[0];
+        GameObject pPoolRootObject = new GameObject("PoolRoot");
+        pPoolRootObject.transform.SetParent(pParent, false);
+        return pPoolRootObject.transform;
     }
 
-    public CardInfo GetCardInfo(int cardID)
+    public T GetPooled<T>(string strKey, Transform pParent = null) where T : Component
     {
-        if (null == cardDocuments)
+        if (null == m_pObjectPoolManager)
+        {
+            Debug.LogError("ObjectPoolManager is null.");
+            return null;
+        }
+
+        return m_pObjectPoolManager.Get<T>(strKey, pParent);
+    }
+
+    public void ReleasePooled<T>(string strKey, T pInstance) where T : Component
+    {
+        if (null == m_pObjectPoolManager)
+        {
+            return;
+        }
+
+        m_pObjectPoolManager.Release(strKey, pInstance);
+    }
+    public void StartDeck(int iInitialSetIndex)
+    {
+        if (m_pFsm.IsCurrentState((int)DEFINES.ENUMS.SystemState.IDLE))
+        {
+            m_pDeckManager.Initialize(m_vCardInitialSetSO[iInitialSetIndex]);
+            m_pDeckManager.StartGame();
+        }
+    }
+    public async Task<Object> LoadAddressAssetAsync(string strAssetName)
+    {
+        AsyncOperationHandle<Object> hHandle = await m_pAssetManager.LoadAddressAssetAsync(strAssetName);
+        return hHandle.Result;
+    }
+    private async Task LoadPrototypesAsync()
+    {
+        const int iCardCanvasPoolSize = 10;
+        AsyncOperationHandle<Object> hCardCanvasHandle = await m_pAssetManager.LoadAddressAssetAsync("CardCanvas");
+        GameObject pCardCanvasPrefab = hCardCanvasHandle.Result as GameObject;
+        if (null == pCardCanvasPrefab)
+        {
+            Debug.LogError("CardCanvas prefab load failed.");
+            return;
+        }
+
+        CardCanvas pCardCanvasComponent = pCardCanvasPrefab.GetComponent<CardCanvas>();
+        if (null == pCardCanvasComponent)
+        {
+            Debug.LogError("CardCanvas component missing on prefab.");
+            return;
+        }
+
+        if (m_pObjectPoolManager.IsRegistered(PoolKeys.s_strCardCanvas))
+        {
+            return;
+        }
+
+        m_pObjectPoolManager.Register(PoolKeys.s_strCardCanvas, pCardCanvasComponent, iCardCanvasPoolSize, iMaxSize: 0);
+    }
+    private async Task LoadCardDocumentsAsync()
+    {
+        if (null != m_pCardDocumentSO)
+        {
+            return;
+        }
+
+        AsyncOperationHandle<Object> hCardDocumentsHandle = await m_pAssetManager.LoadAddressAssetAsync("CardDocuments");
+        m_pCardDocumentSO = hCardDocumentsHandle.Result as CardDocumentSO;
+    }
+    private async Task LoadCardInitialSetAsync()
+    {
+        if (0 != m_vCardInitialSetSO.Count)
+        {
+            return;
+        }
+
+        AsyncOperationHandle<IList<Object>> hCardInitialSetsHandle = await m_pAssetManager.LoadLabelAssetsAsync("CardInitialSets");
+        m_vCardInitialSetSO = hCardInitialSetsHandle.Result.Cast<CardInitialSetSO>().ToList();
+
+        InitializeCardInitialSets();
+    }
+    private void InitializeCardInitialSets()
+    {
+        foreach (CardInitialSetSO pCardInitialSet in m_vCardInitialSetSO)
+        {
+            pCardInitialSet.SetCardDocumentSO(m_pCardDocumentSO);
+        }
+    }
+    public CardInfo GetCardInfo(int iCardID)
+    {
+        if (null == m_pCardDocumentSO)
         {
             Debug.LogError("CardDocuments is null");
             return null;
         }
 
-        return cardDocuments.GetCard(cardID);
+        return m_pCardDocumentSO.GetCard(iCardID);
     }
-
-    private void Awake()
+    public void ChangeScene(DEFINES.ENUMS.SceneID iSceneID)
     {
-        
+        m_pLevelManager.ChangeScene(iSceneID);
     }
-    async void Start()
+    public async Task BootstrapAsync()
     {
-        Init();
+        await LoadPrototypesAsync();
         await LoadCardDocumentsAsync();
+        await LoadCardInitialSetAsync();
     }
-
-    void OnDestroy()
+    private void OnDestroy()
     {
-        if (cardDocumentsHandle.IsValid())
+        if (null != m_pObjectPoolManager)
         {
-            Addressables.Release(cardDocumentsHandle);
+            m_pObjectPoolManager.ClearAll();
         }
+
+        m_pAssetManager.ReleaseAssets();
     }
 }

@@ -1,5 +1,32 @@
 {
-  "files.exclude": {
-    "**/*.meta": true
-  }
+    "dotnet.defaultSolution": "LearnURP.sln",
+    "dotrush.roslyn.projectOrSolutionFiles": [
+        "LearnURP.sln"
+    ],
+    "dotrush.roslyn.loadMetadataForReferencedProjects": false,
+    "editor.semanticHighlighting.enabled": true,
+    "csharp.semanticHighlighting.enabled": true,
+    "files.exclude": {
+        "**/*.meta": true,
+        "**/Library": true,
+        "**/Temp": true,
+        "**/Obj": true,
+        "**/Logs": true,
+        "**/Build": true,
+        "**/Builds": true
+    },
+    "files.watcherExclude": {
+        "**/Library/**": true,
+        "**/Temp/**": true,
+        "**/Obj/**": true,
+        "**/Logs/**": true,
+        "**/Build/**": true,
+        "**/Builds/**": true
+    },
+    "search.exclude": {
+        "**/Library": true,
+        "**/Temp": true,
+        "**/Obj": true,
+        "**/Logs": true
+    }
 }

@@ -9,25 +9,25 @@ public class ContentUpdater : MonoBehaviour
     {
         await Addressables.InitializeAsync().Task;
 
-        AsyncOperationHandle<List<string>> checkHandle = Addressables.CheckForCatalogUpdates(false);
-        await checkHandle.Task;
+        AsyncOperationHandle<List<string>> hCheckHandle = Addressables.CheckForCatalogUpdates(false);
+        await hCheckHandle.Task;
 
-        if (checkHandle.Status == AsyncOperationStatus.Succeeded)
+        if (hCheckHandle.Status == AsyncOperationStatus.Succeeded)
         {
-            List<string> catalogsToUpdate = checkHandle.Result;
-            if (catalogsToUpdate != null && catalogsToUpdate.Count > 0)
+            List<string> vCatalogsToUpdate = hCheckHandle.Result;
+            if (vCatalogsToUpdate != null && vCatalogsToUpdate.Count > 0)
             {
-                Debug.Log($"Catalog updates found: {catalogsToUpdate.Count} catalogs need updating.");
+                Debug.Log($"Catalog updates found: {vCatalogsToUpdate.Count} catalogs need updating.");
 
                 AsyncOperationHandle<List<UnityEngine.AddressableAssets.ResourceLocators
-                    .IResourceLocator>> updateHandle = Addressables.UpdateCatalogs(catalogsToUpdate, false);
-                await updateHandle.Task;
+                    .IResourceLocator>> hUpdateHandle = Addressables.UpdateCatalogs(vCatalogsToUpdate, false);
+                await hUpdateHandle.Task;
 
-                if (updateHandle.Status == AsyncOperationStatus.Succeeded)
+                if (hUpdateHandle.Status == AsyncOperationStatus.Succeeded)
                 {
                     List<UnityEngine.AddressableAssets.ResourceLocators
-                        .IResourceLocator> updatedLocators = updateHandle.Result;
-                    Debug.Log($"Catalogs updated successfully: {updatedLocators.Count} catalogs updated.");
+                        .IResourceLocator> vUpdatedLocators = hUpdateHandle.Result;
+                    Debug.Log($"Catalogs updated successfully: {vUpdatedLocators.Count} catalogs updated.");
                 } else
                 {
                     Debug.LogError("Failed to update catalogs.");
@@ -37,7 +37,7 @@ public class ContentUpdater : MonoBehaviour
             {
                 Debug.Log("no updates available.");
             }
-            Addressables.Release(checkHandle);
+            Addressables.Release(hCheckHandle);
         }
     }
 }

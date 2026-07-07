@@ -1,40 +1,41 @@
 ﻿using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.Serialization;
 
 // AssetReference를 사용하여 프리팹을 인스턴스화하는 예제입니다.
 public class InstantiateAddressable : MonoBehaviour
 {
-    public AssetReferenceGameObject enemyPrefabRef;
-    private AsyncOperationHandle<GameObject> instantiateHandle;
-    private GameObject spawnedEnemy;
+    public AssetReferenceGameObject m_pEnemyPrefabRef;
+    AsyncOperationHandle<GameObject> m_hInstantiateHandle;
+    GameObject m_pSpawnedEnemy;
 
     async void Start()
     {
-        if (false == enemyPrefabRef.RuntimeKeyIsValid())
+        if (false == m_pEnemyPrefabRef.RuntimeKeyIsValid())
         {
             return;
         }
 
-        instantiateHandle = enemyPrefabRef.InstantiateAsync(Vector3.zero, Quaternion.identity);
+        m_hInstantiateHandle = m_pEnemyPrefabRef.InstantiateAsync(Vector3.zero, Quaternion.identity);
 
-        spawnedEnemy = await instantiateHandle.Task;
+        m_pSpawnedEnemy = await m_hInstantiateHandle.Task;
 
-        if (instantiateHandle.Status == AsyncOperationStatus.Succeeded 
-            && spawnedEnemy != null)
+        if (m_hInstantiateHandle.Status == AsyncOperationStatus.Succeeded 
+            && m_pSpawnedEnemy != null)
         {
             Debug.Log("Enemy prefab instantiated successfully.");
         } else
         {
-            Debug.LogError($"Failed to Instantiate prefab from AssetReference: {enemyPrefabRef.AssetGUID}");
+            Debug.LogError($"Failed to Instantiate prefab from AssetReference: {m_pEnemyPrefabRef.AssetGUID}");
         }
     }
 
     void OnDestroy()
     {
-        if (instantiateHandle.IsValid())
+        if (m_hInstantiateHandle.IsValid())
         {
-            enemyPrefabRef.ReleaseInstance(spawnedEnemy);
+            m_pEnemyPrefabRef.ReleaseInstance(m_pSpawnedEnemy);
         }
     }
 }

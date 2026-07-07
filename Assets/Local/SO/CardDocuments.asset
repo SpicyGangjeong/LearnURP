@@ -12,34 +12,88 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1b0b1e8ccd78b04f958739a4476fbdb, type: 3}
   m_Name: CardDocuments
   m_EditorClassIdentifier: Assembly-CSharp::CardDocuments
-  cardInfos:
-  - iCardID: 0
-    eCardType: 0
-    iCardCost: 1
-    strCardName: Basic Attack
-    listCardEffects:
-    - eCardEffectTriggerType: 1
-      eCardEffectTargetType: 1
-      eCardEffectValueType: 0
-      iCardEffectValue: 5
-      bCardEffectOptional: 0
-      iCardEffectOptionalValue: 0
-    strCardDescription: Shot
-  - iCardID: 1
-    eCardType: 1
-    iCardCost: 1
-    strCardName: Basic Defence
-    listCardEffects: []
-    strCardDescription: Defence
-  - iCardID: 2
-    eCardType: 2
-    iCardCost: 2
-    strCardName: Basic Magic
-    listCardEffects: []
-    strCardDescription: Magic
-  - iCardID: 3
-    eCardType: 3
-    iCardCost: 3
-    strCardName: Basic Item
-    listCardEffects: []
-    strCardDescription: Item
+  m_vCardInfos:
+  - m_iCardID: 1101
+    m_iCardType: 0
+    m_iCardCost: 1
+    m_strCardName: Basic Attack
+    m_vCardEffects:
+    - m_iCardEffectTriggerType: 1
+      m_iCardEffectTargetType: 1
+      m_iCardEffectValueType: 0
+      m_iCardEffectValue: 6
+      m_bCardEffectOptional: 0
+      m_iCardEffectOptionalValue: 0
+    m_strCardDescription: 'When Play, Selected Unit Damage by 6 points.
+
+'
+  - m_iCardID: 2101
+    m_iCardType: 1
+    m_iCardCost: 1
+    m_strCardName: Basic Defence
+    m_vCardEffects:
+    - m_iCardEffectTriggerType: 1
+      m_iCardEffectTargetType: 0
+      m_iCardEffectValueType: 2
+      m_iCardEffectValue: 5
+      m_bCardEffectOptional: 0
+      m_iCardEffectOptionalValue: 0
+    m_strCardDescription: 'When Play, Self Shield by 5 points.
+
+'
+  - m_iCardID: 3101
+    m_iCardType: 2
+    m_iCardCost: 1
+    m_strCardName: Basic Magic
+    m_vCardEffects:
+    - m_iCardEffectTriggerType: 1
+      m_iCardEffectTargetType: 2
+      m_iCardEffectValueType: 4
+      m_iCardEffectValue: 3
+      m_bCardEffectOptional: 0
+      m_iCardEffectOptionalValue: 0
+    m_strCardDescription: 'When Play, All Debuff by 3 points.
+
+'
+  - m_iCardID: 3201
+    m_iCardType: 2
+    m_iCardCost: 1
+    m_strCardName: Zero Deck
+    m_vCardEffects:
+    - m_iCardEffectTriggerType: 1
+      m_iCardEffectTargetType: 2
+      m_iCardEffectValueType: 4
+      m_iCardEffectValue: 3
+      m_bCardEffectOptional: 0
+      m_iCardEffectOptionalValue: 0
+    m_strCardDescription: 'When Play, All Debuff by 3 points.
+
+'
+  - m_iCardID: 3301
+    m_iCardType: 2
+    m_iCardCost: 1
+    m_strCardName: One Deck
+    m_vCardEffects:
+    - m_iCardEffectTriggerType: 1
+      m_iCardEffectTargetType: 2
+      m_iCardEffectValueType: 4
+      m_iCardEffectValue: 3
+      m_bCardEffectOptional: 0
+      m_iCardEffectOptionalValue: 0
+    m_strCardDescription: 'When Play, All Debuff by 3 points.
+
+'
+  - m_iCardID: 3401
+    m_iCardType: 2
+    m_iCardCost: 1
+    m_strCardName: Two Deck
+    m_vCardEffects:
+    - m_iCardEffectTriggerType: 1
+      m_iCardEffectTargetType: 2
+      m_iCardEffectValueType: 4
+      m_iCardEffectValue: 3
+      m_bCardEffectOptional: 0
+      m_iCardEffectOptionalValue: 0
+    m_strCardDescription: 'When Play, All Debuff by 3 points.
+
+'
