@@ -285,6 +285,14 @@ namespace DEFINES
             DEBUFF = 4,
             END = 5,
         }
+        public enum CardEffectParamKey
+        {
+            NONE = -1,
+            DURATION, 
+            BUFF_ID, 
+            COUNT,
+            END,
+        }
         [Flags]
         public enum JobStates : byte
         {
