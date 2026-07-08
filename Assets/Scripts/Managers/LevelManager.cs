@@ -3,26 +3,26 @@ using UnityEngine;
 
 public class LevelManager
 {
-    Dictionary<DEFINES.ENUMS.SceneID, SceneAddressable> m_vSceneAddressables = new Dictionary<DEFINES.ENUMS.SceneID, SceneAddressable>();
+    Dictionary<Defines.Enums.SceneID, SceneAddressable> m_vSceneAddressables = new Dictionary<Defines.Enums.SceneID, SceneAddressable>();
     public LevelManager(List<SceneReference> vSceneReferences){
         foreach (SceneReference pSceneReference in vSceneReferences)
         {
             m_vSceneAddressables.Add(pSceneReference.m_iSceneID, new SceneAddressable(pSceneReference.m_pSceneReference));
         }
     }
-    DEFINES.ENUMS.SceneID m_iCurrentSceneID = DEFINES.ENUMS.SceneID.NONE;
-    async public void ChangeScene(DEFINES.ENUMS.SceneID iSceneID)
+    Defines.Enums.SceneID m_eCurrentSceneID = Defines.Enums.SceneID.NONE;
+    async public void ChangeScene(Defines.Enums.SceneID eSceneID)
     {
-        if (m_vSceneAddressables.TryGetValue(iSceneID, out SceneAddressable pSceneAddressable))
+        if (m_vSceneAddressables.TryGetValue(eSceneID, out SceneAddressable pSceneAddressable))
         {
-            if (m_iCurrentSceneID != DEFINES.ENUMS.SceneID.NONE)
+            if (m_eCurrentSceneID != Defines.Enums.SceneID.NONE)
             {
-                await m_vSceneAddressables[m_iCurrentSceneID].UnloadScene();
+                await m_vSceneAddressables[m_eCurrentSceneID].UnloadScene();
             }
             await pSceneAddressable.LoadScene();
-            m_iCurrentSceneID = iSceneID;
+            m_eCurrentSceneID = eSceneID;
         } else {
-            Debug.LogError($"Scene not found: {iSceneID}");
+            Debug.LogError($"Scene not found: {eSceneID}");
         }
     }
 }

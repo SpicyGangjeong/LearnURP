@@ -1,5 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
-using DEFINES.STRUCTURES;
+using Defines.Structures;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,6 +8,13 @@ using UnityEngine.UIElements;
 
 public interface IJob
 {
+    [Flags]
+    public enum JobStates : byte
+    {
+        NONE = 0,
+        JOB_DELAY = 1 << 0, // 1
+        JOB_END_TURN = 1 << 1, // 2
+    }
     public static string Name { get; }
     UniTask Run();
 }

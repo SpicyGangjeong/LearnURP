@@ -16,7 +16,7 @@ public class CardInitialSetSO : ScriptableObject
     [SerializeField] string m_strCardInitialSetName = string.Empty;
     [SerializeField] CardDocumentSO m_pCardDocumentSO = null;
     [SerializeField] List<CardNameCount> m_vCardEntries = new List<CardNameCount>();
-    Dictionary<CardInfo, int> m_vCardInitialSetLookup = null;
+    Dictionary<CardData, int> m_vCardInitialSetLookup = null;
     
 
     public IReadOnlyList<CardNameCount> CardEntries => m_vCardEntries;
@@ -37,7 +37,7 @@ public class CardInitialSetSO : ScriptableObject
 
     void BuildLookup()
     {
-        m_vCardInitialSetLookup = new Dictionary<CardInfo, int>();
+        m_vCardInitialSetLookup = new Dictionary<CardData, int>();
         if (null == m_pCardDocumentSO)
         {
             return;
@@ -50,7 +50,7 @@ public class CardInitialSetSO : ScriptableObject
                 continue;
             }
 
-            if (false == m_pCardDocumentSO.TryGetCardByName(pEntry.m_strCardName, out CardInfo pCardInfo))
+            if (false == m_pCardDocumentSO.TryGetCardByName(pEntry.m_strCardName, out CardData pCardInfo))
             {
                 Debug.LogWarning($"Card not found in CardDocumentSO: {pEntry.m_strCardName}");
                 continue;
@@ -67,7 +67,7 @@ public class CardInitialSetSO : ScriptableObject
         }
     }
 
-    public IReadOnlyDictionary<CardInfo, int> GetCardInitialSet()
+    public IReadOnlyDictionary<CardData, int> GetCardInitialSet()
     {
         if (null == m_vCardInitialSetLookup)
         {

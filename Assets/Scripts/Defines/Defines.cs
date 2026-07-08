@@ -1,13 +1,13 @@
-﻿using DEFINES.STRUCTURES;
+﻿using Defines.Structures;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine.UIElements;
 
-namespace DEFINES
+namespace Defines
 {
-    namespace STRUCTURES
+    namespace Structures
     {
         public struct MoveInfo
         {
@@ -86,10 +86,10 @@ namespace DEFINES
                 }
                 public MoveInfo GetMoveInfo(float fRatio)
                 {
-                    Vector3 vTangent = HELPERS.GetQuadraticBezierTangent(fRatio, m_StartInfo.vPosition, m_CenterInfo.vPosition, m_EndInfo.vPosition);
-                    float fRotZ = (vTangent.sqrMagnitude > DEFINES.CONSTANTS.FLT_EPSILON5) ? Mathf.Atan2(vTangent.y, vTangent.x) * Mathf.Rad2Deg : 0f;
+                    Vector3 vTangent = Helpers.GetQuadraticBezierTangent(fRatio, m_StartInfo.vPosition, m_CenterInfo.vPosition, m_EndInfo.vPosition);
+                    float fRotZ = (vTangent.sqrMagnitude > Defines.Constants.FLT_EPSILON5) ? Mathf.Atan2(vTangent.y, vTangent.x) * Mathf.Rad2Deg : 0f;
                     return new MoveInfo(
-                        HELPERS.GetQuadraticBezierPoint(fRatio, m_StartInfo.vPosition, m_CenterInfo.vPosition, m_EndInfo.vPosition),
+                        Helpers.GetQuadraticBezierPoint(fRatio, m_StartInfo.vPosition, m_CenterInfo.vPosition, m_EndInfo.vPosition),
                         Quaternion.Euler(0f, 0f, fRotZ)
                     );
                 }
@@ -119,7 +119,7 @@ namespace DEFINES
             }
         }
     }
-    public static class CONSTANTS
+    public static class Constants
     {
         public static readonly float FLT_EPSILON7 = 1.2E-7F;
         public static readonly float FLT_EPSILON5 = 1.2E-5F;
@@ -130,7 +130,7 @@ namespace DEFINES
         public static readonly int TIME_MS_DISCARD_DURATION = 250;
         public static readonly int TIME_MS_DRAWING_INTERVAL = 200;
     }
-    public static class HELPERS
+    public static class Helpers
     {
         public static Vector3 GetQuadraticBezierPoint(float fT, Vector3 p0, Vector3 p1, Vector3 p2)
         {
@@ -206,99 +206,6 @@ namespace DEFINES
             {
                 return 0 == ToUInt64(iValue);
             }
-        }
-    }
-    namespace ENUMS
-    {
-        enum GamePlayCanvasPvtPos : int
-        {
-            DECK=0, 
-            DISCARD=1,
-            DISAPPEAR=2,
-            LEFT=3,
-            RIGHT=4,
-            HANDBOARD=5,
-            END=6,
-        }
-        enum SystemState : int
-        {
-            NONE = -1,
-            INITIALIZE = 0,
-            IDLE = 1,
-            PLAYING = 2,
-            END = 3,
-        }
-        public enum SceneID
-        {
-            NONE = -1,
-            MAIN_MENU = 0,
-            GAME_PLAY = 1,
-            END,
-        }
-        public enum CardPile
-        {
-            NONE = -1,
-            HAND = 0,
-            DISCARD = 1,
-            DECK = 2,
-            DISAPPEARED = 3,
-            FIELD = 4,
-            ALL = 5,
-            END = 6,
-        }
-        public enum CardType : int
-        {
-            NONE = -1,
-            ATTACK = 0,
-            DEFENSE = 1,
-            MAGIC = 2,
-            ITEM = 3,
-            END = 4,
-        }
-        public enum CardEffectTriggerType
-        {
-            NONE = -1,
-            DRAW = 0,
-            PLAY = 1,
-            DISCARD = 2,
-            RETURN = 3,
-            DISAPPEAR = 4,
-            SHUFFLE = 5,
-            END = 6,
-        }
-        public enum CardEffectTargetType
-        {
-            NONE = -1,
-            SELF = 0,
-            SELECTED = 1,
-            ALL = 2,
-            CARD = 3,
-            END,
-        }
-        public enum CardEffectValueType
-        {
-            NONE = -1,
-            DAMAGE = 0,
-            HEAL = 1,
-            SHIELD = 2,
-            BUFF = 3,
-            DEBUFF = 4,
-            END = 5,
-        }
-        public enum CardEffectParamKey
-        {
-            NONE = -1,
-            DURATION, 
-            BUFF_ID, 
-            COUNT,
-            END,
-        }
-        [Flags]
-        public enum JobStates : byte
-        {
-            NONE            = 0,
-            JOB_DELAY       = 1 << 0, // 1
-            JOB_END_TURN    = 1 << 1, // 2
         }
     }
 }

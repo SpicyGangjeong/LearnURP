@@ -2,19 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
-using DEFINES;
-using DEFINES.ENUMS;
-using DEFINES.STRUCTURES;
+using Defines;
+using Defines.Structures;
 using System.Text;
+using Unity.VisualScripting;
 
 
 public class Card
 {
-    CardInfo m_pCardInfo = null;
-    public CardInfo CardInfo => m_pCardInfo;
-    public Card(CardInfo pInfo)
+    CardData m_pCardInfo = null;
+    public CardData CardInfo => m_pCardInfo;
+    public Card(CardData pInfo)
     {
-        m_pCardInfo = new CardInfo(pInfo);
+        m_pCardInfo = new CardData(pInfo);
         BuildCardEffect();
     }
     public Card(int iCardID = 0)
@@ -60,41 +60,48 @@ public class Card
     }
     public void BuildCardEffect()
     {
-        m_pOnDrawCard += HELPERS.EmptyEvent;
-        m_pOnPlayCard += HELPERS.EmptyEvent;
-        m_pOnDiscardCard += HELPERS.EmptyEvent;
-        m_pOnReturnCard += HELPERS.EmptyEvent;
-        m_pOnDisappearCard += HELPERS.EmptyEvent;
-        m_pOnShuffleCard += HELPERS.EmptyEvent;
+        m_pOnDrawCard += Helpers.EmptyEvent;
+        m_pOnPlayCard += Helpers.EmptyEvent;
+        m_pOnDiscardCard += Helpers.EmptyEvent;
+        m_pOnReturnCard += Helpers.EmptyEvent;
+        m_pOnDisappearCard += Helpers.EmptyEvent;
+        m_pOnShuffleCard += Helpers.EmptyEvent;
 
     }
 }
 
 
 [Serializable]
-public class CardInfo
+public class CardData
 {
-    public int m_iCardID;
-    public CardType m_iCardType;
-    public int m_iCardCost;
+    public enum CardType : int
+    {
+        NONE = -1,
+        ATTACK = 0,
+        DEFENSE = 1,
+        MAGIC = 2,
+        ITEM = 3,
+        END = 4,
+    }
     public string m_strCardName;
-    public CardPile m_eCurrentPile = CardPile.END;
-    [SerializeField]
-    public List<CardEffectBlock> m_vCardEffects = new List<CardEffectBlock>();
+    public int m_iCardID;
+    public CardType m_eCardType;
+    public int m_iCardCost;
+    public CardEffect m_vCardEffects = new CardEffect();
     public string m_strCardDescription;
 
-    public CardInfo() { }
-    public CardInfo(CardInfo pInfo)
+    [NonSerialized]
+    public Defines.Enums.CardPile m_eCurrentPile = Defines.Enums.CardPile.END;
+    public CardData() { }
+    public CardData(CardData pInfo)
     {
         m_iCardID = pInfo.m_iCardID;
-        m_iCardType = pInfo.m_iCardType;
+        m_eCardType = pInfo.m_eCardType;
         m_iCardCost = pInfo.m_iCardCost;
         m_strCardName = pInfo.m_strCardName;
-        m_vCardEffects = new List<CardEffectBlock>(pInfo.m_vCardEffects);
+        m_vCardEffects = new CardEffect(pInfo.m_vCardEffects);
         m_strCardDescription = pInfo.m_strCardDescription;
     }
-
-
     public void BuildCardDescription()
     {
         StringBuilder pSb = new StringBuilder();

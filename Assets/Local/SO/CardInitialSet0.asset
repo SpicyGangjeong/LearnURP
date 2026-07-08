@@ -23,3 +23,5 @@ MonoBehaviour:
     m_iCount: 2
   - m_strCardName: Zero Deck
     m_iCount: 1
+  - m_strCardName: One Deck
+    m_iCount: 1

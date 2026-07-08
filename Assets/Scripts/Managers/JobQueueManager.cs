@@ -9,10 +9,10 @@ public class JobQueueManager
     Queue<IJob> m_vJobLane = new Queue<IJob>();
 
     bool m_bProcessing = false;
-    DEFINES.ENUMS.JobStates m_eStates = DEFINES.ENUMS.JobStates.NONE;
+    IJob.JobStates m_eStates = IJob.JobStates.NONE;
 
     public int JobCount => m_vJobLane.Count;
-    public DEFINES.ENUMS.JobStates State { 
+    public IJob.JobStates State { 
         get { return m_eStates; } 
         set {  m_eStates = value; }
     }

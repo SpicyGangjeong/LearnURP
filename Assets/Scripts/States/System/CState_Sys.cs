@@ -2,6 +2,14 @@ using UnityEngine;
 
 public abstract class CState_Sys : CState
 {
+    public enum SystemState : int
+    {
+        NONE = -1,
+        INITIALIZE = 0,
+        IDLE = 1,
+        PLAYING = 2,
+        END = 3,
+    }
     public class STATE_SYS_DESC : CSTATEDESC
     {
         public STATE_SYS_DESC(int iStateID, MonoBehaviour pOwner, CFSM pFsm, CGameInstance pGameInstance) : base(iStateID, pOwner, pFsm)

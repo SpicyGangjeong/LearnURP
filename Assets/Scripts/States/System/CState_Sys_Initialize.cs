@@ -42,7 +42,7 @@ public class CState_Sys_Initialize : CState_Sys
                 await m_pDelegateBootstrapAsync.Invoke();
                 m_bIsLoading = false;
                 m_pDelegateBootstrapAsync = null;
-                FSM.Change_State((int)DEFINES.ENUMS.SystemState.IDLE);
+                FSM.Change_State((int)SystemState.IDLE);
             }
         }
     }
@@ -56,6 +56,6 @@ public class CState_Sys_Initialize : CState_Sys
     public override void Exit()
     {
         Debug.Log("CState_Sys_Initialize Exit");
-        GameInstance.ChangeScene(DEFINES.ENUMS.SceneID.MAIN_MENU);
+        GameInstance.ChangeScene(Defines.Enums.SceneID.MAIN_MENU);
     }
 }

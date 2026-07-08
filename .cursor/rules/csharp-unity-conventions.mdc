@@ -22,7 +22,8 @@ alwaysApply: false
 
 | 접두사 | 타입 |
 |--------|------|
-| `i` | int, enum (enum 파라미터도 `iPileType`, `iStateID`) |
+| `i` | int |
+| `e` | enum |
 | `b` | bool |
 | `f` | float |
 | `str` | string |
@@ -48,13 +49,6 @@ AsyncOperationHandle<Object> hHandle = await LoadAsync(strAssetName);
 
 - 프로퍼티: PascalCase, Hungarian 없음 (`StateID`, `Instance`, `ObjectPools`)
 - public 이벤트 래퍼: `OnDrawCard`, `OnEndTurn` (내부 필드는 `m_pOnDrawCard`)
-
-## 클래스 / 메서드
-
-- FSM·코어 프레임워크: `C` 접두사 (`CGameInstance`, `CFSM`, `CState`, `CMyTools`)
-- 일반 매니저·UI·데이터: PascalCase (`DeckManager`, `HandBoard`, `CardDocumentSO`)
-- FSM 메서드: 언더스코어 (`Change_State`, `Fixed_Update_State`, `Get_PrevState`)
-- 그 외 메서드: PascalCase (`DrawCard`, `RebuildHand`, `TryPlayCard`)
 
 ## if 문
 
@@ -83,5 +77,3 @@ if (false == m_vPools.TryGetValue(strKey, out IComponentObjectPool pPool))
 ## 기타
 
 - Yoda 비교: `if (null == p)`, `if (false == b)`
-- enum은 `DEFINES` namespace에 정의
-- for 루프 인덱스: `i`

@@ -80,16 +80,16 @@ public class CGameInstance : MonoBehaviour
             return;
         }
         s_pInstance.m_pFsm.m_vStates = new Dictionary<int, CState>();
-        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.ENUMS.SystemState.INITIALIZE, new CState_Sys_Initialize(
-            new CState_Sys_Initialize.STATE_SYS_INITIALIZE_DESC((int)DEFINES.ENUMS.SystemState.INITIALIZE, s_pInstance, s_pInstance.m_pFsm, s_pInstance, s_pInstance.BootstrapAsync)));
-        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.ENUMS.SystemState.IDLE, new CState_Sys_Idle(
-            new CState_Sys_Idle.STATE_SYS_IDLE_DESC((int)DEFINES.ENUMS.SystemState.IDLE, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
-        s_pInstance.m_pFsm.m_vStates.Add((int)DEFINES.ENUMS.SystemState.PLAYING, new CState_Sys_Playing(
-            new CState_Sys_Playing.STATE_SYS_PLAYING_DESC((int)DEFINES.ENUMS.SystemState.PLAYING, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
+        s_pInstance.m_pFsm.m_vStates.Add((int)CState_Sys.SystemState.INITIALIZE, new CState_Sys_Initialize(
+            new CState_Sys_Initialize.STATE_SYS_INITIALIZE_DESC((int)CState_Sys.SystemState.INITIALIZE, s_pInstance, s_pInstance.m_pFsm, s_pInstance, s_pInstance.BootstrapAsync)));
+        s_pInstance.m_pFsm.m_vStates.Add((int)CState_Sys.SystemState.IDLE, new CState_Sys_Idle(
+            new CState_Sys_Idle.STATE_SYS_IDLE_DESC((int)CState_Sys.SystemState.IDLE, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
+        s_pInstance.m_pFsm.m_vStates.Add((int)CState_Sys.SystemState.PLAYING, new CState_Sys_Playing(
+            new CState_Sys_Playing.STATE_SYS_PLAYING_DESC((int)CState_Sys.SystemState.PLAYING, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
             
-        if (true == s_pInstance.m_pFsm.Is_Valid_FSM((int)DEFINES.ENUMS.SystemState.END))
+        if (true == s_pInstance.m_pFsm.Is_Valid_FSM((int)CState_Sys.SystemState.END))
         {
-            s_pInstance.m_pFsm.Change_State((int)DEFINES.ENUMS.SystemState.INITIALIZE);
+            s_pInstance.m_pFsm.Change_State((int)CState_Sys.SystemState.INITIALIZE);
         }
     }
     private static bool Initialize(ref CGameInstance pInstance)
@@ -151,7 +151,7 @@ public class CGameInstance : MonoBehaviour
     }
     public void StartDeck(int iInitialSetIndex)
     {
-        if (m_pFsm.IsCurrentState((int)DEFINES.ENUMS.SystemState.IDLE))
+        if (m_pFsm.IsCurrentState((int)CState_Sys.SystemState.IDLE))
         {
             m_pDeckManager.Initialize(m_vCardInitialSetSO[iInitialSetIndex]);
             m_pDeckManager.StartGame();
@@ -216,7 +216,7 @@ public class CGameInstance : MonoBehaviour
             pCardInitialSet.SetCardDocumentSO(m_pCardDocumentSO);
         }
     }
-    public CardInfo GetCardInfo(int iCardID)
+    public CardData GetCardInfo(int iCardID)
     {
         if (null == m_pCardDocumentSO)
         {
@@ -226,9 +226,9 @@ public class CGameInstance : MonoBehaviour
 
         return m_pCardDocumentSO.GetCard(iCardID);
     }
-    public void ChangeScene(DEFINES.ENUMS.SceneID iSceneID)
+    public void ChangeScene(Defines.Enums.SceneID eSceneID)
     {
-        m_pLevelManager.ChangeScene(iSceneID);
+        m_pLevelManager.ChangeScene(eSceneID);
     }
     public async Task BootstrapAsync()
     {

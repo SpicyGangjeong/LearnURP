@@ -7,7 +7,7 @@ using UnityEngine.Serialization;
 [Serializable]
 public class SceneReference
 {
-    public DEFINES.ENUMS.SceneID m_iSceneID = DEFINES.ENUMS.SceneID.NONE;
+    public Defines.Enums.SceneID m_iSceneID = Defines.Enums.SceneID.NONE;
     public AssetReference m_pSceneReference = null;
 }
 

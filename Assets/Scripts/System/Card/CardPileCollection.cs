@@ -3,28 +3,28 @@ using UnityEngine;
 
 class CardPileCollection
 {
-    readonly Dictionary<DEFINES.ENUMS.CardPile, List<Card>> m_vPiles = new Dictionary<DEFINES.ENUMS.CardPile, List<Card>>();
+    readonly Dictionary<Defines.Enums.CardPile, List<Card>> m_vPiles = new Dictionary<Defines.Enums.CardPile, List<Card>>();
     
     
     public CardPileCollection()
     {
-        for (DEFINES.ENUMS.CardPile ePile = DEFINES.ENUMS.CardPile.NONE + 1; 
-            ePile != DEFINES.ENUMS.CardPile.ALL; ePile++)
+        for (Defines.Enums.CardPile ePile = Defines.Enums.CardPile.NONE + 1; 
+            ePile != Defines.Enums.CardPile.ALL; ePile++)
         {
             m_vPiles[ePile] = new List<Card>();
         }
     }
-    public List<Card> GetPile(DEFINES.ENUMS.CardPile ePileType)
+    public List<Card> GetPile(Defines.Enums.CardPile ePileType)
     {
         return m_vPiles[ePileType];
     }
 
-    public IReadOnlyList<Card> GetCards(DEFINES.ENUMS.CardPile ePileType)
+    public IReadOnlyList<Card> GetCards(Defines.Enums.CardPile ePileType)
     {
         return GetPile(ePileType);
     }
 
-    public int GetCount(DEFINES.ENUMS.CardPile ePileType)
+    public int GetCount(Defines.Enums.CardPile ePileType)
     {
         List<Card> vPile = GetPile(ePileType);
         if (null == vPile)
@@ -43,7 +43,7 @@ class CardPileCollection
         }
     }
 
-    public void Clear(DEFINES.ENUMS.CardPile ePileType)
+    public void Clear(Defines.Enums.CardPile ePileType)
     {
         List<Card> vPile = GetPile(ePileType);
         if (null != vPile)
@@ -52,7 +52,7 @@ class CardPileCollection
         }
     }
 
-    public void Add(Card pCard, DEFINES.ENUMS.CardPile ePileType)
+    public void Add(Card pCard, Defines.Enums.CardPile ePileType)
     {
         List<Card> vPile = GetPile(ePileType);
         pCard.CardInfo.m_eCurrentPile = ePileType;
@@ -62,7 +62,7 @@ class CardPileCollection
             vPile.Add(pCard);
         }
     }
-    public void AddRange(IEnumerable<Card> vCards, DEFINES.ENUMS.CardPile ePileType)
+    public void AddRange(IEnumerable<Card> vCards, Defines.Enums.CardPile ePileType)
     {
         foreach (Card pCard in vCards)
         {
@@ -75,14 +75,14 @@ class CardPileCollection
         List<Card> vPile = GetPile(pCard.CardInfo.m_eCurrentPile);
         if (null == vPile)
         {
-            pCard.CardInfo.m_eCurrentPile = DEFINES.ENUMS.CardPile.END;
+            pCard.CardInfo.m_eCurrentPile = Defines.Enums.CardPile.END;
             return false;
         }
 
         return vPile.Remove(pCard);
     }
 
-    public bool Move(Card pCard, DEFINES.ENUMS.CardPile eToPile)
+    public bool Move(Card pCard, Defines.Enums.CardPile eToPile)
     {
         if (false == Remove(pCard))
         {
@@ -94,7 +94,7 @@ class CardPileCollection
     }
 
 
-    public Card GetTopCard(DEFINES.ENUMS.CardPile ePileType)
+    public Card GetTopCard(Defines.Enums.CardPile ePileType)
     {
         List<Card> vPile = GetPile(ePileType);
         if (null == vPile || 0 == vPile.Count)
@@ -105,7 +105,7 @@ class CardPileCollection
         return vPile[0];
     }
 
-    public void Shuffle(DEFINES.ENUMS.CardPile ePileType)
+    public void Shuffle(Defines.Enums.CardPile ePileType)
     {
         List<Card> vPile = GetPile(ePileType);
         if (null == vPile)

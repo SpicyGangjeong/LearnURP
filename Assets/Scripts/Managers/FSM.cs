@@ -13,9 +13,9 @@ public class CFSM : MonoBehaviour
     Action m_pOnUpdateTick = EmptyTick;
     Action m_pOnLateUpdateTick = EmptyTick;
 
-    public bool IsCurrentState(int iStateID)
+    public bool IsCurrentState(int eStateID)
     {
-        return m_pCurrState != null && m_pCurrState.StateID == iStateID;
+        return m_pCurrState != null && m_pCurrState.StateID == eStateID;
     }
 
     void ResubscribeStateTicks(CState pNext)
@@ -30,16 +30,16 @@ public class CFSM : MonoBehaviour
         m_pOnLateUpdateTick += pNext.Late_Update_State;
     }
 
-    public void Change_State(int iStateID)
+    public void Change_State(int eStateID)
     {
         if (null != m_pCurrState)
         {
             m_pCurrState.Exit();
             m_pPrevState = m_pCurrState;
         }
-        if (false == m_vStates.TryGetValue(iStateID, out m_pCurrState))
+        if (false == m_vStates.TryGetValue(eStateID, out m_pCurrState))
         {
-            Debug.LogError($"State not found: {iStateID} {m_vStates.Count}");
+            Debug.LogError($"State not found: {eStateID} {m_vStates.Count}");
             return;
         }
         ResubscribeStateTicks(m_pCurrState);
@@ -48,13 +48,13 @@ public class CFSM : MonoBehaviour
             m_pCurrState.Enter();
         }
     }
-    public bool Is_Valid_FSM(int iStateEndID){
+    public bool Is_Valid_FSM(int eStateEndID){
         if (null == m_vStates)
         {
             Debug.LogError("FSM is not valid: states is null");
             return false;
         }
-        for (int i = 0; i < iStateEndID; i++)
+        for (int i = 0; i < eStateEndID; i++)
         {
             if (false == m_vStates.TryGetValue(i, out CState pState)){
                 Debug.LogError($"FSM is not valid: {i} is not found in states");

@@ -29,10 +29,10 @@ public class DeckManager
 
     public void Initialize(CardInitialSetSO pInitialSetSO)
     {
-        IReadOnlyDictionary<CardInfo, int> vCardInitialSet = pInitialSetSO.GetCardInitialSet();
-        foreach (KeyValuePair<CardInfo, int> pEntry in vCardInitialSet)
+        IReadOnlyDictionary<CardData, int> vCardInitialSet = pInitialSetSO.GetCardInitialSet();
+        foreach (KeyValuePair<CardData, int> pEntry in vCardInitialSet)
         {
-            CardInfo pCardInfo = pEntry.Key;
+            CardData pCardInfo = pEntry.Key;
             int iCount = pEntry.Value;
             for (int i = 0; i < iCount; i++)
             {
@@ -40,14 +40,14 @@ public class DeckManager
                 m_vDeckOriginal.Add(pCard);
             }
         }
-        m_pOnCardDrawn += DEFINES.HELPERS.EmptyEvent;
-        m_pOnCardPlayed += DEFINES.HELPERS.EmptyEvent;
-        m_pOnCardDiscarded += DEFINES.HELPERS.EmptyEvent;
-        m_pOnCardReturned += DEFINES.HELPERS.EmptyEvent;
-        m_pOnCardDisappeared += DEFINES.HELPERS.EmptyEvent;
-        m_pOnDeckShuffled += DEFINES.HELPERS.EmptyEvent;
-        m_pOnTurnEnded += DEFINES.HELPERS.EmptyEvent;
-        m_pOnTurnStarted += DEFINES.HELPERS.EmptyEvent;
+        m_pOnCardDrawn += Defines.Helpers.EmptyEvent;
+        m_pOnCardPlayed += Defines.Helpers.EmptyEvent;
+        m_pOnCardDiscarded += Defines.Helpers.EmptyEvent;
+        m_pOnCardReturned += Defines.Helpers.EmptyEvent;
+        m_pOnCardDisappeared += Defines.Helpers.EmptyEvent;
+        m_pOnDeckShuffled += Defines.Helpers.EmptyEvent;
+        m_pOnTurnEnded += Defines.Helpers.EmptyEvent;
+        m_pOnTurnStarted += Defines.Helpers.EmptyEvent;
     }
     public void Initialize(List<Card> vDeckOriginal)
     {
@@ -64,10 +64,10 @@ public class DeckManager
     public void StartGame()
     {
         m_pPiles.ClearAll();
-        m_pPiles.AddRange(m_vDeckOriginal, DEFINES.ENUMS.CardPile.DECK);
+        m_pPiles.AddRange(m_vDeckOriginal, Defines.Enums.CardPile.DECK);
         ShuffleDeck();
         JobQueueManager pJobQueue = CGameInstance.Instance.JobQueues;
-        pJobQueue.State = DEFINES.HELPERS.BIT.Set(pJobQueue.State, DEFINES.ENUMS.JobStates.JOB_END_TURN);
+        pJobQueue.State = Defines.Helpers.BIT.Set(pJobQueue.State, IJob.JobStates.JOB_END_TURN);
         CGameInstance.Instance.JobQueues.EnqueueJob(
             new JobDeferredCallback(async () => { await StartTurn(); }));
     }
@@ -75,12 +75,12 @@ public class DeckManager
     public async UniTask EndTurn()
     {
         JobQueueManager pJobQueue = CGameInstance.Instance.JobQueues;
-        if (true == DEFINES.HELPERS.BIT.Has(pJobQueue.State, DEFINES.ENUMS.JobStates.JOB_END_TURN))
+        if (true == Defines.Helpers.BIT.Has(pJobQueue.State, IJob.JobStates.JOB_END_TURN))
         {
             // Debug.LogError("EndTurn is already in progress.");
             return;
         }
-        pJobQueue.State = DEFINES.HELPERS.BIT.Set(pJobQueue.State, DEFINES.ENUMS.JobStates.JOB_END_TURN);
+        pJobQueue.State = Defines.Helpers.BIT.Set(pJobQueue.State, IJob.JobStates.JOB_END_TURN);
 
         m_pOnTurnEnded();
         await AwaitingEnd();
@@ -88,10 +88,10 @@ public class DeckManager
     public async UniTask AwaitingEnd()
     {
         JobQueueManager pJobQueue = CGameInstance.Instance.JobQueues;
-        Assert.IsTrue(DEFINES.HELPERS.BIT.Has(pJobQueue.State, DEFINES.ENUMS.JobStates.JOB_END_TURN));
+        Assert.IsTrue(Defines.Helpers.BIT.Has(pJobQueue.State, IJob.JobStates.JOB_END_TURN));
 
 
-        if (true == DEFINES.HELPERS.BIT.Has(pJobQueue.State, DEFINES.ENUMS.JobStates.JOB_END_TURN) &&
+        if (true == Defines.Helpers.BIT.Has(pJobQueue.State, IJob.JobStates.JOB_END_TURN) &&
             0 == pJobQueue.JobCount)
         {// Awaiting Done;
             CGameInstance.Instance.JobQueues.EnqueueJob(
@@ -105,13 +105,13 @@ public class DeckManager
     public async UniTask StartTurn()
     {
         JobQueueManager pJobQueue = CGameInstance.Instance.JobQueues;
-        if (false == DEFINES.HELPERS.BIT.Has(pJobQueue.State, DEFINES.ENUMS.JobStates.JOB_END_TURN))
+        if (false == Defines.Helpers.BIT.Has(pJobQueue.State, IJob.JobStates.JOB_END_TURN))
         {
             // Debug.LogError("StartTurn is called without EndTurn.");
             return;
         }
 
-        pJobQueue.State = DEFINES.HELPERS.BIT.Clear(pJobQueue.State, DEFINES.ENUMS.JobStates.JOB_END_TURN);
+        pJobQueue.State = Defines.Helpers.BIT.Clear(pJobQueue.State, IJob.JobStates.JOB_END_TURN);
         m_pOnTurnStarted();
         for (int i = 0; i < s_iHandDrawCount; i++)
         {
@@ -125,43 +125,43 @@ public class DeckManager
     }
     public bool PlayCard(Card pCard)
     {
-        MoveCard(pCard, DEFINES.ENUMS.CardPile.DISCARD);
+        MoveCard(pCard, Defines.Enums.CardPile.DISCARD);
         m_pOnCardPlayed(pCard);
         pCard.OnPlayCard();
         return true;
     }
 
-    public IReadOnlyList<Card> GetCards(DEFINES.ENUMS.CardPile ePileType)
+    public IReadOnlyList<Card> GetCards(Defines.Enums.CardPile ePileType)
     {
         return m_pPiles.GetCards(ePileType);
     }
 
     public void ShuffleDeck()
     {
-        m_pPiles.Shuffle(DEFINES.ENUMS.CardPile.DECK);
+        m_pPiles.Shuffle(Defines.Enums.CardPile.DECK);
         m_pOnDeckShuffled();
     }
 
     public Card PopFrontDeck()
     {
         Card pCard = null;
-        if (0 == m_pPiles.GetCount(DEFINES.ENUMS.CardPile.DECK))
+        if (0 == m_pPiles.GetCount(Defines.Enums.CardPile.DECK))
         {
             ReturnCard();
-            if (0 == m_pPiles.GetCount(DEFINES.ENUMS.CardPile.DECK))
+            if (0 == m_pPiles.GetCount(Defines.Enums.CardPile.DECK))
             {
                 return pCard;
             }
         }
 
-        pCard = m_pPiles.GetTopCard(DEFINES.ENUMS.CardPile.DECK);
+        pCard = m_pPiles.GetTopCard(Defines.Enums.CardPile.DECK);
         MoveToFieldCard(pCard);
         return pCard;
     }
 
     public void ReturnCard()
     {
-        List<Card> vDiscardSnapshot = new List<Card>(m_pPiles.GetCards(DEFINES.ENUMS.CardPile.DISCARD));
+        List<Card> vDiscardSnapshot = new List<Card>(m_pPiles.GetCards(Defines.Enums.CardPile.DISCARD));
         if (0 == vDiscardSnapshot.Count)
         {
             return;
@@ -169,7 +169,7 @@ public class DeckManager
 
         foreach (Card pCard in vDiscardSnapshot)
         {
-            MoveCard(pCard, DEFINES.ENUMS.CardPile.DECK);
+            MoveCard(pCard, Defines.Enums.CardPile.DECK);
         }
 
         foreach (Card pCard in vDiscardSnapshot)
@@ -183,7 +183,7 @@ public class DeckManager
 
     public bool DiscardCard(Card pCard)
     {
-        MoveCard(pCard, DEFINES.ENUMS.CardPile.DISCARD);
+        MoveCard(pCard, Defines.Enums.CardPile.DISCARD);
         m_pOnCardDiscarded(pCard);
         pCard.OnDiscardCard();
         return true;
@@ -191,7 +191,7 @@ public class DeckManager
 
     public bool DrawCard(Card pCard)
     {
-        MoveCard(pCard, DEFINES.ENUMS.CardPile.HAND);
+        MoveCard(pCard, Defines.Enums.CardPile.HAND);
         m_pOnCardDrawn(pCard);
         pCard.OnDrawCard();
         return true;
@@ -199,20 +199,20 @@ public class DeckManager
 
     public void DisappearCard(Card pCard)
     {
-        MoveCard(pCard, DEFINES.ENUMS.CardPile.DISAPPEARED);
+        MoveCard(pCard, Defines.Enums.CardPile.DISAPPEARED);
         m_pOnCardDisappeared(pCard);
         pCard.OnDisappearCard();
     }
 
-    public void MoveCard(Card pCard, DEFINES.ENUMS.CardPile iToPile)
+    public void MoveCard(Card pCard, Defines.Enums.CardPile eToPile)
     {
-        m_pPiles.Move(pCard, iToPile);
+        m_pPiles.Move(pCard, eToPile);
     }
     public void MoveToFieldCard(Card pCard)
     {
-        MoveCard(pCard, DEFINES.ENUMS.CardPile.FIELD);
+        MoveCard(pCard, Defines.Enums.CardPile.FIELD);
     }
-    public void AddCard(Card pCard, DEFINES.ENUMS.CardPile ePileType)
+    public void AddCard(Card pCard, Defines.Enums.CardPile ePileType)
     {
         m_pPiles.Add(pCard, ePileType);
     }
@@ -222,31 +222,13 @@ public class DeckManager
         m_pPiles.Remove(pCard);
     }
 
-    public int GetPileCount(DEFINES.ENUMS.CardPile ePileType)
+    public int GetPileCount(Defines.Enums.CardPile ePileType)
     {
         return m_pPiles.GetCount(ePileType);
     }
 
-    public IReadOnlyList<Card> GetPileCards(DEFINES.ENUMS.CardPile ePileType)
+    public IReadOnlyList<Card> GetPileCards(Defines.Enums.CardPile ePileType)
     {
         return m_pPiles.GetCards(ePileType);
-    }
-
-    bool IsInHand(Card pCard)
-    {
-        if (null == pCard)
-        {
-            return false;
-        }
-
-        foreach (Card pHandCard in m_pPiles.GetCards(DEFINES.ENUMS.CardPile.HAND))
-        {
-            if (pHandCard == pCard)
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

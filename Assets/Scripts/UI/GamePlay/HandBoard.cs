@@ -1,5 +1,5 @@
-using DEFINES;
-using DEFINES.STRUCTURES;
+using Defines;
+using Defines.Structures;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -28,7 +28,7 @@ public class HandBoard : MonoBehaviour
         m_pGameInstance.Deck.m_pOnCardDiscarded += OnCardDiscarded;
         m_pGameInstance.Deck.m_pOnTurnEnded += OnTurnEnded;
 
-        m_vHandCards = m_pGameInstance.Deck.GetCards(DEFINES.ENUMS.CardPile.HAND);
+        m_vHandCards = m_pGameInstance.Deck.GetCards(Defines.Enums.CardPile.HAND);
     }
 
     void OnDestroy()
@@ -103,9 +103,9 @@ public class HandBoard : MonoBehaviour
             for (int i = 0; i < iActiveCardCount; i++)
             {
                 float fT = (1 == iActiveCardCount) ? 0.5f : Mathf.Clamp01(fStartT + i * fSlotStep);
-                Vector3 vPos = HELPERS.GetQuadraticBezierPoint(fT, pStartPos, pCentralPos, pEndPos);
-                Vector3 vTangent = HELPERS.GetQuadraticBezierTangent(fT, pStartPos, pCentralPos, pEndPos);
-                float fRotZ = (vTangent.sqrMagnitude > CONSTANTS.FLT_EPSILON5) ? Mathf.Atan2(vTangent.y, vTangent.x) * Mathf.Rad2Deg : 0f;
+                Vector3 vPos = Helpers.GetQuadraticBezierPoint(fT, pStartPos, pCentralPos, pEndPos);
+                Vector3 vTangent = Helpers.GetQuadraticBezierTangent(fT, pStartPos, pCentralPos, pEndPos);
+                float fRotZ = (vTangent.sqrMagnitude > Constants.FLT_EPSILON5) ? Mathf.Atan2(vTangent.y, vTangent.x) * Mathf.Rad2Deg : 0f;
                 m_vHandMoveInfo[i].vPosition = vPos;
                 m_vHandMoveInfo[i].vRotQ = Quaternion.Euler(0f, 0f, fRotZ);
             }
@@ -115,8 +115,8 @@ public class HandBoard : MonoBehaviour
             for (int i = 0; i < iActiveCardCount; i++)
             {
                 m_vCardCanvases[i].Value.StartLinearMove(
-                    (float)CONSTANTS.TIME_MS_SORTING_TIMEOUT / CONSTANTS.TIME_MS_ASEC,
-                    m_vHandMoveInfo[i], HELPERS.EmptyEvent);
+                    (float)Constants.TIME_MS_SORTING_TIMEOUT / Constants.TIME_MS_ASEC,
+                    m_vHandMoveInfo[i], Helpers.EmptyEvent);
                 m_vCardCanvases[i].Value.transform.SetAsLastSibling();
             }
         }

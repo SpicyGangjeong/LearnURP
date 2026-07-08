@@ -1,10 +1,7 @@
 using Cysharp.Threading.Tasks;
-using DEFINES;
-using DEFINES.STRUCTURES;
-using System;
-using System.Collections.Generic;
+using Defines;
+using Defines.Structures;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -39,7 +36,7 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
     private void InstantMove(in MoveInfo moveinfo)
     {
         m_LerpInfo.SetFinish();
-        HELPERS.ApplyMoveInfo(moveinfo, transform);
+        Helpers.ApplyMoveInfo(moveinfo, transform);
     }
 
     public void Update()
@@ -47,7 +44,7 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
         if (true == m_LerpInfo.IsLerping)
         {
             m_LerpInfo.Progress();
-            HELPERS.ApplyMoveInfo(m_LerpInfo.GetMoveInfo(), transform);
+            Helpers.ApplyMoveInfo(m_LerpInfo.GetMoveInfo(), transform);
         }
     }
     public void BindCard(Card pCard)
@@ -67,7 +64,7 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
     }
     public void StartLinearMove(float fDuration, in MoveInfo pDstMove, LerpModelCallback callback)
     {
-        HELPERS.ExtractMoveInfo(out MoveInfo pStartMove, transform);
+        Helpers.ExtractMoveInfo(out MoveInfo pStartMove, transform);
         StartMove(LerpInfo.Linear(fDuration, in pStartMove, in pDstMove, callback));
     }
     public UniTask StartBezierMoveAsync(float fDuration, in MoveInfo pCenterMove, in MoveInfo pDstMove){
@@ -77,7 +74,7 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
     }
     public void StartBezierMove(float fDuration, in MoveInfo pCenterMove, in MoveInfo pDstMove, LerpModelCallback callback)
     {
-        HELPERS.ExtractMoveInfo(out MoveInfo pStartMove, transform);
+        Helpers.ExtractMoveInfo(out MoveInfo pStartMove, transform);
         StartMove(LerpInfo.Bezier(fDuration, in pStartMove, in pCenterMove, in pDstMove, callback));
     }
     public void OnCreate()
@@ -158,9 +155,9 @@ public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
         m_pSlotName.text = string.Empty;
         m_pSlotCost.text = string.Empty;
         m_pSlotDescription.text = string.Empty;
-        m_pSlotImage.sprite = null;
-        m_pSlotTypeImage.sprite = null;
-        m_pSlotQualityImage.sprite = null;
+        //m_pSlotImage.sprite = null;
+        //m_pSlotTypeImage.sprite = null;
+        //m_pSlotQualityImage.sprite = null;
         m_pSlotHighlight.enabled = false;
     }
 
