@@ -21,25 +21,19 @@ MonoBehaviour:
       m_block:
         m_eTrigger: -1
         m_vSteps:
-        - m_eEntity: 0
-          m_eScope: 0
-          m_eSelect: 0
+        - m_eEntity: -1
+          m_eScope: -1
+          m_eSelect: -1
           m_iSelectCount: 0
           m_vOperations:
-          - m_eValue: 0
+          - m_eValue: -1
             m_iValue: 0
             m_vParams:
             - m_eKey: -1
               m_iValue: 0
-            - m_eKey: 0
-              m_iValue: 0
-            - m_eKey: 1
-              m_iValue: 0
-            - m_eKey: 2
-              m_iValue: 0
-            - m_eKey: 3
-              m_iValue: 0
-    m_strCardDescription: 
+    m_strCardDescription: 'Name: Basic Attack s
+
+'
   - m_strCardName: Basic Defence
     m_iCardID: 2101
     m_eCardType: 0
@@ -48,7 +42,9 @@ MonoBehaviour:
       m_block:
         m_eTrigger: -1
         m_vSteps: []
-    m_strCardDescription: 
+    m_strCardDescription: 'Name: Basic Defence
+
+'
   - m_strCardName: Basic Magic
     m_iCardID: 3101
     m_eCardType: 0
@@ -57,7 +53,9 @@ MonoBehaviour:
       m_block:
         m_eTrigger: -1
         m_vSteps: []
-    m_strCardDescription: 
+    m_strCardDescription: 'Name: Basic Magic
+
+'
   - m_strCardName: Zero Deck
     m_iCardID: 3201
     m_eCardType: 0
@@ -66,7 +64,9 @@ MonoBehaviour:
       m_block:
         m_eTrigger: -1
         m_vSteps: []
-    m_strCardDescription: 
+    m_strCardDescription: 'Name: Zero Deck
+
+'
   - m_strCardName: One Deck
     m_iCardID: 3301
     m_eCardType: 0
@@ -75,7 +75,9 @@ MonoBehaviour:
       m_block:
         m_eTrigger: -1
         m_vSteps: []
-    m_strCardDescription: 
+    m_strCardDescription: 'Name: One Deck
+
+'
   - m_strCardName: Two Deck
     m_iCardID: 3401
     m_eCardType: 0
@@ -84,4 +86,6 @@ MonoBehaviour:
       m_block:
         m_eTrigger: -1
         m_vSteps: []
-    m_strCardDescription: 
+    m_strCardDescription: 'Name: Two Deck
+
+'

@@ -1,9 +1,6 @@
 ﻿using Defines.Structures;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem.Controls;
-using UnityEngine.UIElements;
 
 namespace Defines
 {
@@ -25,22 +22,22 @@ namespace Defines
         {
             private Vector2 m_vTimer;
             private ILerp m_pLerpModel;
-            private event LerpModelCallback m_Callback;
-            public static LerpInfo Linear(float fDuration, in MoveInfo pStart, in MoveInfo pEnd, LerpModelCallback callback)
+            private event Core.LerpModelCallback m_Callback;
+            public static LerpInfo Linear(float fDuration, in MoveInfo pStart, in MoveInfo pEnd, Core.LerpModelCallback callback)
             {
                 return new LerpInfo(fDuration, pStart, pEnd, callback);
             }
-            public static LerpInfo Bezier(float fDuration, in MoveInfo pStart, in MoveInfo pCenter, in MoveInfo pEnd, LerpModelCallback callback)
+            public static LerpInfo Bezier(float fDuration, in MoveInfo pStart, in MoveInfo pCenter, in MoveInfo pEnd, Core.LerpModelCallback callback)
             {
                 return new LerpInfo(fDuration, pStart, pCenter, pEnd, callback);
             }
-            private LerpInfo(float fDuration, in MoveInfo pStart, in MoveInfo pEnd, LerpModelCallback callback)
+            private LerpInfo(float fDuration, in MoveInfo pStart, in MoveInfo pEnd, Core.LerpModelCallback callback)
             {
                 m_vTimer = Vector2.up * fDuration;
                 m_pLerpModel = new LinearLerpInfo(in pStart, in pEnd);
                 m_Callback = callback;
             }
-            private LerpInfo(float fDuration, in MoveInfo pStart, in MoveInfo pCenter, in MoveInfo pEnd, LerpModelCallback callback)
+            private LerpInfo(float fDuration, in MoveInfo pStart, in MoveInfo pCenter, in MoveInfo pEnd, Core.LerpModelCallback callback)
             {
                 m_vTimer = Vector2.up * fDuration;
                 m_pLerpModel = new QuadraticLerpInfo(in pStart, in pCenter, in pEnd);
@@ -153,7 +150,7 @@ namespace Defines
             moveinfo.vRotQ = pTransform.rotation;
         }
         public static void EmptyEvent() { }
-        public static void EmptyEvent(Card pCard) { }
+        public static void EmptyEvent(Logic.Card.Card pCard) { }
         public static class BIT
         {
             static ulong ToUInt64<_Ty>(_Ty iValue) where _Ty : struct

@@ -1,31 +1,40 @@
+using Core.StateMachine;
 using UnityEngine;
 
-public abstract class CState
+namespace Logic
 {
-    public class CSTATEDESC
+    namespace State
     {
-        public CSTATEDESC(int iStateID, MonoBehaviour pOwner, CFSM pFsm)
+        public abstract class CState
         {
-            this.StateID = iStateID;
-            this.Owner = pOwner;
-            this.FSM = pFsm;
-        }
-        public int StateID{ get; private set; }
-        public MonoBehaviour Owner{ get; private set; }
-        public CFSM FSM{ get; private set; } = null;
-    }
-    public CState(CSTATEDESC pRefOwner) {
-        StateID = pRefOwner.StateID;
-        Owner = pRefOwner.Owner;
-        FSM = pRefOwner.FSM;
-    }
-    public int StateID { get; private set; } = -1;
-    public MonoBehaviour Owner { get; private set; } = null;
-    public CFSM FSM { get; private set; } = null;
-    public abstract void Enter();
-    public abstract void Fixed_Update_State();
-    public abstract void Update_State();
-    public abstract void Late_Update_State();
-    public abstract void Exit();
+            public class CSTATEDESC
+            {
+                public CSTATEDESC(int iStateID, MonoBehaviour pOwner, CFSM pFsm)
+                {
+                    this.StateID = iStateID;
+                    this.Owner = pOwner;
+                    this.FSM = pFsm;
+                }
+                public int StateID { get; private set; }
+                public MonoBehaviour Owner { get; private set; }
+                public CFSM FSM { get; private set; } = null;
+            }
+            public CState(CSTATEDESC pRefOwner)
+            {
+                StateID = pRefOwner.StateID;
+                Owner = pRefOwner.Owner;
+                FSM = pRefOwner.FSM;
+            }
+            public int StateID { get; private set; } = -1;
+            public MonoBehaviour Owner { get; private set; } = null;
+            public CFSM FSM { get; private set; } = null;
+            public abstract void Enter();
+            public abstract void Fixed_Update_State();
+            public abstract void Update_State();
+            public abstract void Late_Update_State();
+            public abstract void Exit();
 
+        }
+
+    }
 }

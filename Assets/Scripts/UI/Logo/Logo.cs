@@ -1,8 +1,10 @@
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
-public class Logo : MonoBehaviour
+namespace UI
 {
-    
+    public class Logo : MonoBehaviour
+    {
+
+    }
 }

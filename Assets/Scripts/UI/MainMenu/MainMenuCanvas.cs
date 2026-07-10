@@ -1,24 +1,28 @@
-using NUnit.Framework;
-using Unity.VisualScripting;
+using Core;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Serialization;
 
-public class MainMenuCanvas : MonoBehaviour
+namespace View
 {
-    CGameInstance m_pGameInstance = null;
+    namespace UI
+    {
+        public class MainMenuCanvas : MonoBehaviour
+        {
+            CGameInstance m_pGameInstance = null;
 
-    void Start()
-    {
-        m_pGameInstance = CGameInstance.Instance;
-    }
+            void Start()
+            {
+                m_pGameInstance = CGameInstance.Instance;
+            }
 
-    void Update()
-    {
-    }
-    public void StartDeck(int i)
-    {
-        m_pGameInstance.StartDeck(i);
-        Destroy(gameObject);
+            void Update()
+            {
+            }
+            public void StartDeck(int i)
+            {
+                m_pGameInstance.StartDeck(i);
+                Destroy(gameObject);
+            }
+        }
+
     }
 }

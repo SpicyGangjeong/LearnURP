@@ -1,49 +1,61 @@
+using Core;
 using System.Collections.Generic;
+using UI;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class DrawTable : MonoBehaviour
+
+namespace View
 {
-    float2 vShowTime;
-    CGameInstance m_pGameInstance;
-    [SerializeField]
-    CardFrameRenderer m_pCardFrameRenderer;
-
-
-    private void Awake()
+    namespace UI
     {
-        vShowTime.x = 0;
-        vShowTime.y = 1.0f;
-        m_pGameInstance = CGameInstance.Instance;
-    }
-    void Start()
-    {
-        
-    }
-
-    private void OnEnable()
-    {
-        vShowTime.x = vShowTime.y;
-    }
-
-    private void OnDisable()
-    {
-        vShowTime.x = vShowTime.y;
-    }
-    void Update()
-    {
-        vShowTime.x -= Time.deltaTime;
-        if (vShowTime.x <= 0)
+        public class DrawTable : MonoBehaviour
         {
-            gameObject.SetActive(false);
+            float2 vShowTime;
+            CGameInstance m_pGameInstance;
+            [SerializeField]
+            CardFrameRenderer m_pCardFrameRenderer;
+
+
+            private void Awake()
+            {
+                vShowTime.x = 0;
+                vShowTime.y = 1.0f;
+                m_pGameInstance = CGameInstance.Instance;
+            }
+            void Start()
+            {
+
+            }
+
+            private void OnEnable()
+            {
+                vShowTime.x = vShowTime.y;
+            }
+
+            private void OnDisable()
+            {
+                vShowTime.x = vShowTime.y;
+            }
+            void Update()
+            {
+                vShowTime.x -= Time.deltaTime;
+                if (vShowTime.x <= 0)
+                {
+                    gameObject.SetActive(false);
+                }
+
+
+            }
+
+            public void ShowCards(Defines.Enums.CardPile eCardPile)
+            {
+                m_pCardFrameRenderer.RenderCardFrames(eCardPile);
+            }
+
         }
 
-        
-    }
-
-    public void ShowCards(Defines.Enums.CardPile eCardPile)
-    {
-        m_pCardFrameRenderer.RenderCardFrames(eCardPile);
     }
 
 }
+

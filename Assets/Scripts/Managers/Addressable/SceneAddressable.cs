@@ -4,60 +4,65 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
-using UnityEngine.Serialization;
 
-public class SceneAddressable
+namespace Core
 {
-    public AssetReference m_pSceneRef;
-    [SerializeField] LoadSceneMode m_iLoadSceneMode = LoadSceneMode.Single;
-    AsyncOperationHandle<SceneInstance> m_hSceneLoadHandle;
-
-    public SceneAddressable(AssetReference pSceneRef)
+    namespace Assets
     {
-        m_pSceneRef = pSceneRef;
-    }
-    public async Task LoadScene()
-    {
-        if (false == m_pSceneRef.RuntimeKeyIsValid())
+        public class SceneAddressable
         {
-            return;
-        }
-        m_hSceneLoadHandle = Addressables.LoadSceneAsync(m_pSceneRef, m_iLoadSceneMode);
-        await m_hSceneLoadHandle.Task;
+            public AssetReference m_pSceneRef;
+            [SerializeField] LoadSceneMode m_iLoadSceneMode = LoadSceneMode.Single;
+            AsyncOperationHandle<SceneInstance> m_hSceneLoadHandle;
 
-        if (m_hSceneLoadHandle.Status == AsyncOperationStatus.Succeeded)
-        {
-            Debug.Log($"Scene '{m_pSceneRef.editorAsset.name}' loaded successfully.");
-        } 
-        else
-        {
-            Debug.LogError($"Failed to Load scene from AssetReference: {m_pSceneRef.AssetGUID}");
-        }
-    }
-
-    public async Task UnloadScene()
-    {
-        if (m_hSceneLoadHandle.IsValid())
-        {
-            AsyncOperationHandle<SceneInstance> hUnloadHandle = Addressables.UnloadSceneAsync(m_hSceneLoadHandle);
-            await hUnloadHandle.Task;
-
-            if (hUnloadHandle.Status == AsyncOperationStatus.Succeeded)
+            public SceneAddressable(AssetReference pSceneRef)
             {
-                Debug.Log($"Scene '{m_pSceneRef.editorAsset.name}' unloaded successfully.");
+                m_pSceneRef = pSceneRef;
             }
-            else
+            public async Task LoadScene()
             {
-                Debug.LogError($"Failed to Unload scene from AssetReference: {m_pSceneRef.AssetGUID}");
-            }
-        }
-    }
+                if (false == m_pSceneRef.RuntimeKeyIsValid())
+                {
+                    return;
+                }
+                m_hSceneLoadHandle = Addressables.LoadSceneAsync(m_pSceneRef, m_iLoadSceneMode);
+                await m_hSceneLoadHandle.Task;
 
-    void ChangeScene()
-    {
-        if (m_hSceneLoadHandle.IsValid() && m_hSceneLoadHandle.Status == AsyncOperationStatus.Succeeded)
-        {
-            Addressables.UnloadSceneAsync(m_hSceneLoadHandle);
+                if (m_hSceneLoadHandle.Status == AsyncOperationStatus.Succeeded)
+                {
+                    Debug.Log($"Scene '{m_pSceneRef.editorAsset.name}' loaded successfully.");
+                }
+                else
+                {
+                    Debug.LogError($"Failed to Load scene from AssetReference: {m_pSceneRef.AssetGUID}");
+                }
+            }
+
+            public async Task UnloadScene()
+            {
+                if (m_hSceneLoadHandle.IsValid())
+                {
+                    AsyncOperationHandle<SceneInstance> hUnloadHandle = Addressables.UnloadSceneAsync(m_hSceneLoadHandle);
+                    await hUnloadHandle.Task;
+
+                    if (hUnloadHandle.Status == AsyncOperationStatus.Succeeded)
+                    {
+                        Debug.Log($"Scene '{m_pSceneRef.editorAsset.name}' unloaded successfully.");
+                    }
+                    else
+                    {
+                        Debug.LogError($"Failed to Unload scene from AssetReference: {m_pSceneRef.AssetGUID}");
+                    }
+                }
+            }
+
+            void ChangeScene()
+            {
+                if (m_hSceneLoadHandle.IsValid() && m_hSceneLoadHandle.Status == AsyncOperationStatus.Succeeded)
+                {
+                    Addressables.UnloadSceneAsync(m_hSceneLoadHandle);
+                }
+            }
         }
     }
 }

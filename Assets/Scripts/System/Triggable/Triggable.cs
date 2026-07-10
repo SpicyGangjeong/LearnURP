@@ -1,7 +1,9 @@
 ﻿using Defines;
-
-public interface ITriggable
+namespace Logic
 {
-    void Triggered();
+    public interface ITriggable
+    {
+        void Triggered();
 
+    }
 }

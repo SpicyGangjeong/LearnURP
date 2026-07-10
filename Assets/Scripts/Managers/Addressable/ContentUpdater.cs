@@ -3,41 +3,49 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Collections.Generic;
 
-public class ContentUpdater : MonoBehaviour
+namespace Core
 {
-    async void Start()
+    namespace Assets
     {
-        await Addressables.InitializeAsync().Task;
-
-        AsyncOperationHandle<List<string>> hCheckHandle = Addressables.CheckForCatalogUpdates(false);
-        await hCheckHandle.Task;
-
-        if (hCheckHandle.Status == AsyncOperationStatus.Succeeded)
+        public class ContentUpdater : MonoBehaviour
         {
-            List<string> vCatalogsToUpdate = hCheckHandle.Result;
-            if (vCatalogsToUpdate != null && vCatalogsToUpdate.Count > 0)
+            async void Start()
             {
-                Debug.Log($"Catalog updates found: {vCatalogsToUpdate.Count} catalogs need updating.");
+                await Addressables.InitializeAsync().Task;
 
-                AsyncOperationHandle<List<UnityEngine.AddressableAssets.ResourceLocators
-                    .IResourceLocator>> hUpdateHandle = Addressables.UpdateCatalogs(vCatalogsToUpdate, false);
-                await hUpdateHandle.Task;
+                AsyncOperationHandle<List<string>> hCheckHandle = Addressables.CheckForCatalogUpdates(false);
+                await hCheckHandle.Task;
 
-                if (hUpdateHandle.Status == AsyncOperationStatus.Succeeded)
+                if (hCheckHandle.Status == AsyncOperationStatus.Succeeded)
                 {
-                    List<UnityEngine.AddressableAssets.ResourceLocators
-                        .IResourceLocator> vUpdatedLocators = hUpdateHandle.Result;
-                    Debug.Log($"Catalogs updated successfully: {vUpdatedLocators.Count} catalogs updated.");
-                } else
-                {
-                    Debug.LogError("Failed to update catalogs.");
+                    List<string> vCatalogsToUpdate = hCheckHandle.Result;
+                    if (vCatalogsToUpdate != null && vCatalogsToUpdate.Count > 0)
+                    {
+                        Debug.Log($"Catalog updates found: {vCatalogsToUpdate.Count} catalogs need updating.");
+
+                        AsyncOperationHandle<List<UnityEngine.AddressableAssets.ResourceLocators
+                            .IResourceLocator>> hUpdateHandle = Addressables.UpdateCatalogs(vCatalogsToUpdate, false);
+                        await hUpdateHandle.Task;
+
+                        if (hUpdateHandle.Status == AsyncOperationStatus.Succeeded)
+                        {
+                            List<UnityEngine.AddressableAssets.ResourceLocators
+                                .IResourceLocator> vUpdatedLocators = hUpdateHandle.Result;
+                            Debug.Log($"Catalogs updated successfully: {vUpdatedLocators.Count} catalogs updated.");
+                        }
+                        else
+                        {
+                            Debug.LogError("Failed to update catalogs.");
+                        }
+
+                    }
+                    else
+                    {
+                        Debug.Log("no updates available.");
+                    }
+                    Addressables.Release(hCheckHandle);
                 }
-
-            } else
-            {
-                Debug.Log("no updates available.");
             }
-            Addressables.Release(hCheckHandle);
         }
     }
 }
