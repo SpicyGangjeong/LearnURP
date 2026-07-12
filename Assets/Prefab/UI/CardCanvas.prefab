@@ -434,6 +434,9 @@ MonoBehaviour:
   m_pSlotTypeImage: {fileID: 9083128780259816344}
   m_pSlotQualityImage: {fileID: 7755393003610352492}
   m_pSlotHighlight: {fileID: 183048945155642835}
+  m_pImgAtlasPortrait: {fileID: 100100200, guid: a7694d007ccc1214c9da24ce6f501322, type: 3}
+  m_pImgAtlasType: {fileID: 100100200, guid: 4eb508d6413aaab4a9c005176da1fb3f, type: 3}
+  m_pImgAtlasQuality: {fileID: 100100200, guid: 72a54bf2cb466e64b9ec3b08c02b7e38, type: 3}
 --- !u!1 &2541645191823654853
 GameObject:
   m_ObjectHideFlags: 0
@@ -1006,7 +1009,7 @@ GameObject:
   - component: {fileID: 8576730749469818485}
   - component: {fileID: 6188304192822307664}
   m_Layer: 5
-  m_Name: ImgCard
+  m_Name: ImgCardPortrait
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -7,14 +7,14 @@ namespace SO
     [CreateAssetMenu(fileName = "CardDocumentSO", menuName = "Scriptable Objects/CardDocumentSO")]
     public class CardDocumentSO : ScriptableObject
     {
-        [SerializeField] List<CardData> m_vCardInfos = new List<CardData>();
+        [SerializeField] List<CardDataSO> m_vCardInfos = new List<CardDataSO>();
 
-        Dictionary<int, CardData> m_vCardLookup = null;
-        Dictionary<string, CardData> m_vCardNameLookup = null;
+        Dictionary<int, CardDataSO> m_vCardLookup = null;
+        Dictionary<string, CardDataSO> m_vCardNameLookup = null;
         [ContextMenu("Rebuild Card Description")]
         void RebuildCardDescription()
         {
-            foreach (CardData pCardInfo in m_vCardInfos)
+            foreach (CardDataSO pCardInfo in m_vCardInfos)
             {
                 pCardInfo.BuildCardDescription();
             }
@@ -26,9 +26,9 @@ namespace SO
 
         void BuildLookup()
         {
-            m_vCardLookup = new Dictionary<int, CardData>(m_vCardInfos.Count);
-            m_vCardNameLookup = new Dictionary<string, CardData>(m_vCardInfos.Count);
-            foreach (CardData pCardInfo in m_vCardInfos)
+            m_vCardLookup = new Dictionary<int, CardDataSO>(m_vCardInfos.Count);
+            m_vCardNameLookup = new Dictionary<string, CardDataSO>(m_vCardInfos.Count);
+            foreach (CardDataSO pCardInfo in m_vCardInfos)
             {
                 if (m_vCardLookup.ContainsKey(pCardInfo.m_iCardID))
                 {
@@ -54,7 +54,7 @@ namespace SO
             RebuildCardDescription();
         }
 
-        public bool TryGetCard(int iCardID, out CardData pCardInfo)
+        public bool TryGetCard(int iCardID, out CardDataSO pCardInfo)
         {
             if (null == m_vCardLookup)
             {
@@ -64,9 +64,9 @@ namespace SO
             return m_vCardLookup.TryGetValue(iCardID, out pCardInfo);
         }
 
-        public CardData GetCard(int iCardID)
+        public CardDataSO GetCard(int iCardID)
         {
-            if (TryGetCard(iCardID, out CardData pCardInfo))
+            if (TryGetCard(iCardID, out CardDataSO pCardInfo))
             {
                 return pCardInfo;
             }
@@ -75,7 +75,7 @@ namespace SO
             return null;
         }
 
-        public bool TryGetCardByName(string strCardName, out CardData pCardInfo)
+        public bool TryGetCardByName(string strCardName, out CardDataSO pCardInfo)
         {
             if (null == m_vCardNameLookup)
             {
@@ -85,9 +85,9 @@ namespace SO
             return m_vCardNameLookup.TryGetValue(strCardName, out pCardInfo);
         }
 
-        public CardData GetCardByName(string strCardName)
+        public CardDataSO GetCardByName(string strCardName)
         {
-            if (TryGetCardByName(strCardName, out CardData pCardInfo))
+            if (TryGetCardByName(strCardName, out CardDataSO pCardInfo))
             {
                 return pCardInfo;
             }

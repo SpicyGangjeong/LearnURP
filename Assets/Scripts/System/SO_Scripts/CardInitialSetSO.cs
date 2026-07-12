@@ -17,7 +17,7 @@ namespace SO
         [SerializeField] string m_strCardInitialSetName = string.Empty;
         [SerializeField] CardDocumentSO m_pCardDocumentSO = null;
         [SerializeField] List<CardNameCount> m_vCardEntries = new List<CardNameCount>();
-        Dictionary<CardData, int> m_vCardInitialSetLookup = null;
+        Dictionary<CardDataSO, int> m_vCardInitialSetLookup = null;
 
 
         public IReadOnlyList<CardNameCount> CardEntries => m_vCardEntries;
@@ -38,7 +38,7 @@ namespace SO
 
         void BuildLookup()
         {
-            m_vCardInitialSetLookup = new Dictionary<CardData, int>();
+            m_vCardInitialSetLookup = new Dictionary<CardDataSO, int>();
             if (null == m_pCardDocumentSO)
             {
                 return;
@@ -51,7 +51,7 @@ namespace SO
                     continue;
                 }
 
-                if (false == m_pCardDocumentSO.TryGetCardByName(pEntry.m_strCardName, out CardData pCardInfo))
+                if (false == m_pCardDocumentSO.TryGetCardByName(pEntry.m_strCardName, out CardDataSO pCardInfo))
                 {
                     Debug.LogWarning($"Card not found in CardDocumentSO: {pEntry.m_strCardName}");
                     continue;
@@ -68,7 +68,7 @@ namespace SO
             }
         }
 
-        public IReadOnlyDictionary<CardData, int> GetCardInitialSet()
+        public IReadOnlyDictionary<CardDataSO, int> GetCardInitialSet()
         {
             if (null == m_vCardInitialSetLookup)
             {

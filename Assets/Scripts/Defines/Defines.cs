@@ -1,6 +1,8 @@
 ﻿using Defines.Structures;
 using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.U2D;
 
 namespace Defines
 {
@@ -148,6 +150,21 @@ namespace Defines
         {
             moveinfo.vPosition = pTransform.position;
             moveinfo.vRotQ = pTransform.rotation;
+        }
+        public static Sprite RequireAtlasSprite(SpriteAtlas pAtlas, string strName, string strLabel, [CallerMemberName] string strCalller = "")
+        {
+            if (null == pAtlas)
+            {
+                throw new System.InvalidOperationException(
+                    $"{strCalller} {strLabel} atlas is null (sprite '{strName}').");
+            }
+            Sprite pSprite = pAtlas.GetSprite(strName);
+            if (null == pSprite)
+            {
+                throw new System.InvalidOperationException(
+                    $"{strCalller} {strLabel} sprite '{strName}' not found in atlas '{pAtlas.name}'.");
+            }
+            return pSprite;
         }
         public static void EmptyEvent() { }
         public static void EmptyEvent(Logic.Card.Card pCard) { }

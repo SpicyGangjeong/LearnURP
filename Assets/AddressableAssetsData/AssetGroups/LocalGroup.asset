@@ -26,6 +26,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 23d31e844e38dd8439f21ff6096b5daf
+    m_Address: Assets/Local/SO/Cards
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2f827d2a41cfc6b4eb38eeca006ac9a7
     m_Address: Assets/Scenes/Stage0.unity
     m_ReadOnly: 0

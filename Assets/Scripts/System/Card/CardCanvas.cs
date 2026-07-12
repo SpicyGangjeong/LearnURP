@@ -1,4 +1,5 @@
 using Core;
+using Core.Pool;
 using Cysharp.Threading.Tasks;
 using Defines;
 using Defines.Structures;
@@ -6,8 +7,8 @@ using Logic.Card;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.U2D;
 using UnityEngine.UI;
-using Core.Pool;
 
 namespace View
 {
@@ -29,7 +30,11 @@ namespace View
             [SerializeField] UnityEngine.UI.Image m_pSlotImage = null;
             [SerializeField] UnityEngine.UI.Image m_pSlotTypeImage = null;
             [SerializeField] UnityEngine.UI.Image m_pSlotQualityImage = null;
+            
             [SerializeField] Outline m_pSlotHighlight = null;
+            [SerializeField] SpriteAtlas m_pImgAtlasPortrait = null;
+            [SerializeField] SpriteAtlas m_pImgAtlasType = null;
+            [SerializeField] SpriteAtlas m_pImgAtlasQuality = null;
 
             Card m_pRefCard = null;
             public bool bHighlighted { get; private set; } = false;
@@ -61,14 +66,66 @@ namespace View
                 {
                     return;
                 }
-
-                m_pSlotName.text = pCard.CardInfo.m_strCardName;
-                m_pSlotCost.text = pCard.CardInfo.m_iCardCost.ToString();
-                m_pSlotDescription.text = pCard.CardInfo.m_strCardDescription;
-                // m_pSlotImage.sprite = pCard.CardInfo.sprite;
-                // m_pSlotTypeImage.sprite = pCard.CardInfo.m_iCardType;
-                // m_pSlotQualityImage.sprite = pCard.CardInfo.sprite;
+                BindCardData(m_pRefCard.CardInfo);
             }
+            public void BindCardData(in CardDataSO cardData)
+            {
+                m_pSlotName.text = cardData.m_strCardName;
+                m_pSlotCost.text = cardData.m_iCardCost.ToString();
+                m_pSlotDescription.text = cardData.m_strCardDescription;
+
+                Sprite imgPortrait = null;
+                switch (cardData.m_eCardPortrait)
+                {
+                    case CardDataSO.CardPortrait.NONE:
+                    case CardDataSO.CardPortrait.END:
+                        break;
+                    default:
+                        imgPortrait = Helpers.RequireAtlasSprite(
+                            m_pImgAtlasPortrait,
+                            cardData.m_eCardPortrait.ToString(),
+                            "CardPortrait");
+                        break;
+                }
+                m_pSlotImage.sprite = imgPortrait;
+
+                Sprite imgType = null;
+                switch (cardData.m_eCardType)
+                {
+                    case CardDataSO.CardType.ATTACK:
+                    case CardDataSO.CardType.DEFENSE:
+                    case CardDataSO.CardType.MAGIC:
+                    case CardDataSO.CardType.ITEM:
+                        imgType = Helpers.RequireAtlasSprite(
+                            m_pImgAtlasType,
+                            cardData.m_eCardType.ToString(),
+                            "CardType");
+                        break;
+                    default:
+                        break;
+                }
+                m_pSlotTypeImage.sprite = imgType;
+
+                Sprite imgQuality = null;
+                switch (cardData.m_eQuality)
+                {
+                    case CardDataSO.CardQuality.COMMON:
+                    case CardDataSO.CardQuality.UNCOMMON:
+                    case CardDataSO.CardQuality.RARE:
+                    case CardDataSO.CardQuality.EPIC:
+                    case CardDataSO.CardQuality.LEGEND:
+                        imgQuality = Helpers.RequireAtlasSprite(
+                            m_pImgAtlasQuality,
+                            cardData.m_eQuality.ToString(),
+                            "CardQuality");
+                        break;
+                    default:
+                        break;
+                }
+                m_pSlotQualityImage.sprite = imgQuality;
+            }
+
+            
             public void StartLinearMove(float fDuration, in MoveInfo pDstMove, LerpModelCallback callback)
             {
                 Helpers.ExtractMoveInfo(out MoveInfo pStartMove, transform);
@@ -164,9 +221,9 @@ namespace View
                 m_pSlotName.text = string.Empty;
                 m_pSlotCost.text = string.Empty;
                 m_pSlotDescription.text = string.Empty;
-                //m_pSlotImage.sprite = null;
-                //m_pSlotTypeImage.sprite = null;
-                //m_pSlotQualityImage.sprite = null;
+                m_pSlotImage.sprite = null;
+                m_pSlotTypeImage.sprite = null;
+                m_pSlotQualityImage.sprite = null;
                 m_pSlotHighlight.enabled = false;
             }
 

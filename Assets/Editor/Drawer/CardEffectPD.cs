@@ -47,12 +47,12 @@ namespace Propertydrawer
 
             return fHeight + GetBlockHeight(property);
         }
-
+        
         #region Block (When)
 
         void DescribeBlock(Rect position, SerializedProperty property)
         {
-            SerializedProperty pBlock = property.FindPropertyRelative("m_block");
+            SerializedProperty pBlock = property.FindPropertyRelative("m_Block");
             SerializedProperty pTrigger = pBlock.FindPropertyRelative("m_eTrigger");
             SerializedProperty pSteps = pBlock.FindPropertyRelative("m_vSteps");
 
@@ -71,7 +71,7 @@ namespace Propertydrawer
 
         float GetBlockHeight(SerializedProperty property)
         {
-            SerializedProperty pBlock = property.FindPropertyRelative("m_block");
+            SerializedProperty pBlock = property.FindPropertyRelative("m_Block");
             SerializedProperty pTrigger = pBlock.FindPropertyRelative("m_eTrigger");
             SerializedProperty pSteps = pBlock.FindPropertyRelative("m_vSteps");
 
@@ -105,22 +105,23 @@ namespace Propertydrawer
             SerializedProperty pStep = pSteps.GetArrayElementAtIndex(iIndex);
             float fY = rc.y + s_fPadding;
 
-            SerializedProperty pEntity = pStep.FindPropertyRelative("m_eEntity");
-            SerializedProperty pScope = pStep.FindPropertyRelative("m_eScope");
+            // BuildExpression order: Select → Count → Scope → Entity → Operations
             SerializedProperty pSelect = pStep.FindPropertyRelative("m_eSelect");
             SerializedProperty pSelectCount = pStep.FindPropertyRelative("m_iSelectCount");
+            SerializedProperty pScope = pStep.FindPropertyRelative("m_eScope");
+            SerializedProperty pEntity = pStep.FindPropertyRelative("m_eEntity");
 
             float fColW = rc.width * 0.5f;
             Rect rcCol = new Rect(rc.x, fY, fColW, LineHeight);
-            ShowNamePropertyField(rcCol, pEntity);
-            rcCol.x += fColW;
-            ShowNamePropertyField(rcCol, pScope);
-            fY += LineHeight + s_fPadding;
-
-            rcCol = new Rect(rc.x, fY, fColW, LineHeight);
             ShowNamePropertyField(rcCol, pSelect);
             rcCol.x += fColW;
             ShowNamePropertyField(rcCol, pSelectCount);
+            fY += LineHeight + s_fPadding;
+
+            rcCol = new Rect(rc.x, fY, fColW, LineHeight);
+            ShowNamePropertyField(rcCol, pScope);
+            rcCol.x += fColW;
+            ShowNamePropertyField(rcCol, pEntity);
             fY += LineHeight + s_fPadding;
 
             // What — Operations nested list
@@ -140,8 +141,8 @@ namespace Propertydrawer
             SerializedProperty pStep = pSteps.GetArrayElementAtIndex(iIndex);
             SerializedProperty pOps = pStep.FindPropertyRelative("m_vOperations");
             return s_fPadding
-                + LineHeight + s_fPadding   // Entity | Scope
                 + LineHeight + s_fPadding   // Select | Count
+                + LineHeight + s_fPadding   // Scope | Entity
                 + GetOrCreateOperationsList(pOps).GetHeight()
                 + s_fPadding;
         }

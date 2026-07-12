@@ -223,7 +223,7 @@ namespace Core
                 pCardInitialSet.SetCardDocumentSO(m_pCardDocumentSO);
             }
         }
-        public Logic.Card.CardData GetCardInfo(int iCardID)
+        public Logic.Card.CardDataSO GetCardInfo(int iCardID)
         {
             if (null == m_pCardDocumentSO)
             {

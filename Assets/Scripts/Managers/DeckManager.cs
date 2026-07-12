@@ -35,10 +35,10 @@ namespace Core
 
             public void Initialize(SO.CardInitialSetSO pInitialSetSO)
             {
-                IReadOnlyDictionary<CardData, int> vCardInitialSet = pInitialSetSO.GetCardInitialSet();
-                foreach (KeyValuePair<CardData, int> pEntry in vCardInitialSet)
+                IReadOnlyDictionary<CardDataSO, int> vCardInitialSet = pInitialSetSO.GetCardInitialSet();
+                foreach (KeyValuePair<CardDataSO, int> pEntry in vCardInitialSet)
                 {
-                    CardData pCardInfo = pEntry.Key;
+                    CardDataSO pCardInfo = pEntry.Key;
                     int iCount = pEntry.Value;
                     for (int i = 0; i < iCount; i++)
                     {

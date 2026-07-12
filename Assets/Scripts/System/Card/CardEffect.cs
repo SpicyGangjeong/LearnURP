@@ -1,8 +1,9 @@
-﻿
-using System;
-using UnityEngine;
+﻿using System;
 using System.Collections.Generic;
-using UnityEngine.UIElements;
+using System.Text;
+using TMPro;
+using UnityEngine;
+using static Logic.ITargetable;
 
 namespace Logic
 {
@@ -58,6 +59,24 @@ namespace Logic
                         m_vSteps.Add(new Step(pStep));
                     }
                 }
+                public void BuildExpression(in StringBuilder sb)
+                {
+                    switch (m_eTrigger)
+                    {
+                        case Trigger.NONE:
+                        case Trigger.END:
+                            return;
+                        default:
+                            break;
+                    }
+                    sb.Append("When ");
+                    sb.Append(m_eTrigger.ToString());
+                    sb.Append(", ");
+                    foreach (Step iter in m_vSteps)
+                    {
+                        iter.BuildExpression(sb);
+                    }
+                }
             }
             [Serializable]
             class Step
@@ -72,13 +91,55 @@ namespace Logic
                 public Step(Step other)
                 {
                     m_eEntity = other.m_eEntity;
-                    m_eScope = other.m_eScope;
                     m_eSelect = other.m_eSelect;
+                    m_eScope = other.m_eScope;
                     m_iSelectCount = other.m_iSelectCount;
                     m_vOperations = new List<Operation>(other.m_vOperations.Count);
-                    foreach (Operation pStep in other.m_vOperations)
+                    foreach (Operation pOper in other.m_vOperations)
                     {
-                        m_vOperations.Add(new Operation(pStep));
+                        m_vOperations.Add(new Operation(pOper));
+                    }
+                }
+                public void BuildExpression(in StringBuilder sb)
+                {
+                    switch (m_eSelect)
+                    {
+                        case Select.NONE:
+                        case Select.END:
+                            break;
+                        default:
+                            sb.Append(m_eSelect.ToString());
+                            sb.Append(" ");
+                            if (0 == m_iSelectCount)
+                            {
+                                sb.Append(m_iSelectCount);
+                                sb.Append(" ");
+                            }
+                            break;
+                    }
+                    switch (m_eScope)
+                    {
+                        case Scope.NONE:
+                        case Scope.END:
+                            break;
+                        default:
+                            sb.Append(m_eScope.ToString());
+                            sb.Append(" ");
+                            break;
+                    }
+                    switch (m_eEntity)
+                    {
+                        case Entity.NONE:
+                        case Entity.END:
+                            break;
+                        default:
+                            sb.Append(m_eEntity.ToString());
+                            sb.Append(" ");
+                            break;
+                    }
+                    foreach (Operation pOper in m_vOperations)
+                    {
+                        pOper.BuildExpression(sb);
                     }
                 }
             }
@@ -94,9 +155,28 @@ namespace Logic
                     m_eValue = other.m_eValue;
                     m_iValue = other.m_iValue;
                     m_vParams = new List<Param>(other.m_vParams.Count);
-                    foreach (Param pStep in other.m_vParams)
+                    foreach (Param pParam in other.m_vParams)
                     {
-                        m_vParams.Add(new Param(pStep));
+                        m_vParams.Add(new Param(pParam));
+                    }
+                }
+                public void BuildExpression(in StringBuilder sb)
+                {
+                    switch (m_eValue)
+                    {
+                        case Value.NONE:
+                        case Value.END:
+                            return;
+                        default:
+                            sb.Append(m_eValue.ToString()); 
+                            sb.Append(" ");
+                            break;
+                    }
+                    sb.Append(m_iValue);
+                    sb.Append(" ");
+                    foreach (Param pParam in m_vParams)
+                    {
+                        pParam.BuildExpression(sb);
                     }
                 }
             }
@@ -111,6 +191,21 @@ namespace Logic
                     m_eKey = other.m_eKey;
                     m_iValue = other.m_iValue;
                 }
+                public void BuildExpression(in StringBuilder sb)
+                {
+                    switch (m_eKey)
+                    {
+                        case SubParam.NONE:
+                        case SubParam.END:
+                            return;
+                        default:
+                            sb.Append(m_eKey.ToString());
+                            sb.Append(" ");
+                            break;
+                    }
+                    sb.Append(m_iValue);
+                    sb.Append(" ");
+                }
             }
         }
 
@@ -119,16 +214,21 @@ namespace Logic
         #region Definition
         public partial class CardEffect : ITriggable
         {
-            [SerializeField] Block m_block = new Block();
+            [SerializeField] Block m_Block = new Block();
 
             public CardEffect() { }
             public CardEffect(CardEffect other)
             {
-                m_block = new Block(other.m_block);
+                m_Block = new Block(other.m_Block);
             }
             public void Triggered()
             {
                 throw new NotImplementedException();
+            }
+            public void BuildExpression(in StringBuilder sb)
+            {
+                m_Block.BuildExpression(sb);
+                sb.Append("\n");
             }
         }
         #endregion // Definition

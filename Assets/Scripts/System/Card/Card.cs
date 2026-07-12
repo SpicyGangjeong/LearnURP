@@ -10,11 +10,13 @@ namespace Logic
     {
         public class Card
         {
-            CardData m_pCardInfo = null;
-            public CardData CardInfo => m_pCardInfo;
-            public Card(CardData pInfo)
+            CardDataSO m_pCardInfo = null;
+            public CardDataSO CardInfo => m_pCardInfo;
+            public Card(CardDataSO pInfo)
             {
-                m_pCardInfo = new CardData(pInfo);
+                m_pCardInfo = ScriptableObject.CreateInstance<CardDataSO>();
+                m_pCardInfo.hideFlags = HideFlags.HideAndDontSave;
+                m_pCardInfo.CopyFrom(pInfo);
                 BuildCardEffect();
             }
             public Card(int iCardID = 0)
@@ -67,48 +69,6 @@ namespace Logic
                 m_pOnDisappearCard += Helpers.EmptyEvent;
                 m_pOnShuffleCard += Helpers.EmptyEvent;
 
-            }
-        }
-
-
-        [Serializable]
-        public class CardData
-        {
-            public enum CardType : int
-            {
-                NONE = -1,
-                ATTACK = 0,
-                DEFENSE = 1,
-                MAGIC = 2,
-                ITEM = 3,
-                END = 4,
-            }
-            public string m_strCardName;
-            public int m_iCardID;
-            public CardType m_eCardType;
-            public int m_iCardCost;
-            public CardEffect m_vCardEffects = new CardEffect();
-
-            [Defines.Attribute.ReadOnly]
-            public string m_strCardDescription;
-
-            [NonSerialized]
-            public Defines.Enums.CardPile m_eCurrentPile = Defines.Enums.CardPile.END;
-            public CardData() { }
-            public CardData(CardData pInfo)
-            {
-                m_iCardID = pInfo.m_iCardID;
-                m_eCardType = pInfo.m_eCardType;
-                m_iCardCost = pInfo.m_iCardCost;
-                m_strCardName = pInfo.m_strCardName;
-                m_vCardEffects = new CardEffect(pInfo.m_vCardEffects);
-                m_strCardDescription = pInfo.m_strCardDescription;
-            }
-            public void BuildCardDescription()
-            {
-                StringBuilder pSb = new StringBuilder();
-                pSb.AppendLine($"Name: {m_strCardName}");
-                m_strCardDescription = pSb.ToString();
             }
         }
     }

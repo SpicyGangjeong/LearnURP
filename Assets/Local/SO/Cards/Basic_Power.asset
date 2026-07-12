@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3551bbbad1a8df74fa38d568d89ced8a, type: 3}
+  m_Name: Basic_Power
+  m_EditorClassIdentifier: Assembly-CSharp::Logic.Card.CardDataSO
+  m_strCardName: Basic_Power
+  m_iCardID: 1301
+  m_eCardPortrait: 10
+  m_eCardType: 2
+  m_eQuality: 0
+  m_iCardCost: 2
+  m_vCardEffects:
+    m_Block:
+      m_eTrigger: 1
+      m_vSteps:
+      - m_eEntity: 0
+        m_eScope: 0
+        m_eSelect: 0
+        m_iSelectCount: 1
+        m_vOperations:
+        - m_eValue: 3
+          m_iValue: 2
+          m_vParams:
+          - m_eKey: 1
+            m_iValue: 34
+  m_strCardDescription: "When PLAY, SINGLE SELF UNIT BUFF 2 BUFF_ID 34 \n"
