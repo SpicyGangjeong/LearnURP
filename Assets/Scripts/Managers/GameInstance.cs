@@ -223,16 +223,6 @@ namespace Core
                 pCardInitialSet.SetCardDocumentSO(m_pCardDocumentSO);
             }
         }
-        public Logic.Card.CardDataSO GetCardInfo(int iCardID)
-        {
-            if (null == m_pCardDocumentSO)
-            {
-                Debug.LogError("CardDocuments is null");
-                return null;
-            }
-
-            return m_pCardDocumentSO.GetCard(iCardID);
-        }
         public void ChangeScene(Defines.Enums.SceneID eSceneID)
         {
             m_pLevelManager.ChangeScene(eSceneID);

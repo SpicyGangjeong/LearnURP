@@ -12,23 +12,11 @@ namespace Logic
         {
             CardDataSO m_pCardInfo = null;
             public CardDataSO CardInfo => m_pCardInfo;
-            public Card(CardDataSO pInfo)
+            public Card(CardDataSO pInfoOriginal)
             {
-                m_pCardInfo = ScriptableObject.CreateInstance<CardDataSO>();
-                m_pCardInfo.hideFlags = HideFlags.HideAndDontSave;
-                m_pCardInfo.CopyFrom(pInfo);
+                m_pCardInfo = pInfoOriginal.Clone() as CardDataSO;
                 BuildCardEffect();
             }
-            public Card(int iCardID = 0)
-            {
-                m_pCardInfo = CGameInstance.Instance.GetCardInfo(iCardID);
-                if (null == m_pCardInfo)
-                {
-                    Debug.LogError($"Card not found in CardDocuments: {iCardID}");
-                    return;
-                }
-            }
-
             public event DrawCard m_pOnDrawCard;
             public event PlayCard m_pOnPlayCard;
             public event DiscardCard m_pOnDiscardCard;

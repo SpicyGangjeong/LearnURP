@@ -54,27 +54,6 @@ namespace SO
             RebuildCardDescription();
         }
 
-        public bool TryGetCard(int iCardID, out CardDataSO pCardInfo)
-        {
-            if (null == m_vCardLookup)
-            {
-                BuildLookup();
-            }
-
-            return m_vCardLookup.TryGetValue(iCardID, out pCardInfo);
-        }
-
-        public CardDataSO GetCard(int iCardID)
-        {
-            if (TryGetCard(iCardID, out CardDataSO pCardInfo))
-            {
-                return pCardInfo;
-            }
-
-            Debug.LogError($"Card not found in CardDocuments: {iCardID}");
-            return null;
-        }
-
         public bool TryGetCardByName(string strCardName, out CardDataSO pCardInfo)
         {
             if (null == m_vCardNameLookup)
@@ -82,18 +61,14 @@ namespace SO
                 BuildLookup();
             }
 
-            return m_vCardNameLookup.TryGetValue(strCardName, out pCardInfo);
-        }
-
-        public CardDataSO GetCardByName(string strCardName)
-        {
-            if (TryGetCardByName(strCardName, out CardDataSO pCardInfo))
+            if (false == m_vCardNameLookup.TryGetValue(strCardName, out CardDataSO pOriginal))
             {
-                return pCardInfo;
+                pCardInfo = null;
+                return false;
             }
 
-            Debug.LogError($"Card not found in CardDocuments: {strCardName}");
-            return null;
+            pCardInfo = pOriginal.Clone() as CardDataSO;
+            return true;
         }
 
     }

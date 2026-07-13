@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Defines;
+using System;
 using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace Logic
     {
         [CreateAssetMenu(fileName = "CardDataSO", menuName = "Scriptable Objects/CardDataSO")]
         [Serializable]
-        public class CardDataSO : ScriptableObject
+        public class CardDataSO : ScriptableObject, IClonable
         {
             public enum CardPortrait : int
             {
@@ -98,7 +99,7 @@ namespace Logic
 
             [NonSerialized]
             public Defines.Enums.CardPile m_eCurrentPile = Defines.Enums.CardPile.END;
-            public void CopyFrom(CardDataSO pInfo)
+            private void CopyFrom(CardDataSO pInfo)
             {
                 m_iCardID = pInfo.m_iCardID;
                 m_eCardType = pInfo.m_eCardType;
@@ -128,6 +129,15 @@ namespace Logic
                 }
                 BuildCardDescription();
             }
+
+            public IClonable Clone()
+            {
+                CardDataSO pCloneData = ScriptableObject.CreateInstance<CardDataSO>();
+                pCloneData.CopyFrom(this);
+                return pCloneData;
+            }
+            private CardDataSO() { }
+            private CardDataSO(CardDataSO pOriginal) { }
         }
     }
 }
