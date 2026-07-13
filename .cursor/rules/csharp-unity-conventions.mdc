@@ -85,4 +85,4 @@ if (false == m_vPools.TryGetValue(strKey, out IComponentObjectPool pPool))
 ## ScriptableObject
 
 - 런타임 인스턴스는 `new T()` 금지 → `ScriptableObject.CreateInstance<T>()`.
-- 에셋으로 저장하지 않을 클론은 `hideFlags = HideFlags.HideAndDontSave`.
+

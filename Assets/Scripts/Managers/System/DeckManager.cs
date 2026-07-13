@@ -9,11 +9,11 @@ namespace Core
 {
     namespace Deck
     {
-        public delegate void CardDrawn(Card pCard);
-        public delegate void CardPlayed(Card pCard);
-        public delegate void CardDiscarded(Card pCard);
-        public delegate void CardReturned(Card pCard);
-        public delegate void CardDisappeared(Card pCard);
+        public delegate void CardDrawn(CardInstance pCard);
+        public delegate void CardPlayed(CardInstance pCard);
+        public delegate void CardDiscarded(CardInstance pCard);
+        public delegate void CardReturned(CardInstance pCard);
+        public delegate void CardDisappeared(CardInstance pCard);
         public delegate void DeckShuffled();
         public delegate void TurnEnded();
         public delegate void TurnStarted();
@@ -30,7 +30,7 @@ namespace Core
             public event DeckShuffled m_pOnDeckShuffled;
             public event TurnEnded m_pOnTurnEnded;
             public event TurnStarted m_pOnTurnStarted;
-            List<Card> m_vDeckOriginal = new List<Card>();
+            List<CardInstance> m_vDeckOriginal = new List<CardInstance>();
             CardPileCollection m_pPiles = new CardPileCollection();
 
             public void Initialize(SO.CardInitialSetSO pInitialSetSO)
@@ -42,7 +42,7 @@ namespace Core
                     int iCount = pEntry.Value;
                     for (int i = 0; i < iCount; i++)
                     {
-                        Card pCard = new Card(pCardInfo);
+                        CardInstance pCard = new CardInstance(pCardInfo.Instantiate());
                         m_vDeckOriginal.Add(pCard);
                     }
                 }
@@ -55,7 +55,7 @@ namespace Core
                 m_pOnTurnEnded += Defines.Helpers.EmptyEvent;
                 m_pOnTurnStarted += Defines.Helpers.EmptyEvent;
             }
-            public void Initialize(List<Card> vDeckOriginal)
+            public void Initialize(List<CardInstance> vDeckOriginal)
             {
                 if (null == vDeckOriginal)
                 {
@@ -63,7 +63,7 @@ namespace Core
                     return;
                 }
 
-                m_vDeckOriginal = new List<Card>(vDeckOriginal);
+                m_vDeckOriginal = new List<CardInstance>(vDeckOriginal);
                 m_pPiles.ClearAll();
             }
 
@@ -108,6 +108,7 @@ namespace Core
                     CGameInstance.Instance.JobQueues.EnqueueJob(
                         new JobDeferredCallback(async () => { await AwaitingEnd(); }));
                 }
+                await UniTask.CompletedTask;
             }
             public async UniTask StartTurn()
             {
@@ -122,7 +123,7 @@ namespace Core
                 m_pOnTurnStarted();
                 for (int i = 0; i < s_iHandDrawCount; i++)
                 {
-                    Card pCard = PopFrontDeck();
+                    CardInstance pCard = PopFrontDeck();
                     if (null != pCard)
                     {
                         DrawCard(pCard);
@@ -130,7 +131,7 @@ namespace Core
                 }
                 await UniTask.CompletedTask;
             }
-            public bool PlayCard(Card pCard)
+            public bool PlayCard(CardInstance pCard)
             {
                 MoveCard(pCard, Defines.Enums.CardPile.DISCARD);
                 m_pOnCardPlayed(pCard);
@@ -138,7 +139,7 @@ namespace Core
                 return true;
             }
 
-            public IReadOnlyList<Card> GetCards(Defines.Enums.CardPile ePileType)
+            public IReadOnlyList<CardInstance> GetCards(Defines.Enums.CardPile ePileType)
             {
                 return m_pPiles.GetCards(ePileType);
             }
@@ -149,9 +150,9 @@ namespace Core
                 m_pOnDeckShuffled();
             }
 
-            public Card PopFrontDeck()
+            public CardInstance PopFrontDeck()
             {
-                Card pCard = null;
+                CardInstance pCard = null;
                 if (0 == m_pPiles.GetCount(Defines.Enums.CardPile.DECK))
                 {
                     ReturnCard();
@@ -168,18 +169,18 @@ namespace Core
 
             public void ReturnCard()
             {
-                List<Card> vDiscardSnapshot = new List<Card>(m_pPiles.GetCards(Defines.Enums.CardPile.DISCARD));
+                List<CardInstance> vDiscardSnapshot = new List<CardInstance>(m_pPiles.GetCards(Defines.Enums.CardPile.DISCARD));
                 if (0 == vDiscardSnapshot.Count)
                 {
                     return;
                 }
 
-                foreach (Card pCard in vDiscardSnapshot)
+                foreach (CardInstance pCard in vDiscardSnapshot)
                 {
                     MoveCard(pCard, Defines.Enums.CardPile.DECK);
                 }
 
-                foreach (Card pCard in vDiscardSnapshot)
+                foreach (CardInstance pCard in vDiscardSnapshot)
                 {
                     m_pOnCardReturned(pCard);
                     pCard.OnReturnCard();
@@ -188,7 +189,7 @@ namespace Core
                 ShuffleDeck();
             }
 
-            public bool DiscardCard(Card pCard)
+            public bool DiscardCard(CardInstance pCard)
             {
                 MoveCard(pCard, Defines.Enums.CardPile.DISCARD);
                 m_pOnCardDiscarded(pCard);
@@ -196,7 +197,7 @@ namespace Core
                 return true;
             }
 
-            public bool DrawCard(Card pCard)
+            public bool DrawCard(CardInstance pCard)
             {
                 MoveCard(pCard, Defines.Enums.CardPile.HAND);
                 m_pOnCardDrawn(pCard);
@@ -204,27 +205,27 @@ namespace Core
                 return true;
             }
 
-            public void DisappearCard(Card pCard)
+            public void DisappearCard(CardInstance pCard)
             {
                 MoveCard(pCard, Defines.Enums.CardPile.DISAPPEARED);
                 m_pOnCardDisappeared(pCard);
                 pCard.OnDisappearCard();
             }
 
-            public void MoveCard(Card pCard, Defines.Enums.CardPile eToPile)
+            public void MoveCard(CardInstance pCard, Defines.Enums.CardPile eToPile)
             {
                 m_pPiles.Move(pCard, eToPile);
             }
-            public void MoveToFieldCard(Card pCard)
+            public void MoveToFieldCard(CardInstance pCard)
             {
                 MoveCard(pCard, Defines.Enums.CardPile.FIELD);
             }
-            public void AddCard(Card pCard, Defines.Enums.CardPile ePileType)
+            public void AddCard(CardInstance pCard, Defines.Enums.CardPile ePileType)
             {
                 m_pPiles.Add(pCard, ePileType);
             }
 
-            public void RemoveCard(Card pCard)
+            public void RemoveCard(CardInstance pCard)
             {
                 m_pPiles.Remove(pCard);
             }
@@ -234,7 +235,7 @@ namespace Core
                 return m_pPiles.GetCount(ePileType);
             }
 
-            public IReadOnlyList<Card> GetPileCards(Defines.Enums.CardPile ePileType)
+            public IReadOnlyList<CardInstance> GetPileCards(Defines.Enums.CardPile ePileType)
             {
                 return m_pPiles.GetCards(ePileType);
             }

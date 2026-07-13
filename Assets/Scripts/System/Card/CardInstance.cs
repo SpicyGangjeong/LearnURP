@@ -1,20 +1,17 @@
 ﻿using Core;
 using Defines;
-using System;
-using System.Text;
-using UnityEngine;
 
 namespace Logic
 {
     namespace Card
     {
-        public class Card
+        public class CardInstance
         {
-            CardDataSO m_pCardInfo = null;
-            public CardDataSO CardInfo => m_pCardInfo;
-            public Card(CardDataSO pInfoOriginal)
+            CardData m_pData = null;
+            public CardData Data => m_pData;
+            public CardInstance(CardData pData)
             {
-                m_pCardInfo = pInfoOriginal.Clone() as CardDataSO;
+                m_pData = pData;
                 BuildCardEffect();
             }
             public event DrawCard m_pOnDrawCard;

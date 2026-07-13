@@ -6,7 +6,6 @@ using Defines;
 using Defines.Structures;
 using Logic.Card;
 using TMPro;
-using UI;
 using UnityEngine;
 namespace View
 {
@@ -89,6 +88,10 @@ namespace View
                 }
             }
 
+            public void RenderDrawTable(int iPile)
+            {
+                RenderDrawTable((Defines.Enums.CardPile)iPile);
+            }
             public void RenderDrawTable(Defines.Enums.CardPile ePile)
             {
                 switch (ePile)
@@ -128,7 +131,7 @@ namespace View
 
             public HandBoard HandBoard => m_pHandBoard;
 
-            public void PoolCard(Card pCard, out CardCanvas pCardCanvas)
+            public void PoolCard(CardInstance pCard, out CardCanvas pCardCanvas)
             {
                 pCardCanvas = m_pGameInstance.GetPooled<CardCanvas>(PoolKeys.s_strCardCanvas,
                     m_pPvts[(int)PvtPos.HANDBOARD]);
@@ -137,7 +140,7 @@ namespace View
                 Helpers.ApplyMoveInfo(m_MoveInfos[(int)PvtPos.DECK], pCardCanvas.transform);
             }
 
-            void PresentDraw(Card pCard)
+            void PresentDraw(CardInstance pCard)
             {
                 IJob jobDraw = new JobDrawCallback(async () =>
                 {
@@ -152,7 +155,7 @@ namespace View
                 m_pGameInstance.EnqueueJob(jobDraw);
             }
 
-            public void PresentPlay(Card pCard, CardCanvas pCardCanvas)
+            public void PresentPlay(CardInstance pCard, CardCanvas pCardCanvas)
             {
                 m_pGameInstance.Deck.MoveToFieldCard(pCard);
                 pCardCanvas.StartBezierMove((float)Constants.TIME_MS_DISCARD_DURATION / Constants.TIME_MS_ASEC,
@@ -165,7 +168,7 @@ namespace View
                                             });
             }
 
-            public void PresentDiscard(Card pCard, CardCanvas pCardCanvas)
+            public void PresentDiscard(CardInstance pCard, CardCanvas pCardCanvas)
             {
                 m_pHandBoard.PopCardForPresentation(pCard);
                 IJob jobDiscard = new JobDiscardCallback(async () =>

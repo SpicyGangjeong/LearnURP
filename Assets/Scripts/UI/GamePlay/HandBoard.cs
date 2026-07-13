@@ -4,9 +4,7 @@ using Defines;
 using Defines.Structures;
 using Logic.Card;
 using System.Collections.Generic;
-using UI;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace View
 {
@@ -17,8 +15,8 @@ namespace View
             static private readonly int s_iMaxHandSlots = 10;
             static private readonly float s_fCurveHeight = 120f;
 
-            readonly List<KeyValuePair<Card, CardCanvas>> m_vCardCanvases = new List<KeyValuePair<Card, CardCanvas>>();
-            IReadOnlyList<Card> m_vHandCards = null;
+            readonly List<KeyValuePair<CardInstance, CardCanvas>> m_vCardCanvases = new List<KeyValuePair<CardInstance, CardCanvas>>();
+            IReadOnlyList<CardInstance> m_vHandCards = null;
             CGameInstance m_pGameInstance = null;
             GamePlayCanvas m_pGamePlayCanvas = null;
 
@@ -51,25 +49,25 @@ namespace View
                 ReleaseAllHandCanvases();
             }
 
-            public void PopCardForPresentation(Card pCard)
+            public void PopCardForPresentation(CardInstance pCard)
             {
                 RemoveHandCard(pCard);
                 UpdateHandLayout();
             }
 
-            public void OnDragBegin(Card pCard)
+            public void OnDragBegin(CardInstance pCard)
             {
                 RemoveHandCard(pCard);
                 UpdateHandLayout();
             }
 
-            public void OnDragCancel(Card pCard, CardCanvas pCardCanvas)
+            public void OnDragCancel(CardInstance pCard, CardCanvas pCardCanvas)
             {
                 BindCard(pCard, pCardCanvas);
                 UpdateHandLayout();
             }
 
-            public void BindCard(Card pCard, CardCanvas pCardCanvas)
+            public void BindCard(CardInstance pCard, CardCanvas pCardCanvas)
             {
                 int FindProperIndex(CardCanvas pCardCanvas, int iIndex)
                 {
@@ -88,7 +86,7 @@ namespace View
                 }
 
                 pCardCanvas.BindCard(pCard);
-                KeyValuePair<Card, CardCanvas> element = new KeyValuePair<Card, CardCanvas>(pCard, pCardCanvas);
+                KeyValuePair<CardInstance, CardCanvas> element = new KeyValuePair<CardInstance, CardCanvas>(pCard, pCardCanvas);
                 m_vCardCanvases.Insert(FindProperIndex(pCardCanvas, m_vCardCanvases.Count), element);
 
             }
@@ -139,13 +137,13 @@ namespace View
                 StartLinearMove(iActiveCardCount);
             }
 
-            void OnCardPlayed(Card pCard)
+            void OnCardPlayed(CardInstance pCard)
             {
                 RemoveHandCard(pCard);
                 UpdateHandLayout();
             }
 
-            void OnCardDiscarded(Card pCard)
+            void OnCardDiscarded(CardInstance pCard)
             {
                 RemoveHandCard(pCard);
                 UpdateHandLayout();
@@ -153,8 +151,8 @@ namespace View
 
             void OnTurnEnded()
             {
-                List<KeyValuePair<Card, CardCanvas>> vCapturedCanvases = new List<KeyValuePair<Card, CardCanvas>>(m_vCardCanvases);
-                foreach (KeyValuePair<Card, CardCanvas> pairCard in vCapturedCanvases)
+                List<KeyValuePair<CardInstance, CardCanvas>> vCapturedCanvases = new List<KeyValuePair<CardInstance, CardCanvas>>(m_vCardCanvases);
+                foreach (KeyValuePair<CardInstance, CardCanvas> pairCard in vCapturedCanvases)
                 {
                     if (null != m_pGamePlayCanvas)
                     {
@@ -163,7 +161,7 @@ namespace View
                 }
             }
 
-            void RemoveHandCard(Card pCard)
+            void RemoveHandCard(CardInstance pCard)
             {
                 m_vCardCanvases.RemoveAll((element) => { return element.Key == pCard; });
             }
@@ -176,7 +174,7 @@ namespace View
                     return;
                 }
 
-                foreach (KeyValuePair<Card, CardCanvas> pair in m_vCardCanvases)
+                foreach (KeyValuePair<CardInstance, CardCanvas> pair in m_vCardCanvases)
                 {
                     m_pGameInstance.ReleasePooled<CardCanvas>(PoolKeys.s_strCardCanvas, pair.Value);
                 }

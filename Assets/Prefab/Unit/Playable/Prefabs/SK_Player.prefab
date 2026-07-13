@@ -89,7 +89,7 @@ PrefabInstance:
       addedObject: {fileID: 5361994486939533803}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 639b6ce73b347e5429ac0526c9c29094, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8189817520681661863}
+      addedObject: {fileID: 8936965485427933673}
   m_SourcePrefab: {fileID: 100100000, guid: 639b6ce73b347e5429ac0526c9c29094, type: 3}
 --- !u!1 &3995720064970690214 stripped
 GameObject:
@@ -121,7 +121,7 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.9, z: 0}
---- !u!114 &8189817520681661863
+--- !u!114 &8936965485427933673
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -130,7 +130,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3995720064970690214}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ea5d1e67f6ee424bbe730b2d0c110c8, type: 3}
+  m_Script: {fileID: 11500000, guid: 68d4eaf092161c847877f48045e437f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ApplyGravity
-  pCharacterController: {fileID: 0}
+  m_fGravityAmplitude: -9.14

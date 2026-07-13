@@ -1,4 +1,4 @@
-using Core;
+﻿using Core;
 using Core.StateMachine;
 using UnityEngine;
 
@@ -6,15 +6,15 @@ namespace Logic
 {
     namespace State
     {
-        public class CState_Sys_Idle : CState_Sys
+        public class CState_System_Playing : CState_System
         {
-            public class STATE_SYS_IDLE_DESC : STATE_SYS_DESC
+            public class STATE_SYSTEM_PLAYING_DESC : STATE_SYSTEM_DESC
             {
-                public STATE_SYS_IDLE_DESC(int iStateID, MonoBehaviour pOwner, CFSM pFsm, CGameInstance pGameInstance) : base(iStateID, pOwner, pFsm, pGameInstance)
+                public STATE_SYSTEM_PLAYING_DESC(int iStateID, MonoBehaviour pOwner, CFSM pFsm, CGameInstance pGameInstance) : base(iStateID, pOwner, pFsm, pGameInstance)
                 {
                 }
             }
-            public CState_Sys_Idle(STATE_SYS_IDLE_DESC pRefOwner) : base(pRefOwner) { }
+            public CState_System_Playing(STATE_SYSTEM_PLAYING_DESC pRefOwner) : base(pRefOwner) { }
             public override void Fixed_Update_State()
             {
 

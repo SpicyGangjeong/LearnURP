@@ -7,7 +7,7 @@ namespace Logic
     {
         class CardPileCollection
         {
-            readonly Dictionary<Defines.Enums.CardPile, List<Card>> m_vPiles = new Dictionary<Defines.Enums.CardPile, List<Card>>();
+            readonly Dictionary<Defines.Enums.CardPile, List<CardInstance>> m_vPiles = new Dictionary<Defines.Enums.CardPile, List<CardInstance>>();
 
 
             public CardPileCollection()
@@ -15,22 +15,22 @@ namespace Logic
                 for (Defines.Enums.CardPile ePile = Defines.Enums.CardPile.NONE + 1;
                     ePile != Defines.Enums.CardPile.ALL; ePile++)
                 {
-                    m_vPiles[ePile] = new List<Card>();
+                    m_vPiles[ePile] = new List<CardInstance>();
                 }
             }
-            public List<Card> GetPile(Defines.Enums.CardPile ePileType)
+            public List<CardInstance> GetPile(Defines.Enums.CardPile ePileType)
             {
                 return m_vPiles[ePileType];
             }
 
-            public IReadOnlyList<Card> GetCards(Defines.Enums.CardPile ePileType)
+            public IReadOnlyList<CardInstance> GetCards(Defines.Enums.CardPile ePileType)
             {
                 return GetPile(ePileType);
             }
 
             public int GetCount(Defines.Enums.CardPile ePileType)
             {
-                List<Card> vPile = GetPile(ePileType);
+                List<CardInstance> vPile = GetPile(ePileType);
                 if (null == vPile)
                 {
                     return 0;
@@ -41,7 +41,7 @@ namespace Logic
 
             public void ClearAll()
             {
-                foreach (List<Card> vPile in m_vPiles.Values)
+                foreach (List<CardInstance> vPile in m_vPiles.Values)
                 {
                     vPile.Clear();
                 }
@@ -49,44 +49,44 @@ namespace Logic
 
             public void Clear(Defines.Enums.CardPile ePileType)
             {
-                List<Card> vPile = GetPile(ePileType);
+                List<CardInstance> vPile = GetPile(ePileType);
                 if (null != vPile)
                 {
                     vPile.Clear();
                 }
             }
 
-            public void Add(Card pCard, Defines.Enums.CardPile ePileType)
+            public void Add(CardInstance pCard, Defines.Enums.CardPile ePileType)
             {
-                List<Card> vPile = GetPile(ePileType);
-                pCard.CardInfo.m_eCurrentPile = ePileType;
+                List<CardInstance> vPile = GetPile(ePileType);
+                pCard.Data.m_eCurrentPile = ePileType;
 
                 if (null != vPile)
                 {
                     vPile.Add(pCard);
                 }
             }
-            public void AddRange(IEnumerable<Card> vCards, Defines.Enums.CardPile ePileType)
+            public void AddRange(IEnumerable<CardInstance> vCards, Defines.Enums.CardPile ePileType)
             {
-                foreach (Card pCard in vCards)
+                foreach (CardInstance pCard in vCards)
                 {
                     Add(pCard, ePileType);
                 }
             }
 
-            public bool Remove(Card pCard)
+            public bool Remove(CardInstance pCard)
             {
-                List<Card> vPile = GetPile(pCard.CardInfo.m_eCurrentPile);
+                List<CardInstance> vPile = GetPile(pCard.Data.m_eCurrentPile);
                 if (null == vPile)
                 {
-                    pCard.CardInfo.m_eCurrentPile = Defines.Enums.CardPile.END;
+                    pCard.Data.m_eCurrentPile = Defines.Enums.CardPile.END;
                     return false;
                 }
 
                 return vPile.Remove(pCard);
             }
 
-            public bool Move(Card pCard, Defines.Enums.CardPile eToPile)
+            public bool Move(CardInstance pCard, Defines.Enums.CardPile eToPile)
             {
                 if (false == Remove(pCard))
                 {
@@ -98,9 +98,9 @@ namespace Logic
             }
 
 
-            public Card GetTopCard(Defines.Enums.CardPile ePileType)
+            public CardInstance GetTopCard(Defines.Enums.CardPile ePileType)
             {
-                List<Card> vPile = GetPile(ePileType);
+                List<CardInstance> vPile = GetPile(ePileType);
                 if (null == vPile || 0 == vPile.Count)
                 {
                     return null;
@@ -111,7 +111,7 @@ namespace Logic
 
             public void Shuffle(Defines.Enums.CardPile ePileType)
             {
-                List<Card> vPile = GetPile(ePileType);
+                List<CardInstance> vPile = GetPile(ePileType);
                 if (null == vPile)
                 {
                     return;
@@ -120,11 +120,11 @@ namespace Logic
                 for (int i = 0; i < vPile.Count; i++)
                 {
                     int iRandomIndex = Random.Range(0, vPile.Count);
-                    Card pTempCard = vPile[i];
+                    CardInstance pTempCard = vPile[i];
                     vPile[i] = vPile[iRandomIndex];
                     vPile[iRandomIndex] = pTempCard;
                 }
-                foreach (Card p in vPile)
+                foreach (CardInstance p in vPile)
                 {
                     p.OnShuffleCard();
                 }

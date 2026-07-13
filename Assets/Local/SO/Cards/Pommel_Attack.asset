@@ -12,31 +12,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3551bbbad1a8df74fa38d568d89ced8a, type: 3}
   m_Name: Pommel_Attack
   m_EditorClassIdentifier: Assembly-CSharp::Logic.Card.CardDataSO
-  m_strCardName: Pommel_Attack
-  m_iCardID: 1102
-  m_eCardPortrait: 32
-  m_eCardType: 0
-  m_eQuality: 1
-  m_iCardCost: 2
-  m_vCardEffects:
-    m_Block:
-      m_eTrigger: 1
-      m_vSteps:
-      - m_eEntity: 0
-        m_eScope: 3
-        m_eSelect: 0
-        m_iSelectCount: 1
-        m_vOperations:
-        - m_eValue: 0
-          m_iValue: 7
-          m_vParams: []
-      - m_eEntity: 3
-        m_eScope: 6
-        m_eSelect: 2
-        m_iSelectCount: 2
-        m_vOperations:
-        - m_eValue: 3
-          m_iValue: 2
-          m_vParams: []
-  m_strCardDescription: "When PLAY, SINGLE ENEMY UNIT DAMAGE 7 RANDOM DECK MANAGER
-    BUFF 2 \n"
+  m_ScriptedObject:
+    strName: Pommel_Attack
+    iID: 1102
+    ePortrait: 32
+    eType: 0
+    eQuality: 1
+    iCost: 2
+    vEffects:
+      m_Block:
+        m_eTrigger: 1
+        m_vSteps:
+        - m_eEntity: 0
+          m_eScope: 3
+          m_eSelect: 0
+          m_iSelectCount: 1
+          m_vOperations:
+          - m_eValue: 0
+            m_iValue: 7
+            m_vParams: []
+        - m_eEntity: 3
+          m_eScope: 6
+          m_eSelect: 2
+          m_iSelectCount: 2
+          m_vOperations:
+          - m_eValue: 3
+            m_iValue: 2
+            m_vParams: []
+    strDescription: "When PLAY, SINGLE ENEMY UNIT DAMAGE 7 RANDOM DECK MANAGER BUFF 2 \n"

@@ -1,4 +1,5 @@
-﻿using Defines.Structures;
+﻿using Core;
+using Defines.Structures;
 using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -24,22 +25,22 @@ namespace Defines
         {
             private Vector2 m_vTimer;
             private ILerp m_pLerpModel;
-            private event Core.LerpModelCallback m_Callback;
-            public static LerpInfo Linear(float fDuration, in MoveInfo pStart, in MoveInfo pEnd, Core.LerpModelCallback callback)
+            private event LerpModelCallback m_Callback;
+            public static LerpInfo Linear(float fDuration, in MoveInfo pStart, in MoveInfo pEnd, LerpModelCallback callback)
             {
                 return new LerpInfo(fDuration, pStart, pEnd, callback);
             }
-            public static LerpInfo Bezier(float fDuration, in MoveInfo pStart, in MoveInfo pCenter, in MoveInfo pEnd, Core.LerpModelCallback callback)
+            public static LerpInfo Bezier(float fDuration, in MoveInfo pStart, in MoveInfo pCenter, in MoveInfo pEnd, LerpModelCallback callback)
             {
                 return new LerpInfo(fDuration, pStart, pCenter, pEnd, callback);
             }
-            private LerpInfo(float fDuration, in MoveInfo pStart, in MoveInfo pEnd, Core.LerpModelCallback callback)
+            private LerpInfo(float fDuration, in MoveInfo pStart, in MoveInfo pEnd, LerpModelCallback callback)
             {
                 m_vTimer = Vector2.up * fDuration;
                 m_pLerpModel = new LinearLerpInfo(in pStart, in pEnd);
                 m_Callback = callback;
             }
-            private LerpInfo(float fDuration, in MoveInfo pStart, in MoveInfo pCenter, in MoveInfo pEnd, Core.LerpModelCallback callback)
+            private LerpInfo(float fDuration, in MoveInfo pStart, in MoveInfo pCenter, in MoveInfo pEnd, LerpModelCallback callback)
             {
                 m_vTimer = Vector2.up * fDuration;
                 m_pLerpModel = new QuadraticLerpInfo(in pStart, in pCenter, in pEnd);
@@ -128,6 +129,9 @@ namespace Defines
         public static readonly int TIME_MS_DRAWING_DURATION = 300;
         public static readonly int TIME_MS_DISCARD_DURATION = 250;
         public static readonly int TIME_MS_DRAWING_INTERVAL = 200;
+
+        public static readonly Vector2 TargetPC = new Vector2(1920, 1080);
+        public static readonly Vector2 TargetMobile = new Vector2(1080, 2400);
     }
     public static class Helpers
     {
@@ -167,7 +171,7 @@ namespace Defines
             return pSprite;
         }
         public static void EmptyEvent() { }
-        public static void EmptyEvent(Logic.Card.Card pCard) { }
+        public static void EmptyEvent(Logic.Card.CardInstance pCard) { }
         public static class BIT
         {
             static ulong ToUInt64<_Ty>(_Ty iValue) where _Ty : struct

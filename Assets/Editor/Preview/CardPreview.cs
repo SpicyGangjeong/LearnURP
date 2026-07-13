@@ -64,7 +64,7 @@ public class CardPreview : ObjectPreview
         }
 
         m_pBoundData = pData;
-        m_pCardCanvas.BindCardData(m_pBoundData);
+        m_pCardCanvas.BindCardData(m_pBoundData.Instantiate());
         m_pCachedTex = null;
     }
 

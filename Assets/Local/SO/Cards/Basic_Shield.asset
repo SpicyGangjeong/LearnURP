@@ -12,22 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3551bbbad1a8df74fa38d568d89ced8a, type: 3}
   m_Name: Basic_Shield
   m_EditorClassIdentifier: Assembly-CSharp::Logic.Card.CardDataSO
-  m_strCardName: Basic_Shield
-  m_iCardID: 1201
-  m_eCardPortrait: 38
-  m_eCardType: 1
-  m_eQuality: 0
-  m_iCardCost: 1
-  m_vCardEffects:
-    m_Block:
-      m_eTrigger: 1
-      m_vSteps:
-      - m_eEntity: 0
-        m_eScope: 1
-        m_eSelect: 0
-        m_iSelectCount: 1
-        m_vOperations:
-        - m_eValue: 2
-          m_iValue: 6
-          m_vParams: []
-  m_strCardDescription: "When PLAY, SINGLE SELECTED UNIT SHIELD 6 \n"
+  m_ScriptedObject:
+    strName: Basic_Shield
+    iID: 1201
+    ePortrait: 38
+    eType: 1
+    eQuality: 0
+    iCost: 1
+    vEffects:
+      m_Block:
+        m_eTrigger: 1
+        m_vSteps:
+        - m_eEntity: 0
+          m_eScope: 1
+          m_eSelect: 0
+          m_iSelectCount: 1
+          m_vOperations:
+          - m_eValue: 2
+            m_iValue: 6
+            m_vParams: []
+    strDescription: "When PLAY, SINGLE SELECTED UNIT SHIELD 6 \n"

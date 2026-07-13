@@ -36,7 +36,7 @@ namespace View
             [SerializeField] SpriteAtlas m_pImgAtlasType = null;
             [SerializeField] SpriteAtlas m_pImgAtlasQuality = null;
 
-            Card m_pRefCard = null;
+            CardInstance m_pRefCard = null;
             public bool bHighlighted { get; private set; } = false;
 
             LerpInfo m_LerpInfo;
@@ -59,46 +59,46 @@ namespace View
                     Helpers.ApplyMoveInfo(m_LerpInfo.GetMoveInfo(), transform);
                 }
             }
-            public void BindCard(Card pCard)
+            public void BindCard(CardInstance pCard)
             {
                 m_pRefCard = pCard;
-                if (null == pCard || null == pCard.CardInfo)
+                if (null == pCard || null == pCard.Data)
                 {
                     return;
                 }
-                BindCardData(m_pRefCard.CardInfo);
+                BindCardData(m_pRefCard.Data);
             }
-            public void BindCardData(in CardDataSO cardData)
+            public void BindCardData(in CardData cardData)
             {
-                m_pSlotName.text = cardData.m_strCardName;
-                m_pSlotCost.text = cardData.m_iCardCost.ToString();
-                m_pSlotDescription.text = cardData.m_strCardDescription;
+                m_pSlotName.text = cardData.Name;
+                m_pSlotCost.text = cardData.Cost.ToString();
+                m_pSlotDescription.text = cardData.Description;
 
                 Sprite imgPortrait = null;
-                switch (cardData.m_eCardPortrait)
+                switch (cardData.Portrait)
                 {
-                    case CardDataSO.CardPortrait.NONE:
-                    case CardDataSO.CardPortrait.END:
+                    case CardData.CardPortrait.NONE:
+                    case CardData.CardPortrait.END:
                         break;
                     default:
                         imgPortrait = Helpers.RequireAtlasSprite(
                             m_pImgAtlasPortrait,
-                            cardData.m_eCardPortrait.ToString(),
+                            cardData.Portrait.ToString(),
                             "CardPortrait");
                         break;
                 }
                 m_pSlotImage.sprite = imgPortrait;
 
                 Sprite imgType = null;
-                switch (cardData.m_eCardType)
+                switch (cardData.Type)
                 {
-                    case CardDataSO.CardType.ATTACK:
-                    case CardDataSO.CardType.DEFENSE:
-                    case CardDataSO.CardType.MAGIC:
-                    case CardDataSO.CardType.ITEM:
+                    case CardData.CardType.ATTACK:
+                    case CardData.CardType.DEFENSE:
+                    case CardData.CardType.MAGIC:
+                    case CardData.CardType.ITEM:
                         imgType = Helpers.RequireAtlasSprite(
                             m_pImgAtlasType,
-                            cardData.m_eCardType.ToString(),
+                            cardData.Type.ToString(),
                             "CardType");
                         break;
                     default:
@@ -107,16 +107,16 @@ namespace View
                 m_pSlotTypeImage.sprite = imgType;
 
                 Sprite imgQuality = null;
-                switch (cardData.m_eQuality)
+                switch (cardData.Quality)
                 {
-                    case CardDataSO.CardQuality.COMMON:
-                    case CardDataSO.CardQuality.UNCOMMON:
-                    case CardDataSO.CardQuality.RARE:
-                    case CardDataSO.CardQuality.EPIC:
-                    case CardDataSO.CardQuality.LEGEND:
+                    case CardData.CardQuality.COMMON:
+                    case CardData.CardQuality.UNCOMMON:
+                    case CardData.CardQuality.RARE:
+                    case CardData.CardQuality.EPIC:
+                    case CardData.CardQuality.LEGEND:
                         imgQuality = Helpers.RequireAtlasSprite(
                             m_pImgAtlasQuality,
-                            cardData.m_eQuality.ToString(),
+                            cardData.Quality.ToString(),
                             "CardQuality");
                         break;
                     default:

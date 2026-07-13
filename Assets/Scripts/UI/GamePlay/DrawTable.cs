@@ -1,6 +1,4 @@
 using Core;
-using System.Collections.Generic;
-using UI;
 using Unity.Mathematics;
 using UnityEngine;
 

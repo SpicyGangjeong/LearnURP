@@ -30,7 +30,7 @@ namespace Core
 
                 if (m_hSceneLoadHandle.Status == AsyncOperationStatus.Succeeded)
                 {
-                    Debug.Log($"Scene '{m_pSceneRef.editorAsset.name}' loaded successfully.");
+                    Debug.Log($"Scene '{m_hSceneLoadHandle.Result.Scene.name}' loaded successfully.");
                 }
                 else
                 {
@@ -42,12 +42,13 @@ namespace Core
             {
                 if (m_hSceneLoadHandle.IsValid())
                 {
+                    string strSceneName = m_hSceneLoadHandle.Result.Scene.name;
                     AsyncOperationHandle<SceneInstance> hUnloadHandle = Addressables.UnloadSceneAsync(m_hSceneLoadHandle);
                     await hUnloadHandle.Task;
 
                     if (hUnloadHandle.Status == AsyncOperationStatus.Succeeded)
                     {
-                        Debug.Log($"Scene '{m_pSceneRef.editorAsset.name}' unloaded successfully.");
+                        Debug.Log($"Scene '{strSceneName}' unloaded successfully.");
                     }
                     else
                     {

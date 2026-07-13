@@ -11,14 +11,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using Core.Variables;
 
 namespace Core
 {
-    public delegate void DrawCard(Logic.Card.Card pCard);
-    public delegate void PlayCard(Logic.Card.Card pCard);
-    public delegate void DiscardCard(Logic.Card.Card pCard);
-    public delegate void ReturnCard(Logic.Card.Card pCard);
-    public delegate void DisappearCard(Logic.Card.Card pCard);
+    public delegate void DrawCard(Logic.Card.CardInstance pCard);
+    public delegate void PlayCard(Logic.Card.CardInstance pCard);
+    public delegate void DiscardCard(Logic.Card.CardInstance pCard);
+    public delegate void ReturnCard(Logic.Card.CardInstance pCard);
+    public delegate void DisappearCard(Logic.Card.CardInstance pCard);
     public delegate void ShuffleCard();
 
     public delegate void LerpModelCallback();
@@ -30,8 +31,8 @@ namespace Core
         public static CGameInstance Instance { get { Init(); return s_pInstance; } }
 
         [SerializeField] SO.SceneSO m_pSceneSO = null;
-        [SerializeField] SO.CardDocumentSO m_pCardDocumentSO = null;
-        [SerializeField] List<SO.CardInitialSetSO> m_vCardInitialSetSO = null;
+        SO.CardDocumentSO m_pCardDocumentSO = null;
+        List<SO.CardInitialSetSO> m_vCardInitialSetSO = new List<SO.CardInitialSetSO>();
         ContentUpdater m_pContentUpdater = null;
         DeckManager m_pDeckManager = null;
         LevelManager m_pLevelManager = null;
@@ -39,10 +40,12 @@ namespace Core
         JobQueueManager m_pJobQueueManager = null;
         ObjectPoolManager m_pObjectPoolManager = null;
         Transform m_pPoolRoot = null;
-
+        GlobalVariables m_pGlobalVariables = null;
         public DeckManager Deck => m_pDeckManager;
         public ObjectPoolManager ObjectPools => m_pObjectPoolManager;
         public JobQueueManager JobQueues => m_pJobQueueManager;
+
+        public GlobalVariables Variables => m_pGlobalVariables;
 
         CFSM m_pFsm = null;
         public SO.CardDocumentSO CardDocuments => m_pCardDocumentSO;
@@ -87,23 +90,25 @@ namespace Core
                 return;
             }
             s_pInstance.m_pFsm.m_vStates = new Dictionary<int, CState>();
-            s_pInstance.m_pFsm.m_vStates.Add((int)CState_Sys.SystemState.INITIALIZE, new CState_Sys_Initialize(
-                new CState_Sys_Initialize.STATE_SYS_INITIALIZE_DESC((int)CState_Sys.SystemState.INITIALIZE, s_pInstance, s_pInstance.m_pFsm, s_pInstance, s_pInstance.BootstrapAsync)));
-            s_pInstance.m_pFsm.m_vStates.Add((int)CState_Sys.SystemState.IDLE, new CState_Sys_Idle(
-                new CState_Sys_Idle.STATE_SYS_IDLE_DESC((int)CState_Sys.SystemState.IDLE, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
-            s_pInstance.m_pFsm.m_vStates.Add((int)CState_Sys.SystemState.PLAYING, new CState_Sys_Playing(
-                new CState_Sys_Playing.STATE_SYS_PLAYING_DESC((int)CState_Sys.SystemState.PLAYING, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
+            s_pInstance.m_pFsm.m_vStates.Add((int)CState_System.SystemState.INITIALIZE, new CState_System_Initialize(
+                new CState_System_Initialize.STATE_SYSTEM_INITIALIZE_DESC((int)CState_System.SystemState.INITIALIZE, s_pInstance, s_pInstance.m_pFsm, s_pInstance, s_pInstance.BootstrapAsync)));
+            s_pInstance.m_pFsm.m_vStates.Add((int)CState_System.SystemState.IDLE, new CState_System_Idle(
+                new CState_System_Idle.STATE_SYSTEM_IDLE_DESC((int)CState_System.SystemState.IDLE, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
+            s_pInstance.m_pFsm.m_vStates.Add((int)CState_System.SystemState.PLAYING, new CState_System_Playing(
+                new CState_System_Playing.STATE_SYSTEM_PLAYING_DESC((int)CState_System.SystemState.PLAYING, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
 
-            if (true == s_pInstance.m_pFsm.Is_Valid_FSM((int)CState_Sys.SystemState.END))
+            if (true == s_pInstance.m_pFsm.Is_Valid_FSM((int)CState_System.SystemState.END))
             {
-                s_pInstance.m_pFsm.Change_State((int)CState_Sys.SystemState.INITIALIZE);
+                s_pInstance.m_pFsm.Change_State((int)CState_System.SystemState.INITIALIZE);
             }
         }
         private static bool Initialize(ref CGameInstance pInstance)
         {
+            pInstance.m_pGlobalVariables = GlobalVariables.Create();
             pInstance.m_pContentUpdater = pInstance.gameObject.AddComponent<ContentUpdater>();
             pInstance.m_pAssetManager = new AssetManager();
             pInstance.m_pDeckManager = new DeckManager();
+            pInstance.m_pSceneSO = pInstance.m_pSceneSO.Clone() as SO.SceneSO;
             pInstance.m_pLevelManager = new LevelManager(pInstance.m_pSceneSO.m_vSceneReferences);
             pInstance.m_pJobQueueManager = new JobQueueManager();
             pInstance.m_pFsm = pInstance.gameObject.GetComponent<CFSM>();
@@ -158,7 +163,7 @@ namespace Core
         }
         public void StartDeck(int iInitialSetIndex)
         {
-            if (m_pFsm.IsCurrentState((int)CState_Sys.SystemState.IDLE))
+            if (m_pFsm.IsCurrentState((int)CState_System.SystemState.IDLE))
             {
                 m_pDeckManager.Initialize(m_vCardInitialSetSO[iInitialSetIndex]);
                 m_pDeckManager.StartGame();
@@ -180,7 +185,7 @@ namespace Core
                 return;
             }
 
-            View.UI.CardCanvas pCardCanvasComponent = pCardCanvasPrefab.GetComponent<View.UI.CardCanvas >();
+            View.UI.CardCanvas pCardCanvasComponent = pCardCanvasPrefab.GetComponent<View.UI.CardCanvas>();
             if (null == pCardCanvasComponent)
             {
                 Debug.LogError("CardCanvas component missing on prefab.");
@@ -202,7 +207,7 @@ namespace Core
             }
 
             AsyncOperationHandle<Object> hCardDocumentsHandle = await m_pAssetManager.LoadAddressAssetAsync("CardDocuments");
-            m_pCardDocumentSO = hCardDocumentsHandle.Result as SO.CardDocumentSO;
+            m_pCardDocumentSO = (hCardDocumentsHandle.Result as SO.CardDocumentSO).Clone();
         }
         private async Task LoadCardInitialSetAsync()
         {
@@ -212,7 +217,11 @@ namespace Core
             }
 
             AsyncOperationHandle<IList<Object>> hCardInitialSetsHandle = await m_pAssetManager.LoadLabelAssetsAsync("CardInitialSets");
-            m_vCardInitialSetSO = hCardInitialSetsHandle.Result.Cast<SO.CardInitialSetSO>().ToList();
+            List<SO.CardInitialSetSO> temp = hCardInitialSetsHandle.Result.Cast<SO.CardInitialSetSO>().ToList();
+            foreach (SO.CardInitialSetSO pCardInitialSetSO in temp)
+            {
+                m_vCardInitialSetSO.Add((pCardInitialSetSO.Clone()));
+            }
 
             InitializeCardInitialSets();
         }

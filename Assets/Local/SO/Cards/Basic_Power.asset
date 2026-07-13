@@ -12,24 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3551bbbad1a8df74fa38d568d89ced8a, type: 3}
   m_Name: Basic_Power
   m_EditorClassIdentifier: Assembly-CSharp::Logic.Card.CardDataSO
-  m_strCardName: Basic_Power
-  m_iCardID: 1301
-  m_eCardPortrait: 10
-  m_eCardType: 2
-  m_eQuality: 0
-  m_iCardCost: 2
-  m_vCardEffects:
-    m_Block:
-      m_eTrigger: 1
-      m_vSteps:
-      - m_eEntity: 0
-        m_eScope: 0
-        m_eSelect: 0
-        m_iSelectCount: 1
-        m_vOperations:
-        - m_eValue: 3
-          m_iValue: 2
-          m_vParams:
-          - m_eKey: 1
-            m_iValue: 34
-  m_strCardDescription: "When PLAY, SINGLE SELF UNIT BUFF 2 BUFF_ID 34 \n"
+  m_ScriptedObject:
+    strName: Basic_Power
+    iID: 1301
+    ePortrait: 10
+    eType: 2
+    eQuality: 0
+    iCost: 2
+    vEffects:
+      m_Block:
+        m_eTrigger: 1
+        m_vSteps:
+        - m_eEntity: 0
+          m_eScope: 0
+          m_eSelect: 0
+          m_iSelectCount: 1
+          m_vOperations:
+          - m_eValue: 3
+            m_iValue: 2
+            m_vParams:
+            - m_eKey: 1
+              m_iValue: 34
+    strDescription: "When PLAY, SINGLE SELF UNIT BUFF 2 BUFF_ID 34 \n"

@@ -1,16 +1,17 @@
+using Defines.Bases;
 using Logic.Card;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace SO
 {
     [CreateAssetMenu(fileName = "CardDocumentSO", menuName = "Scriptable Objects/CardDocumentSO")]
-    public class CardDocumentSO : ScriptableObject
+    public class CardDocumentSO : ScriptableObjectCloneable<CardDocumentSO>
     {
         [SerializeField] List<CardDataSO> m_vCardInfos = new List<CardDataSO>();
 
-        Dictionary<int, CardDataSO> m_vCardLookup = null;
-        Dictionary<string, CardDataSO> m_vCardNameLookup = null;
+        Dictionary<string, CardDataSO> m_vCardLookup = null;
         [ContextMenu("Rebuild Card Description")]
         void RebuildCardDescription()
         {
@@ -26,51 +27,53 @@ namespace SO
 
         void BuildLookup()
         {
-            m_vCardLookup = new Dictionary<int, CardDataSO>(m_vCardInfos.Count);
-            m_vCardNameLookup = new Dictionary<string, CardDataSO>(m_vCardInfos.Count);
+            m_vCardLookup = new Dictionary<string, CardDataSO>(m_vCardInfos.Count);
             foreach (CardDataSO pCardInfo in m_vCardInfos)
             {
-                if (m_vCardLookup.ContainsKey(pCardInfo.m_iCardID))
-                {
-                    Debug.LogWarning($"Duplicate card ID in CardDocuments: {pCardInfo.m_iCardID}");
-                    continue;
-                }
-
-                m_vCardLookup.Add(pCardInfo.m_iCardID, pCardInfo);
-
-                if (string.IsNullOrEmpty(pCardInfo.m_strCardName))
+                if (string.IsNullOrEmpty(pCardInfo.m_ScriptedObject.strName))
                 {
                     continue;
                 }
 
-                if (m_vCardNameLookup.ContainsKey(pCardInfo.m_strCardName))
+                if (m_vCardLookup.ContainsKey(pCardInfo.m_ScriptedObject.strName))
                 {
-                    Debug.LogWarning($"Duplicate card name in CardDocuments: {pCardInfo.m_strCardName}");
+                    Debug.LogWarning($"Duplicate card name in CardDocuments: {pCardInfo.m_ScriptedObject.strName}");
                     continue;
                 }
 
-                m_vCardNameLookup.Add(pCardInfo.m_strCardName, pCardInfo);
+                m_vCardLookup.Add(pCardInfo.m_ScriptedObject.strName, pCardInfo.Clone());
             }
             RebuildCardDescription();
         }
 
         public bool TryGetCardByName(string strCardName, out CardDataSO pCardInfo)
         {
-            if (null == m_vCardNameLookup)
+            if (null == m_vCardLookup)
             {
                 BuildLookup();
             }
 
-            if (false == m_vCardNameLookup.TryGetValue(strCardName, out CardDataSO pOriginal))
+            if (false == m_vCardLookup.TryGetValue(strCardName, out CardDataSO pOriginal))
             {
                 pCardInfo = null;
                 return false;
             }
 
-            pCardInfo = pOriginal.Clone() as CardDataSO;
+            pCardInfo = pOriginal.Clone();
             return true;
         }
 
+        protected override void CopyFrom(CardDocumentSO pOriginal)
+        {
+            foreach(CardDataSO cardDataSO in pOriginal.m_vCardInfos)
+            {
+                m_vCardInfos.Add(cardDataSO.Clone());
+            }
+            m_vCardLookup = null;
+            BuildLookup();
+        }
+        private CardDocumentSO() { }
+        private CardDocumentSO(CardDocumentSO pOriginal) { }
     }
 
 }

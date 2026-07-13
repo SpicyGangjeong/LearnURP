@@ -1,27 +1,25 @@
-using Core;
 using Core.StateMachine;
-using System;
+using Core;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace Logic
 {
     namespace State
     {
-        public class CState_Sys_Initialize : CState_Sys
+        public class CState_System_Initialize : CState_System
         {
             public delegate Task BootstrapAsyncDelegate();
-            public class STATE_SYS_INITIALIZE_DESC : STATE_SYS_DESC
+            public class STATE_SYSTEM_INITIALIZE_DESC : STATE_SYSTEM_DESC
             {
-                public STATE_SYS_INITIALIZE_DESC(int iStateID, MonoBehaviour pOwner, CFSM pFsm, CGameInstance pGameInstance,
+                public STATE_SYSTEM_INITIALIZE_DESC(int iStateID, MonoBehaviour pOwner, CFSM pFsm, CGameInstance pGameInstance,
                 BootstrapAsyncDelegate pDelegateBootstrapAsync) : base(iStateID, pOwner, pFsm, pGameInstance)
                 {
                     this.delegateBootstrapAsync = pDelegateBootstrapAsync;
                 }
                 public BootstrapAsyncDelegate delegateBootstrapAsync { get; private set; } = null;
             }
-            public CState_Sys_Initialize(STATE_SYS_INITIALIZE_DESC pRefOwner) : base(pRefOwner)
+            public CState_System_Initialize(STATE_SYSTEM_INITIALIZE_DESC pRefOwner) : base(pRefOwner)
             {
                 m_pDelegateBootstrapAsync = pRefOwner.delegateBootstrapAsync;
             }

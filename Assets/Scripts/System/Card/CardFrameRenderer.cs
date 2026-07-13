@@ -17,7 +17,7 @@ namespace View
             [SerializeField] float m_fSlotSpacing = 12f;
 
             CGameInstance m_pGameInstance = null;
-            IReadOnlyList<Card> m_vCards = null;
+            IReadOnlyList<CardInstance> m_vCards = null;
             CardCanvas[] m_vCardCanvasSlots = null;
             float3[] m_vCardSlotPositions = null;
             int m_iColumnCount = 1;

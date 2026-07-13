@@ -1,3 +1,4 @@
+using Defines.Bases;
 using Logic.Card;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace SO
     }
 
     [CreateAssetMenu(fileName = "CardInitialSetSO", menuName = "Scriptable Objects/CardInitialSetSO")]
-    public class CardInitialSetSO : ScriptableObject
+    public class CardInitialSetSO : ScriptableObjectCloneable<CardInitialSetSO>
     {
         [SerializeField] string m_strCardInitialSetName = string.Empty;
         [SerializeField] CardDocumentSO m_pCardDocumentSO = null;
@@ -77,6 +78,16 @@ namespace SO
 
             return m_vCardInitialSetLookup;
         }
+        protected override void CopyFrom(CardInitialSetSO pOriginal)
+        {
+            m_strCardInitialSetName = pOriginal.m_strCardInitialSetName;
+            m_pCardDocumentSO = pOriginal.m_pCardDocumentSO;
+            m_vCardEntries = new List<CardNameCount>(pOriginal.m_vCardEntries);
+            m_vCardInitialSetLookup = null;
+            BuildLookup();
+        }
+        private CardInitialSetSO() { }
+        private CardInitialSetSO(CardInitialSetSO pOther) { }
     }
 
 }

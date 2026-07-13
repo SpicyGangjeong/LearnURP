@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class ApplyGravity : MonoBehaviour
 {
-    [SerializeField]
+    [SerializeField, Range(-20.0f, 20.0f)]
+    float m_fGravityAmplitude = -9.14f;
     CharacterController pCharacterController = null;
     void Start()
     {
@@ -11,7 +12,8 @@ public class ApplyGravity : MonoBehaviour
 
     void Update()
     {
-        Vector3 m_vGravity = Vector3.down * Time.deltaTime;
+        Vector3 m_vGravity = new Vector3(0.0f, m_fGravityAmplitude, 0.0f) * Time.deltaTime;
         pCharacterController.Move(m_vGravity);
     }
 }
+
