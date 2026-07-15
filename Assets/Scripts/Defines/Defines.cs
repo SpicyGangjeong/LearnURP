@@ -132,6 +132,10 @@ namespace Defines
 
         public static readonly Vector2 TargetPC = new Vector2(1920, 1080);
         public static readonly Vector2 TargetMobile = new Vector2(1080, 2400);
+
+
+        public const string s_strCardCanvas = "CardCanvas";
+        public const string s_strGamePlayCanvas = "GamePlayCanvas";
     }
     public static class Helpers
     {

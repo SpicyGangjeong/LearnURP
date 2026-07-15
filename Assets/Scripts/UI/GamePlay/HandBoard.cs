@@ -16,7 +16,8 @@ namespace View
             static private readonly float s_fCurveHeight = 120f;
 
             readonly List<KeyValuePair<CardInstance, CardCanvas>> m_vCardCanvases = new List<KeyValuePair<CardInstance, CardCanvas>>();
-            IReadOnlyList<CardInstance> m_vHandCards = null;
+            [SerializeField, Defines.Attribute.ReadOnly]
+            List<CardInstance> m_vHandCards = null;
             CGameInstance m_pGameInstance = null;
             GamePlayCanvas m_pGamePlayCanvas = null;
 
@@ -34,7 +35,7 @@ namespace View
                 m_pGameInstance.Deck.m_pOnCardDiscarded += OnCardDiscarded;
                 m_pGameInstance.Deck.m_pOnTurnEnded += OnTurnEnded;
 
-                m_vHandCards = m_pGameInstance.Deck.GetCards(Defines.Enums.CardPile.HAND);
+                m_vHandCards = m_pGameInstance.Deck.GetPile(Defines.Enums.CardPile.HAND);
             }
 
             void OnDestroy()
@@ -168,7 +169,7 @@ namespace View
 
             void ReleaseAllHandCanvases()
             {
-                if (false == m_pGameInstance.ObjectPools.IsRegistered(PoolKeys.s_strCardCanvas))
+                if (false == m_pGameInstance.ObjectPools.IsRegistered(Defines.Constants.s_strCardCanvas))
                 {
                     m_vCardCanvases.Clear();
                     return;
@@ -176,7 +177,7 @@ namespace View
 
                 foreach (KeyValuePair<CardInstance, CardCanvas> pair in m_vCardCanvases)
                 {
-                    m_pGameInstance.ReleasePooled<CardCanvas>(PoolKeys.s_strCardCanvas, pair.Value);
+                    m_pGameInstance.ReleasePooled<CardCanvas>(Defines.Constants.s_strCardCanvas, pair.Value);
                 }
 
                 m_vCardCanvases.Clear();

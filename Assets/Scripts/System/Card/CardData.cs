@@ -8,6 +8,7 @@ namespace Logic
 {
     namespace Card
     {
+        [Serializable]
         public class CardData
         {
             public enum CardPortrait : int
@@ -84,8 +85,9 @@ namespace Logic
                 LEGEND = 4,
                 END
             }
-
+            [SerializeField]
             private CardInformation m_Data = new CardInformation();
+            #region getter
             public string Name => m_Data.strName;
             public int ID => m_Data.iID;
             public CardPortrait Portrait => m_Data.ePortrait;
@@ -94,6 +96,7 @@ namespace Logic
             public int Cost => m_Data.iCost;
             public CardEffect Effect => m_Data.vEffects;
 
+            #endregion
             public string Description => m_Data.strDescription;
 
             public Defines.Enums.CardPile m_eCurrentPile = Defines.Enums.CardPile.END;

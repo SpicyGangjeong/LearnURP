@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 7a1dd22f5f0223c4bbeb160931f245c0
   m_currentHash:
     serializedVersion: 2
-    Hash: 00000000000000000000000000000000
+    Hash: b9317db5d8c3fcc77431652030d30079
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_CatalogRequestsTimeout: 0
@@ -131,6 +131,9 @@ MonoBehaviour:
   m_LabelTable:
     m_LabelNames:
     - CardInitialSets
+    - Scene
+    - Cards
+    - UI
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: dc58715593d5d6a4597864d4c1177cf8, type: 2}

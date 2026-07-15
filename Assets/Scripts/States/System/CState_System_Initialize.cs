@@ -1,5 +1,6 @@
-using Core.StateMachine;
 using Core;
+using Core.StateMachine;
+using Core.Job;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -60,7 +61,10 @@ namespace Logic
             public override void Exit()
             {
                 Debug.Log("CState_Sys_Initialize Exit");
-                GameInstance.ChangeScene(Defines.Enums.SceneID.MAIN_MENU);
+                JobDeferredCallback callback = new JobDeferredCallback(
+                    () => GameInstance.ChangeScene(Defines.Enums.SceneID.MAIN_MENU), "Exiting_Initialize"
+                    );
+                GameInstance.EnqueueJob(callback);
             }
         }
     }

@@ -1,17 +1,20 @@
 using Core.Assets;
 using Core.Deck;
-using Core.Pool;
 using Core.Job;
+using Core.Pool;
 using Core.Scene;
 using Core.StateMachine;
+using Core.Variables;
+using Cysharp.Threading.Tasks;
 using Logic.State;
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using Core.Variables;
 
 namespace Core
 {
@@ -34,23 +37,22 @@ namespace Core
         SO.CardDocumentSO m_pCardDocumentSO = null;
         List<SO.CardInitialSetSO> m_vCardInitialSetSO = new List<SO.CardInitialSetSO>();
         ContentUpdater m_pContentUpdater = null;
-        DeckManager m_pDeckManager = null;
+        [SerializeField, Defines.Attribute.ReadOnly] DeckManager m_pDeckManager = null;
         LevelManager m_pLevelManager = null;
         AssetManager m_pAssetManager = null;
-        JobQueueManager m_pJobQueueManager = null;
+        [SerializeField, Defines.Attribute.ReadOnly] JobQueueManager m_pJobQueueManager = null;
         ObjectPoolManager m_pObjectPoolManager = null;
         Transform m_pPoolRoot = null;
         GlobalVariables m_pGlobalVariables = null;
         public DeckManager Deck => m_pDeckManager;
         public ObjectPoolManager ObjectPools => m_pObjectPoolManager;
         public JobQueueManager JobQueues => m_pJobQueueManager;
-
         public GlobalVariables Variables => m_pGlobalVariables;
 
-        CFSM m_pFsm = null;
+        CFSM m_pFSM = null;
         public SO.CardDocumentSO CardDocuments => m_pCardDocumentSO;
 
-        public void EnqueueJob(Job.IJob pJob)
+        public void EnqueueJob(Job.JobBase pJob)
         {
             m_pJobQueueManager.EnqueueJob(pJob);
         }
@@ -71,61 +73,59 @@ namespace Core
                     pGameObject.AddComponent<CGameInstance>();
                 }
                 DontDestroyOnLoad(pGameObject);
+                DontDestroyOnLoad(EventSystem.current);
                 s_pInstance = pGameObject.GetComponent<CGameInstance>();
-                s_pInstance.m_pFsm = pGameObject.AddComponent<CFSM>();
-                Initialize(ref s_pInstance);
+                s_pInstance.m_pFSM = pGameObject.AddComponent<CFSM>();
+                s_pInstance.Initialize();
             }
         }
 
-        private static void InitializeFSMStates()
+        private void InitializeFSMStates()
         {
-            if (null == s_pInstance)
-            {
-                Debug.LogError("s_pInstance is null");
-                return;
-            }
-            if (null == s_pInstance.m_pFsm)
-            {
-                Debug.LogError("fsm is null");
-                return;
-            }
-            s_pInstance.m_pFsm.m_vStates = new Dictionary<int, CState>();
-            s_pInstance.m_pFsm.m_vStates.Add((int)CState_System.SystemState.INITIALIZE, new CState_System_Initialize(
-                new CState_System_Initialize.STATE_SYSTEM_INITIALIZE_DESC((int)CState_System.SystemState.INITIALIZE, s_pInstance, s_pInstance.m_pFsm, s_pInstance, s_pInstance.BootstrapAsync)));
-            s_pInstance.m_pFsm.m_vStates.Add((int)CState_System.SystemState.IDLE, new CState_System_Idle(
-                new CState_System_Idle.STATE_SYSTEM_IDLE_DESC((int)CState_System.SystemState.IDLE, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
-            s_pInstance.m_pFsm.m_vStates.Add((int)CState_System.SystemState.PLAYING, new CState_System_Playing(
-                new CState_System_Playing.STATE_SYSTEM_PLAYING_DESC((int)CState_System.SystemState.PLAYING, s_pInstance, s_pInstance.m_pFsm, s_pInstance)));
+            m_pFSM.m_vStates = new Dictionary<int, CState>();
+            m_pFSM.m_vStates.Add((int)CState_System.SystemState.INITIALIZE, new CState_System_Initialize(
+                new CState_System_Initialize.STATE_SYSTEM_INITIALIZE_DESC((int)CState_System.SystemState.INITIALIZE, s_pInstance, m_pFSM, s_pInstance, BootstrapAsync)));
+            m_pFSM.m_vStates.Add((int)CState_System.SystemState.IDLE, new CState_System_Idle(
+                new CState_System_Idle.STATE_SYSTEM_IDLE_DESC((int)CState_System.SystemState.IDLE, s_pInstance, m_pFSM, s_pInstance)));
+            m_pFSM.m_vStates.Add((int)CState_System.SystemState.PLAYING, new CState_System_Playing(
+                new CState_System_Playing.STATE_SYSTEM_PLAYING_DESC((int)CState_System.SystemState.PLAYING, s_pInstance, m_pFSM, s_pInstance)));
 
-            if (true == s_pInstance.m_pFsm.Is_Valid_FSM((int)CState_System.SystemState.END))
+            if (true == m_pFSM.Is_Valid_FSM((int)CState_System.SystemState.END))
             {
-                s_pInstance.m_pFsm.Change_State((int)CState_System.SystemState.INITIALIZE);
+                m_pFSM.Change_State((int)CState_System.SystemState.INITIALIZE);
             }
         }
-        private static bool Initialize(ref CGameInstance pInstance)
+        private bool Initialize()
         {
-            pInstance.m_pGlobalVariables = GlobalVariables.Create();
-            pInstance.m_pContentUpdater = pInstance.gameObject.AddComponent<ContentUpdater>();
-            pInstance.m_pAssetManager = new AssetManager();
-            pInstance.m_pDeckManager = new DeckManager();
-            pInstance.m_pSceneSO = pInstance.m_pSceneSO.Clone() as SO.SceneSO;
-            pInstance.m_pLevelManager = new LevelManager(pInstance.m_pSceneSO.m_vSceneReferences);
-            pInstance.m_pJobQueueManager = new JobQueueManager();
-            pInstance.m_pFsm = pInstance.gameObject.GetComponent<CFSM>();
-            pInstance.m_pPoolRoot = EnsurePoolRoot(pInstance.gameObject.transform);
-            pInstance.m_pObjectPoolManager = new ObjectPoolManager(pInstance.m_pPoolRoot);
-            if (null == pInstance.m_pContentUpdater ||
-                null == pInstance.m_pAssetManager ||
-                null == pInstance.m_pDeckManager ||
-                null == pInstance.m_pLevelManager ||
-                null == pInstance.m_pJobQueueManager ||
-                null == pInstance.m_pFsm ||
-                null == pInstance.m_pObjectPoolManager)
+            m_pGlobalVariables = GlobalVariables.Create();
+            m_pContentUpdater = gameObject.AddComponent<ContentUpdater>();
+            m_pAssetManager = new AssetManager();
+            m_pDeckManager = new DeckManager();
+            m_pSceneSO = m_pSceneSO.Clone() as SO.SceneSO;
+            m_pLevelManager = new LevelManager(m_pSceneSO.m_vSceneReferences);
+            m_pJobQueueManager = new JobQueueManager();
+            m_pFSM = gameObject.GetComponent<CFSM>();
+            m_pPoolRoot = EnsurePoolRoot(gameObject.transform);
+            m_pObjectPoolManager = new ObjectPoolManager(m_pPoolRoot);
+            if (null == m_pContentUpdater ||
+                null == m_pAssetManager ||
+                null == m_pDeckManager ||
+                null == m_pLevelManager ||
+                null == m_pJobQueueManager ||
+                null == m_pFSM ||
+                null == m_pObjectPoolManager)
             {
                 return false;
             }
             InitializeFSMStates();
             return true;
+        }
+        public void Update()
+        {
+            int a = 0;
+            int b = 0;
+            a = b;
+            b = a;
         }
 
         static Transform EnsurePoolRoot(Transform pParent)
@@ -163,11 +163,18 @@ namespace Core
         }
         public void StartDeck(int iInitialSetIndex)
         {
-            if (m_pFsm.IsCurrentState((int)CState_System.SystemState.IDLE))
+            if (m_pFSM.IsCurrentState((int)CState_System.SystemState.IDLE))
             {
+                m_pFSM.Change_State((int)CState_System.SystemState.PLAYING);
                 m_pDeckManager.Initialize(m_vCardInitialSetSO[iInitialSetIndex]);
                 m_pDeckManager.StartGame();
             }
+        }
+        public _Ty LoadInstance<_Ty>(string strAssetName) where _Ty : Object
+        {
+            Object pPrototype = m_pAssetManager.Find_Prototype(strAssetName).Result;
+            _Ty pInstance =  Object.Instantiate(pPrototype).GetComponent<_Ty>();
+            return pInstance;
         }
         public async Task<Object> LoadAddressAssetAsync(string strAssetName)
         {
@@ -176,28 +183,35 @@ namespace Core
         }
         private async Task LoadPrototypesAsync()
         {
-            const int iCardCanvasPoolSize = 10;
-            AsyncOperationHandle<Object> hCardCanvasHandle = await m_pAssetManager.LoadAddressAssetAsync("CardCanvas");
-            GameObject pCardCanvasPrefab = hCardCanvasHandle.Result as GameObject;
-            if (null == pCardCanvasPrefab)
-            {
-                Debug.LogError("CardCanvas prefab load failed.");
-                return;
-            }
-
-            View.UI.CardCanvas pCardCanvasComponent = pCardCanvasPrefab.GetComponent<View.UI.CardCanvas>();
-            if (null == pCardCanvasComponent)
-            {
-                Debug.LogError("CardCanvas component missing on prefab.");
-                return;
-            }
-
-            if (m_pObjectPoolManager.IsRegistered(PoolKeys.s_strCardCanvas))
+            bool flowControl = true;
+            flowControl = await ReadyPrototypeAsync(Defines.Constants.s_strGamePlayCanvas);
+            if (false == flowControl)
             {
                 return;
             }
+            flowControl = await ReadyPrototypePoolAsync<View.UI.CardCanvas>(Defines.Constants.s_strCardCanvas, 10, 0);
+            if (false == flowControl)
+            {
+                return;
+            }
+            async Task<bool> ReadyPrototypeAsync(string ProtoTypeKey)
+            {
+                AsyncOperationHandle<Object> hGamePlayCanvasHandle = await m_pAssetManager.LoadAddressAssetAsync(ProtoTypeKey);
+                return hGamePlayCanvasHandle.Result;
+            }
+            async Task<bool> ReadyPrototypePoolAsync<_Ty>(string ProtoTypeKey, int iPoolCount, int iMaxPoolCount) where _Ty : Component
+            {
+                AsyncOperationHandle<Object> hGamePlayCanvasHandle = await m_pAssetManager.LoadAddressAssetAsync(ProtoTypeKey);
+                GameObject pPrefab = hGamePlayCanvasHandle.Result as GameObject;
+                _Ty pComponent = pPrefab.GetComponent<_Ty>();
+                if (m_pObjectPoolManager.IsRegistered(ProtoTypeKey))
+                {
+                    return false;
+                }
 
-            m_pObjectPoolManager.Register(PoolKeys.s_strCardCanvas, pCardCanvasComponent, iCardCanvasPoolSize, iMaxSize: 0);
+                m_pObjectPoolManager.Register(ProtoTypeKey, pComponent, iPoolCount, iMaxSize: iMaxPoolCount);
+                return true;
+            }
         }
         private async Task LoadCardDocumentsAsync()
         {
@@ -232,9 +246,9 @@ namespace Core
                 pCardInitialSet.SetCardDocumentSO(m_pCardDocumentSO);
             }
         }
-        public void ChangeScene(Defines.Enums.SceneID eSceneID)
+        public async UniTask ChangeScene(Defines.Enums.SceneID eSceneID)
         {
-            m_pLevelManager.ChangeScene(eSceneID);
+            await m_pLevelManager.ChangeScene(eSceneID);
         }
         public async Task BootstrapAsync()
         {

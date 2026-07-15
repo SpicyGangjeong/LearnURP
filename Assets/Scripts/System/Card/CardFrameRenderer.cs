@@ -86,7 +86,7 @@ namespace View
                         continue;
                     }
 
-                    m_pGameInstance.ReleasePooled<CardCanvas>(PoolKeys.s_strCardCanvas, pCanvas);
+                    m_pGameInstance.ReleasePooled<CardCanvas>(Defines.Constants.s_strCardCanvas, pCanvas);
                 }
             }
 
@@ -203,7 +203,7 @@ namespace View
 
             bool EnsureCardPool()
             {
-                if (false == m_pGameInstance.ObjectPools.IsRegistered(PoolKeys.s_strCardCanvas))
+                if (false == m_pGameInstance.ObjectPools.IsRegistered(Defines.Constants.s_strCardCanvas))
                 {
                     Debug.LogError("CardCanvas pool is not registered. Run Bootstrap first.");
                     return false;
@@ -218,7 +218,7 @@ namespace View
                         continue;
                     }
 
-                    CardCanvas pCardCanvas = m_pGameInstance.GetPooled<CardCanvas>(PoolKeys.s_strCardCanvas, m_pContentRect);
+                    CardCanvas pCardCanvas = m_pGameInstance.GetPooled<CardCanvas>(Defines.Constants.s_strCardCanvas, m_pContentRect);
                     if (null == pCardCanvas)
                     {
                         Debug.LogError("Failed to get CardCanvas from pool.");

@@ -1,11 +1,13 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
+using System.Threading.Tasks;
 
 namespace Core
 {
     namespace Job
     {
-        public interface IJob
+        [Serializable]
+        public abstract class JobBase
         {
             [Flags]
             public enum JobStates : byte
@@ -14,103 +16,47 @@ namespace Core
                 JOB_DELAY = 1 << 0, // 1
                 JOB_END_TURN = 1 << 1, // 2
             }
-            public static string Name { get; }
-            UniTask Run();
+            public string m_strName = "";
+            public abstract UniTask Run();
         }
-        public class JobDelayCallback : IJob
+        /// <summary>
+        /// 최소한 일정 시간 대기 한 뒤 실행
+        /// </summary>
+        [Serializable]
+        public class JobDelayCallback : JobBase
         {
-            private const string s_strName = "JobDelayCallback";
-            public static string Name { get { return s_strName; } }
-
-            Action m_Callback;
-            int m_iDelayMili;
-            public JobDelayCallback(Action callback, int iDelayMili)
-            {
-                m_Callback = callback;
-                m_iDelayMili = iDelayMili;
-            }
-
-            public async UniTask Run()
-            {
-                await UniTask.Delay(m_iDelayMili);
-                m_Callback();
-            }
-        }
-        public class JobDeferredCallback : IJob
-        {
-            private const string s_strName = "JobDeferredCallback";
-            public static string Name { get { return s_strName; } }
             Func<UniTask> m_Callback;
-            public JobDeferredCallback(Func<UniTask> callback)
+            int m_iDelayMilisecnd;
+            public JobDelayCallback(Func<UniTask> callback, string strEventName, int iDelayMilisecnd)
             {
                 m_Callback = callback;
+                m_strName = strEventName;
+                m_iDelayMilisecnd = iDelayMilisecnd;
             }
 
-            public async UniTask Run()
+            public override async UniTask Run()
             {
-                await m_Callback();
-
-            }
-        }
-
-        public class JobEndTurnCallback : IJob
-        {
-            private const string s_strName = "JobEndTurnCallback";
-            public static string Name { get { return s_strName; } }
-            Func<UniTask> m_Callback;
-            public JobEndTurnCallback(Func<UniTask> callback)
-            {
-                m_Callback = callback;
-
-            }
-            public async UniTask Run()
-            {
+                await UniTask.Delay(m_iDelayMilisecnd);
                 await m_Callback();
             }
         }
-        public class JobDiscardCallback : IJob
+        /// <summary>
+        /// 기본 대기열 콜백
+        /// </summary>
+        [Serializable]
+        public class JobDeferredCallback : JobBase
         {
-            private const string s_strName = "JobDiscardCallback";
-            public static string Name { get { return s_strName; } }
             Func<UniTask> m_Callback;
-            public JobDiscardCallback(Func<UniTask> callback)
+            public JobDeferredCallback(Func<UniTask> callback, string strEventName)
             {
                 m_Callback = callback;
-
+                m_strName = strEventName;
             }
-            public async UniTask Run()
+
+            public override async UniTask Run()
             {
                 await m_Callback();
-            }
-        }
-        public class JobDrawCallback : IJob
-        {
-            private const string s_strName = "JobDrawCallback";
-            public static string Name { get { return s_strName; } }
-            Func<UniTask> m_Callback;
-            public JobDrawCallback(Func<UniTask> callback)
-            {
-                m_Callback = callback;
 
-            }
-            public async UniTask Run()
-            {
-                await m_Callback();
-            }
-        }
-
-        public class JobAwaitingEndCallback : IJob
-        {
-            private const string s_strName = "JobAwaitingEndCallback";
-            public static string Name { get { return s_strName; } }
-            Func<UniTask> m_Callback;
-            public JobAwaitingEndCallback(Func<UniTask> callback)
-            {
-                m_Callback = callback;
-            }
-            public async UniTask Run()
-            {
-                await m_Callback();
             }
         }
     }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,22 +6,32 @@ namespace Logic
 {
     namespace Card
     {
-        class CardPileCollection
+        [Serializable]
+        public class CardPileEntry
         {
-            readonly Dictionary<Defines.Enums.CardPile, List<CardInstance>> m_vPiles = new Dictionary<Defines.Enums.CardPile, List<CardInstance>>();
+            public Defines.Enums.CardPile ePile;
+            public List<CardInstance> vCards = new List<CardInstance>();
+        }
 
+        [Serializable]
+        public class CardPileCollection : ISerializationCallbackReceiver
+        {
+            Dictionary<Defines.Enums.CardPile, List<CardInstance>> m_vPiles = new Dictionary<Defines.Enums.CardPile, List<CardInstance>>();
+            [SerializeField] List<CardPileEntry> m_vPileEntries = null;
 
             public CardPileCollection()
             {
-                for (Defines.Enums.CardPile ePile = Defines.Enums.CardPile.NONE + 1;
-                    ePile != Defines.Enums.CardPile.ALL; ePile++)
-                {
-                    m_vPiles[ePile] = new List<CardInstance>();
-                }
+                EnsureAllPiles();
             }
+
             public List<CardInstance> GetPile(Defines.Enums.CardPile ePileType)
             {
-                return m_vPiles[ePileType];
+                if (false == m_vPiles.TryGetValue(ePileType, out List<CardInstance> vPile))
+                {
+                    return null;
+                }
+
+                return vPile;
             }
 
             public IReadOnlyList<CardInstance> GetCards(Defines.Enums.CardPile ePileType)
@@ -66,6 +77,7 @@ namespace Logic
                     vPile.Add(pCard);
                 }
             }
+
             public void AddRange(IEnumerable<CardInstance> vCards, Defines.Enums.CardPile ePileType)
             {
                 foreach (CardInstance pCard in vCards)
@@ -97,7 +109,6 @@ namespace Logic
                 return true;
             }
 
-
             public CardInstance GetTopCard(Defines.Enums.CardPile ePileType)
             {
                 List<CardInstance> vPile = GetPile(ePileType);
@@ -119,7 +130,7 @@ namespace Logic
 
                 for (int i = 0; i < vPile.Count; i++)
                 {
-                    int iRandomIndex = Random.Range(0, vPile.Count);
+                    int iRandomIndex = UnityEngine.Random.Range(0, vPile.Count);
                     CardInstance pTempCard = vPile[i];
                     vPile[i] = vPile[iRandomIndex];
                     vPile[iRandomIndex] = pTempCard;
@@ -129,7 +140,44 @@ namespace Logic
                     p.OnShuffleCard();
                 }
             }
-        }
 
+            public void OnBeforeSerialize()
+            {
+                if (null == m_vPileEntries)
+                {
+                    m_vPileEntries = new List<CardPileEntry>();
+                    foreach (KeyValuePair<Defines.Enums.CardPile, List<CardInstance>> kvp in m_vPiles)
+                    {
+                        CardPileEntry pEntry = new CardPileEntry();
+                        pEntry.ePile = kvp.Key;
+                        pEntry.vCards = GetPile(pEntry.ePile);
+                        m_vPileEntries.Add(pEntry);
+                    }
+                }
+            }
+
+            public void OnAfterDeserialize()
+            {
+                return;
+            }
+
+            void EnsureAllPiles()
+            {
+                if (null == m_vPiles)
+                {
+                    m_vPiles = new Dictionary<Defines.Enums.CardPile, List<CardInstance>>();
+                }
+
+                for (Defines.Enums.CardPile ePile = Defines.Enums.CardPile.NONE + 1;
+                    ePile != Defines.Enums.CardPile.ALL;
+                    ePile++)
+                {
+                    if (false == m_vPiles.ContainsKey(ePile))
+                    {
+                        m_vPiles[ePile] = new List<CardInstance>();
+                    }
+                }
+            }
+        }
     }
 }

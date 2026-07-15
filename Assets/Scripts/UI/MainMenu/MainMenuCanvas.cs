@@ -20,7 +20,6 @@ namespace View
             public void StartDeck(int i)
             {
                 m_pGameInstance.StartDeck(i);
-                Destroy(gameObject);
             }
         }
 

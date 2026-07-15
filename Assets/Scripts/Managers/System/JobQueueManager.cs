@@ -8,15 +8,17 @@ namespace Core
 {
     namespace Job
     {
+        [Serializable]
         public class JobQueueManager
         {
-            Queue<IJob> m_vJobLane = new Queue<IJob>();
+            [SerializeReference]
+            List<JobBase> m_vJobLane = new List<JobBase>();
 
             bool m_bProcessing = false;
-            IJob.JobStates m_eStates = IJob.JobStates.NONE;
+            JobBase.JobStates m_eStates = JobBase.JobStates.NONE;
 
             public int JobCount => m_vJobLane.Count;
-            public IJob.JobStates State
+            public JobBase.JobStates State
             {
                 get { return m_eStates; }
                 set { m_eStates = value; }
@@ -31,17 +33,18 @@ namespace Core
                 m_bProcessing = true;
                 while (0 != m_vJobLane.Count)
                 {
-                    await m_vJobLane.Dequeue().Run();
+                    JobBase pJob = m_vJobLane[0];
+                    m_vJobLane.RemoveAt(0);
+                    await pJob.Run();
                 }
                 m_bProcessing = false;
             }
 
-            public void EnqueueJob(IJob pJob)
+            public void EnqueueJob(JobBase pJob)
             {
-                m_vJobLane.Enqueue(pJob);
+                m_vJobLane.Add(pJob);
                 ExecuteJobsAsync().Forget();
             }
         }
-
     }
 }

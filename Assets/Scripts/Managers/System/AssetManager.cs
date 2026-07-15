@@ -14,11 +14,16 @@ namespace Core
                 new Dictionary<string, AsyncOperationHandle<Object>>();
             Dictionary<string, AsyncOperationHandle<IList<Object>>> m_vAssetLabelHandles =
                 new Dictionary<string, AsyncOperationHandle<IList<Object>>>();
+            
+            public AsyncOperationHandle<Object> Find_Prototype(string strAssetName)
+            {
+                return m_vAssetHandles[strAssetName];
+            }
             public async Task<AsyncOperationHandle<Object>> LoadAddressAssetAsync(string strAssetName)
             {
                 if (m_vAssetHandles.ContainsKey(strAssetName))
                 {
-                    return m_vAssetHandles[strAssetName];
+                    return Find_Prototype(strAssetName);
                 }
 
                 AsyncOperationHandle<Object> hHandle = Addressables.LoadAssetAsync<Object>(strAssetName);

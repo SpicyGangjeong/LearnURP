@@ -1,10 +1,10 @@
 using Core;
 using Core.Job;
-using Core.Pool;
 using Cysharp.Threading.Tasks;
 using Defines;
 using Defines.Structures;
 using Logic.Card;
+using System.ComponentModel;
 using TMPro;
 using UnityEngine;
 namespace View
@@ -32,7 +32,7 @@ namespace View
 
             [SerializeField]
             GameObject m_pCardDrawTable = null;
-            [SerializeField]
+            [SerializeField, ReadOnly(true)]
             HandBoard m_pHandBoard = null;
             CGameInstance m_pGameInstance = null;
 
@@ -43,10 +43,6 @@ namespace View
             void Awake()
             {
                 s_pInstance = this;
-            }
-
-            void Start()
-            {
                 m_pGameInstance = CGameInstance.Instance;
                 if (null == m_pHandBoard)
                 {
@@ -60,6 +56,11 @@ namespace View
                 m_pTmpDeckPile = m_pPvts[(int)PvtPos.DECK].GetComponent<TextMeshProUGUI>();
                 m_pTmpDiscardPile = m_pPvts[(int)PvtPos.DISCARD].GetComponent<TextMeshProUGUI>();
                 m_pTmpDisappearPile = m_pPvts[(int)PvtPos.DISAPPEAR].GetComponent<TextMeshProUGUI>();
+                DontDestroyOnLoad(this);
+            }
+
+            void Start()
+            {
             }
             private void OnDestroy()
             {
@@ -122,10 +123,10 @@ namespace View
 
             public void EndTurn()
             {
-                IJob jobEndTurn = new JobEndTurnCallback(async () =>
+                JobBase jobEndTurn = new JobDeferredCallback(async () =>
                 {
                     await m_pGameInstance.Deck.EndTurn();
-                });
+                }, "Ending_Turn");
                 m_pGameInstance.EnqueueJob(jobEndTurn);
             }
 
@@ -133,7 +134,7 @@ namespace View
 
             public void PoolCard(CardInstance pCard, out CardCanvas pCardCanvas)
             {
-                pCardCanvas = m_pGameInstance.GetPooled<CardCanvas>(PoolKeys.s_strCardCanvas,
+                pCardCanvas = m_pGameInstance.GetPooled<CardCanvas>(Defines.Constants.s_strCardCanvas,
                     m_pPvts[(int)PvtPos.HANDBOARD]);
 
                 pCardCanvas.BindCard(pCard);
@@ -142,7 +143,7 @@ namespace View
 
             void PresentDraw(CardInstance pCard)
             {
-                IJob jobDraw = new JobDrawCallback(async () =>
+                JobBase jobDraw = new JobDeferredCallback(async () =>
                 {
                     await UniTask.Delay(Constants.TIME_MS_DRAWING_INTERVAL);
                     PoolCard(pCard, out CardCanvas pCardCanvas);
@@ -151,7 +152,7 @@ namespace View
                                     m_MoveInfos[(int)PvtPos.LEFT],
                                     m_MoveInfos[(int)PvtPos.HANDBOARD]);
                     m_pHandBoard.UpdateHandLayout();
-                });
+                }, "Drawing_Card");
                 m_pGameInstance.EnqueueJob(jobDraw);
             }
 
@@ -164,14 +165,14 @@ namespace View
                                             () =>
                                             {
                                                 m_pGameInstance.Deck.PlayCard(pCard);
-                                                m_pGameInstance.ReleasePooled<CardCanvas>(PoolKeys.s_strCardCanvas, pCardCanvas);
+                                                m_pGameInstance.ReleasePooled<CardCanvas>(Defines.Constants.s_strCardCanvas, pCardCanvas);
                                             });
             }
 
             public void PresentDiscard(CardInstance pCard, CardCanvas pCardCanvas)
             {
                 m_pHandBoard.PopCardForPresentation(pCard);
-                IJob jobDiscard = new JobDiscardCallback(async () =>
+                JobBase jobDiscard = new JobDeferredCallback(async () =>
                 {
                     await UniTask.Delay(Constants.TIME_MS_DISCARD_DURATION);
                     m_pGameInstance.Deck.MoveToFieldCard(pCard);
@@ -179,8 +180,8 @@ namespace View
                                     m_MoveInfos[(int)PvtPos.RIGHT],
                                     m_MoveInfos[(int)PvtPos.DISCARD]);
                     m_pGameInstance.Deck.DiscardCard(pCard);
-                    m_pGameInstance.ReleasePooled<CardCanvas>(PoolKeys.s_strCardCanvas, pCardCanvas);
-                });
+                    m_pGameInstance.ReleasePooled<CardCanvas>(Defines.Constants.s_strCardCanvas, pCardCanvas);
+                }, "Discarding_Card");
                 m_pGameInstance.EnqueueJob(jobDiscard);
             }
         }

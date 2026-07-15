@@ -22,11 +22,6 @@ namespace Core
             abstract void OnDespawn();
         }
 
-        public static class PoolKeys
-        {
-            public const string s_strCardCanvas = "CardCanvas";
-        }
-
         public class ComponentObjectPool<T> : IComponentObjectPool where T : Component
         {
             ObjectPool<T> m_pPool;

@@ -1,6 +1,12 @@
 ﻿using Core;
+using Core.Job;
 using Core.StateMachine;
+using Defines.Enums;
+using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
+using View.UI;
 
 namespace Logic
 {
@@ -24,20 +30,45 @@ namespace Logic
             {
 
             }
-
-            public override void Exit()
+            EventSystem m_pEventSystem = null;
+            GamePlayCanvas m_pGameCanvas = null;
+            public override void Enter()
             {
-
+                if (null == m_pEventSystem)
+                {
+                    m_pEventSystem = EventSystem.current;
+                }
+                if (null == m_pGameCanvas)
+                {
+                    m_pGameCanvas = GamePlayCanvas.Instance;
+                    if (null == m_pGameCanvas)
+                    {
+                        m_pGameCanvas = GameInstance.LoadInstance<GamePlayCanvas>(Defines.Constants.s_strGamePlayCanvas);
+                        m_pGameCanvas.gameObject.name = Defines.Constants.s_strGamePlayCanvas;
+                    }
+                    if (null == m_pGameCanvas)
+                    {
+                        m_pGameCanvas = GamePlayCanvas.Instance;
+                        Debug.LogError("GameCanvas Load Failure");
+                    }
+                }
+                m_pGameCanvas.gameObject.SetActive(true);
+                JobDeferredCallback callback = new JobDeferredCallback(
+                    () => GameInstance.ChangeScene(Defines.Enums.SceneID.GAME_PLAY), "Changing_Scene"
+                    );
+                GameInstance.EnqueueJob(callback);
             }
-
             public override void Update_State()
             {
 
             }
-
-            public override void Enter()
+            public override void Exit()
             {
-
+                m_pGameCanvas.gameObject.SetActive(false);
+                JobDeferredCallback callback = new JobDeferredCallback(
+                    () => GameInstance.ChangeScene(Defines.Enums.SceneID.MAIN_MENU), "Changing_Scene"
+                    );
+                GameInstance.EnqueueJob(callback);
             }
         }
     }

@@ -1,12 +1,16 @@
 ﻿using Core;
 using Defines;
+using System;
+using UnityEngine;
 
 namespace Logic
 {
     namespace Card
     {
+        [Serializable]
         public class CardInstance
         {
+            [SerializeField]
             CardData m_pData = null;
             public CardData Data => m_pData;
             public CardInstance(CardData pData)
