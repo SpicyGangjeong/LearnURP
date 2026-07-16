@@ -1,10 +1,12 @@
 using Core.StateMachine;
+using System;
 using UnityEngine;
 
 namespace Logic
 {
     namespace State
     {
+        [Serializable]
         public abstract class CState
         {
             public class CSTATEDESC
@@ -24,6 +26,8 @@ namespace Logic
                 StateID = pRefOwner.StateID;
                 Owner = pRefOwner.Owner;
                 FSM = pRefOwner.FSM;
+
+                FSM.m_vStates.Add(StateID, this);
             }
             public int StateID { get; private set; } = -1;
             public MonoBehaviour Owner { get; private set; } = null;

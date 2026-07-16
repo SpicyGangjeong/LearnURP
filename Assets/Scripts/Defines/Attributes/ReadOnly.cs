@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace Defines
+﻿namespace Defines
 {
     namespace Attribute
     {

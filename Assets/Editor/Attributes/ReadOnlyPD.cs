@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using UnityEditor;
+using UnityEngine;
 
 [CustomPropertyDrawer(typeof(Defines.Attribute.ReadOnlyAttribute))]
 public class ReadOnlyDrawer : PropertyDrawer

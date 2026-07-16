@@ -1,10 +1,10 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Core.Job;
+using Cysharp.Threading.Tasks;
+using Logic.Card;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
-using Logic.Card;
-using Core.Job;
-using System;
 
 namespace Core
 {

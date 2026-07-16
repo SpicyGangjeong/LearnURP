@@ -1,22 +1,22 @@
 ﻿using Core;
 using Core.Job;
 using Core.StateMachine;
-using Defines.Enums;
-using NUnit.Framework;
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 using View.UI;
 
 namespace Logic
 {
     namespace State
     {
+        [Serializable]
         public class CState_System_Playing : CState_System
         {
             public class STATE_SYSTEM_PLAYING_DESC : STATE_SYSTEM_DESC
             {
-                public STATE_SYSTEM_PLAYING_DESC(int iStateID, MonoBehaviour pOwner, CFSM pFsm, CGameInstance pGameInstance) : base(iStateID, pOwner, pFsm, pGameInstance)
+                public STATE_SYSTEM_PLAYING_DESC(MonoBehaviour pOwner, CFSM pFsm, CGameInstance pGameInstance)
+                    : base((int)SystemState.PLAYING, pOwner, pFsm, pGameInstance)
                 {
                 }
             }

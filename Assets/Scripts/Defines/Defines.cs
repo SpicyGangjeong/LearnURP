@@ -98,7 +98,8 @@ namespace Defines
             public float Duration => m_vTimer.y;
             public bool IsLerping => m_vTimer.x != m_vTimer.y;
 
-            public void Progress(){
+            public void Progress()
+            {
                 if (true == IsLerping)
                 {
                     m_vTimer.x += Time.deltaTime;

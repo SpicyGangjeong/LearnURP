@@ -27,6 +27,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - UI
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1d18f2757d70d6546af90938dbbc1d98
+    m_Address: PlayerHunter
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Playable
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 23d31e844e38dd8439f21ff6096b5daf
     m_Address: Cards
     m_ReadOnly: 0

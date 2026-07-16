@@ -14,7 +14,7 @@ namespace Core
                 new Dictionary<string, AsyncOperationHandle<Object>>();
             Dictionary<string, AsyncOperationHandle<IList<Object>>> m_vAssetLabelHandles =
                 new Dictionary<string, AsyncOperationHandle<IList<Object>>>();
-            
+
             public AsyncOperationHandle<Object> Find_Prototype(string strAssetName)
             {
                 return m_vAssetHandles[strAssetName];

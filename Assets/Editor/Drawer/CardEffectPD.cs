@@ -47,7 +47,7 @@ namespace Propertydrawer
 
             return fHeight + GetBlockHeight(property);
         }
-        
+
         #region Block (When)
 
         void DescribeBlock(Rect position, SerializedProperty property)

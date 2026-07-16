@@ -1,6 +1,5 @@
 using Defines.Bases;
 using Logic.Card;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -65,7 +64,7 @@ namespace SO
 
         protected override void CopyFrom(CardDocumentSO pOriginal)
         {
-            foreach(CardDataSO cardDataSO in pOriginal.m_vCardInfos)
+            foreach (CardDataSO cardDataSO in pOriginal.m_vCardInfos)
             {
                 m_vCardInfos.Add(cardDataSO.Clone());
             }

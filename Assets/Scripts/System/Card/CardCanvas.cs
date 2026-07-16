@@ -30,7 +30,7 @@ namespace View
             [SerializeField] UnityEngine.UI.Image m_pSlotImage = null;
             [SerializeField] UnityEngine.UI.Image m_pSlotTypeImage = null;
             [SerializeField] UnityEngine.UI.Image m_pSlotQualityImage = null;
-            
+
             [SerializeField] Outline m_pSlotHighlight = null;
             [SerializeField] SpriteAtlas m_pImgAtlasPortrait = null;
             [SerializeField] SpriteAtlas m_pImgAtlasType = null;
@@ -125,7 +125,7 @@ namespace View
                 m_pSlotQualityImage.sprite = imgQuality;
             }
 
-            
+
             public void StartLinearMove(float fDuration, in MoveInfo pDstMove, LerpModelCallback callback)
             {
                 Helpers.ExtractMoveInfo(out MoveInfo pStartMove, transform);

@@ -1,17 +1,19 @@
-﻿using System;
+﻿using Logic.State;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Logic.State;
 
 namespace Core
 {
     namespace StateMachine
     {
+        [Serializable]
         public class CFSM : MonoBehaviour
         {
-            public Dictionary<int, CState> m_vStates = null;
-            CState m_pCurrState = null;
-            CState m_pPrevState = null;
+            public Dictionary<int, CState> m_vStates = new Dictionary<int, CState>();
+
+            [SerializeReference] CState m_pCurrState = null;
+            [SerializeReference] CState m_pPrevState = null;
             static void EmptyTick() { }
 
             Action m_pOnFixedUpdateTick = EmptyTick;

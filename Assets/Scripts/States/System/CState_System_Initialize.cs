@@ -1,6 +1,7 @@
 using Core;
-using Core.StateMachine;
 using Core.Job;
+using Core.StateMachine;
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -8,13 +9,15 @@ namespace Logic
 {
     namespace State
     {
+        [Serializable]
         public class CState_System_Initialize : CState_System
         {
             public delegate Task BootstrapAsyncDelegate();
             public class STATE_SYSTEM_INITIALIZE_DESC : STATE_SYSTEM_DESC
             {
-                public STATE_SYSTEM_INITIALIZE_DESC(int iStateID, MonoBehaviour pOwner, CFSM pFsm, CGameInstance pGameInstance,
-                BootstrapAsyncDelegate pDelegateBootstrapAsync) : base(iStateID, pOwner, pFsm, pGameInstance)
+                public STATE_SYSTEM_INITIALIZE_DESC(MonoBehaviour pOwner, CFSM pFsm, CGameInstance pGameInstance,
+                BootstrapAsyncDelegate pDelegateBootstrapAsync)
+                    : base((int)SystemState.INITIALIZE, pOwner, pFsm, pGameInstance)
                 {
                     this.delegateBootstrapAsync = pDelegateBootstrapAsync;
                 }

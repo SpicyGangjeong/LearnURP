@@ -8,7 +8,7 @@ namespace Core
         {
             private GlobalVariables() { }
 
-            public Vector2 TargetViewPort { get; private set;  }
+            public Vector2 TargetViewPort { get; private set; }
 
             private bool Initialize()
             {

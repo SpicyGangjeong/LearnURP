@@ -1,11 +1,6 @@
-﻿using Core;
-using Core.Assets;
-using Core.Deck;
-using Core.Job;
-using Core.Pool;
-using Core.Scene;
-using Core.StateMachine;
-using Core.Variables;
+﻿using Core.Client;
+using Defines.Expressions;
+using Logic;
 using UnityEngine;
 
 namespace Core
@@ -13,7 +8,13 @@ namespace Core
     public class CInfoInstance : MonoBehaviour
     {
         static CInfoInstance s_pInstance = null;
+        static CGameInstance s_pGameInstance = null;
         public static CInfoInstance Instance { get { Init(); return s_pInstance; } }
+        PlayerInstance m_pPlayerInstance = null;
+        GroupInstance m_groupInstance = null;
+        public PlayerInstance PlayerInstance => m_pPlayerInstance;
+        public GroupInstance GroupInstance => m_groupInstance;
+
         public void Awake()
         {
             Init();
@@ -27,16 +28,40 @@ namespace Core
                 if (null == pGameObject)
                 {
                     pGameObject = new GameObject(strInstance);
-                    pGameObject.AddComponent<CGameInstance>();
+                    pGameObject.AddComponent<CInfoInstance>();
                 }
                 DontDestroyOnLoad(pGameObject);
                 s_pInstance = pGameObject.GetComponent<CInfoInstance>();
-                s_pInstance.Initialize();
+                if (ERESULT.TRUE == s_pInstance.Initialize())
+                {
+
+                }
+                if (null == s_pGameInstance)
+                {
+                    s_pGameInstance = CGameInstance.Instance;
+                }
             }
         }
-        private bool Initialize()
+        private ERESULT Initialize()
         {
-            return true;
+            m_pPlayerInstance = new PlayerInstance();
+            m_groupInstance = new GroupInstance();
+            return ERESULT.TRUE;
+        }
+        public ERESULT StartGame()
+        {
+            if (ERESULT.FALSE == GroupInstance.StartGame(out IUnit outPlayer))
+            {
+                Debug.LogError("Start Failed");
+                return ERESULT.FALSE;
+            }
+            if (ERESULT.FALSE == PlayerInstance.StartGame())
+            {
+                //GroupInstance.
+                Debug.LogError("Start Failed");
+                return ERESULT.FALSE;
+            }
+            return ERESULT.TRUE;
         }
         public void Update()
         {

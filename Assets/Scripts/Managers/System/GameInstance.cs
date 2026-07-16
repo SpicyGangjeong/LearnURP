@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Rendering;
+using UnityEngine.InputSystem;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Core
@@ -31,6 +31,7 @@ namespace Core
     public class CGameInstance : MonoBehaviour
     {
         static CGameInstance s_pInstance = null;
+        static CInfoInstance s_pInfoInstance = null;
         public static CGameInstance Instance { get { Init(); return s_pInstance; } }
 
         [SerializeField] SO.SceneSO m_pSceneSO = null;
@@ -48,6 +49,8 @@ namespace Core
         public ObjectPoolManager ObjectPools => m_pObjectPoolManager;
         public JobQueueManager JobQueues => m_pJobQueueManager;
         public GlobalVariables Variables => m_pGlobalVariables;
+        public Camera Main_Camera => Camera.main;
+        public Vector2 Mouse_Pos => Mouse.current.position.ReadValue();
 
         CFSM m_pFSM = null;
         public SO.CardDocumentSO CardDocuments => m_pCardDocumentSO;
@@ -77,19 +80,21 @@ namespace Core
                 s_pInstance = pGameObject.GetComponent<CGameInstance>();
                 s_pInstance.m_pFSM = pGameObject.AddComponent<CFSM>();
                 s_pInstance.Initialize();
+                if (null == s_pInfoInstance)
+                {
+                    s_pInfoInstance = CInfoInstance.Instance;
+                }
             }
         }
 
         private void InitializeFSMStates()
         {
-            m_pFSM.m_vStates = new Dictionary<int, CState>();
-            m_pFSM.m_vStates.Add((int)CState_System.SystemState.INITIALIZE, new CState_System_Initialize(
-                new CState_System_Initialize.STATE_SYSTEM_INITIALIZE_DESC((int)CState_System.SystemState.INITIALIZE, s_pInstance, m_pFSM, s_pInstance, BootstrapAsync)));
-            m_pFSM.m_vStates.Add((int)CState_System.SystemState.IDLE, new CState_System_Idle(
-                new CState_System_Idle.STATE_SYSTEM_IDLE_DESC((int)CState_System.SystemState.IDLE, s_pInstance, m_pFSM, s_pInstance)));
-            m_pFSM.m_vStates.Add((int)CState_System.SystemState.PLAYING, new CState_System_Playing(
-                new CState_System_Playing.STATE_SYSTEM_PLAYING_DESC((int)CState_System.SystemState.PLAYING, s_pInstance, m_pFSM, s_pInstance)));
-
+            new CState_System_Initialize(
+                new CState_System_Initialize.STATE_SYSTEM_INITIALIZE_DESC(s_pInstance, m_pFSM, s_pInstance, BootstrapAsync));
+            new CState_System_Idle(
+                new CState_System_Idle.STATE_SYSTEM_IDLE_DESC(s_pInstance, m_pFSM, s_pInstance));
+            new CState_System_Playing(
+                new CState_System_Playing.STATE_SYSTEM_PLAYING_DESC(s_pInstance, m_pFSM, s_pInstance));
             if (true == m_pFSM.Is_Valid_FSM((int)CState_System.SystemState.END))
             {
                 m_pFSM.Change_State((int)CState_System.SystemState.INITIALIZE);
@@ -161,10 +166,11 @@ namespace Core
 
             m_pObjectPoolManager.Release(strKey, pInstance);
         }
-        public void StartDeck(int iInitialSetIndex)
+        public void StartGame(int iInitialSetIndex)
         {
             if (m_pFSM.IsCurrentState((int)CState_System.SystemState.IDLE))
             {
+                CInfoInstance.Instance.StartGame();
                 m_pFSM.Change_State((int)CState_System.SystemState.PLAYING);
                 m_pDeckManager.Initialize(m_vCardInitialSetSO[iInitialSetIndex]);
                 m_pDeckManager.StartGame();
@@ -173,7 +179,7 @@ namespace Core
         public _Ty LoadInstance<_Ty>(string strAssetName) where _Ty : Object
         {
             Object pPrototype = m_pAssetManager.Find_Prototype(strAssetName).Result;
-            _Ty pInstance =  Object.Instantiate(pPrototype).GetComponent<_Ty>();
+            _Ty pInstance = Object.Instantiate(pPrototype).GetComponent<_Ty>();
             return pInstance;
         }
         public async Task<Object> LoadAddressAssetAsync(string strAssetName)

@@ -90,6 +90,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 639b6ce73b347e5429ac0526c9c29094, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8936965485427933673}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 639b6ce73b347e5429ac0526c9c29094, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6173557055890315198}
   m_SourcePrefab: {fileID: 100100000, guid: 639b6ce73b347e5429ac0526c9c29094, type: 3}
 --- !u!1 &3995720064970690214 stripped
 GameObject:
@@ -134,3 +137,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ApplyGravity
   m_fGravityAmplitude: -9.14
+--- !u!114 &6173557055890315198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3995720064970690214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe094e0194006454ba5af8809e8462ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::View.Unit.PlayerHunter

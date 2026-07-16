@@ -1,5 +1,4 @@
 using Core;
-using Core.Pool;
 using Logic.Card;
 using System.Collections.Generic;
 using Unity.Mathematics;

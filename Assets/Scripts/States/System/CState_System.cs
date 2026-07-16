@@ -1,11 +1,13 @@
 using Core;
 using Core.StateMachine;
+using System;
 using UnityEngine;
 
 namespace Logic
 {
     namespace State
     {
+        [Serializable]
         public abstract class CState_System : CState
         {
             public enum SystemState : int

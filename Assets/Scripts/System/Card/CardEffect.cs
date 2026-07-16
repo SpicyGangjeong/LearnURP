@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using TMPro;
 using UnityEngine;
-using static Logic.ITargetable;
 
 namespace Logic
 {
@@ -81,9 +79,9 @@ namespace Logic
             [Serializable]
             class Step
             {
-                [SerializeField] ITargetable.Entity m_eEntity = ITargetable.Entity.NONE;
-                [SerializeField] ITargetable.Scope m_eScope = ITargetable.Scope.NONE;
-                [SerializeField] ITargetable.Select m_eSelect = ITargetable.Select.NONE;
+                [SerializeField] Defines.Enums.TargetRule.Entity m_eEntity = Defines.Enums.TargetRule.Entity.NONE;
+                [SerializeField] Defines.Enums.TargetRule.Scope m_eScope = Defines.Enums.TargetRule.Scope.NONE;
+                [SerializeField] Defines.Enums.TargetRule.Select m_eSelect = Defines.Enums.TargetRule.Select.NONE;
                 [SerializeField] int m_iSelectCount;
 
                 [SerializeField] List<Operation> m_vOperations = new List<Operation>();
@@ -104,8 +102,8 @@ namespace Logic
                 {
                     switch (m_eSelect)
                     {
-                        case Select.NONE:
-                        case Select.END:
+                        case Defines.Enums.TargetRule.Select.NONE:
+                        case Defines.Enums.TargetRule.Select.END:
                             break;
                         default:
                             sb.Append(m_eSelect.ToString());
@@ -119,8 +117,8 @@ namespace Logic
                     }
                     switch (m_eScope)
                     {
-                        case Scope.NONE:
-                        case Scope.END:
+                        case Defines.Enums.TargetRule.Scope.NONE:
+                        case Defines.Enums.TargetRule.Scope.END:
                             break;
                         default:
                             sb.Append(m_eScope.ToString());
@@ -129,8 +127,8 @@ namespace Logic
                     }
                     switch (m_eEntity)
                     {
-                        case Entity.NONE:
-                        case Entity.END:
+                        case Defines.Enums.TargetRule.Entity.NONE:
+                        case Defines.Enums.TargetRule.Entity.END:
                             break;
                         default:
                             sb.Append(m_eEntity.ToString());
@@ -168,7 +166,7 @@ namespace Logic
                         case Value.END:
                             return;
                         default:
-                            sb.Append(m_eValue.ToString()); 
+                            sb.Append(m_eValue.ToString());
                             sb.Append(" ");
                             break;
                     }

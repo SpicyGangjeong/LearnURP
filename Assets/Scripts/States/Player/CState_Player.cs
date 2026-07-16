@@ -1,16 +1,18 @@
-﻿using Core.StateMachine;
+﻿using Core;
+using Core.StateMachine;
+using System;
 using UnityEngine;
-
-using Core;
 namespace Logic
 {
     namespace State
     {
+        [Serializable]
         public abstract class CState_Player : CState
         {
             public enum PlayerState : int
             {
                 NONE = -1,
+                INITIALIZE = 0,
                 IDLE = 1,
                 END,
             }
