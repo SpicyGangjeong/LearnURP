@@ -137,6 +137,12 @@ namespace Defines
 
         public const string s_strCardCanvas = "CardCanvas";
         public const string s_strGamePlayCanvas = "GamePlayCanvas";
+        public const string s_strRoomRoot = "RoomRoot";
+        public const string s_strRoomCombat01 = "Room_Combat_01";
+        public const string s_strRoomRest01 = "Room_Rest_01";
+        public const string s_strRoomEvent01 = "Room_Event_01";
+        public const string s_strRoomEventChest = "evt_chest";
+        public const string s_strRoomFlagBossGate = "boss_gate";
     }
     public static class Helpers
     {
@@ -177,6 +183,7 @@ namespace Defines
         }
         public static void EmptyEvent() { }
         public static void EmptyEvent(Logic.Card.CardInstance pCard) { }
+        public static void EmptyEvent(Logic.Room.Room pRoom) { }
         public static class BIT
         {
             static ulong ToUInt64<_Ty>(_Ty iValue) where _Ty : struct

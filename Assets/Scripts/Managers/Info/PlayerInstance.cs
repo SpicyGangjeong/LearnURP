@@ -1,4 +1,5 @@
 using Defines.Expressions;
+using Logic;
 
 namespace Core
 {
@@ -6,10 +7,12 @@ namespace Core
     {
         public class PlayerInstance
         {
-            Logic.IController m_pPlayerController = null;
-            Logic.CPlayable m_pPlayerUnit = null;
+            IController m_pPlayerController = null;
+            CPlayable m_pPlayerUnit = null;
 
-            public ERESULT PlayerRegist(Logic.CPlayable playable)
+            public CPlayable PlayerUnit => m_pPlayerUnit;
+
+            public ERESULT PlayerRegist(CPlayable playable)
             {
                 if (null != m_pPlayerUnit)
                 {

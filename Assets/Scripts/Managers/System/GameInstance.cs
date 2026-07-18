@@ -2,6 +2,7 @@ using Core.Assets;
 using Core.Deck;
 using Core.Job;
 using Core.Pool;
+using Core.Room;
 using Core.Scene;
 using Core.StateMachine;
 using Core.Variables;
@@ -39,6 +40,7 @@ namespace Core
         List<SO.CardInitialSetSO> m_vCardInitialSetSO = new List<SO.CardInitialSetSO>();
         ContentUpdater m_pContentUpdater = null;
         [SerializeField, Defines.Attribute.ReadOnly] DeckManager m_pDeckManager = null;
+        [SerializeField, Defines.Attribute.ReadOnly] RoomManager m_pRoomManager = null;
         LevelManager m_pLevelManager = null;
         AssetManager m_pAssetManager = null;
         [SerializeField, Defines.Attribute.ReadOnly] JobQueueManager m_pJobQueueManager = null;
@@ -46,6 +48,7 @@ namespace Core
         Transform m_pPoolRoot = null;
         GlobalVariables m_pGlobalVariables = null;
         public DeckManager Deck => m_pDeckManager;
+        public RoomManager Rooms => m_pRoomManager;
         public ObjectPoolManager ObjectPools => m_pObjectPoolManager;
         public JobQueueManager JobQueues => m_pJobQueueManager;
         public GlobalVariables Variables => m_pGlobalVariables;
@@ -106,6 +109,8 @@ namespace Core
             m_pContentUpdater = gameObject.AddComponent<ContentUpdater>();
             m_pAssetManager = new AssetManager();
             m_pDeckManager = new DeckManager();
+            m_pRoomManager = new RoomManager();
+            m_pRoomManager.Initialize();
             m_pSceneSO = m_pSceneSO.Clone() as SO.SceneSO;
             m_pLevelManager = new LevelManager(m_pSceneSO.m_vSceneReferences);
             m_pJobQueueManager = new JobQueueManager();
@@ -115,6 +120,7 @@ namespace Core
             if (null == m_pContentUpdater ||
                 null == m_pAssetManager ||
                 null == m_pDeckManager ||
+                null == m_pRoomManager ||
                 null == m_pLevelManager ||
                 null == m_pJobQueueManager ||
                 null == m_pFSM ||
@@ -170,8 +176,8 @@ namespace Core
         {
             if (m_pFSM.IsCurrentState((int)CState_System.SystemState.IDLE))
             {
-                CInfoInstance.Instance.StartGame();
                 m_pFSM.Change_State((int)CState_System.SystemState.PLAYING);
+                CInfoInstance.Instance.StartGame();
                 m_pDeckManager.Initialize(m_vCardInitialSetSO[iInitialSetIndex]);
                 m_pDeckManager.StartGame();
             }

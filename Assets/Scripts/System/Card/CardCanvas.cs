@@ -266,6 +266,10 @@ namespace View
                     RectTransform rectTransform = transform.parent.GetComponent<RectTransform>();
                     Vector3[] vCorners = new Vector3[4];
                     rectTransform.GetWorldCorners(vCorners);
+                    if (null == m_pRefCard)
+                    {
+                        return;
+                    }
                     if (eventData.position.y > vCorners[1].y)
                     {
                         pController.PresentPlay(m_pRefCard, this);

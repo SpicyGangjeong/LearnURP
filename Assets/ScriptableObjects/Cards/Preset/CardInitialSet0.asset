@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d92479489e04eb488d957a63d0df14c, type: 3}
+  m_Name: CardInitialSet0
+  m_EditorClassIdentifier: Assembly-CSharp::CardInitialSet0
+  m_strCardInitialSetName: Zero Deck
+  m_pCardDocumentSO: {fileID: 11400000, guid: ada8f796206790c4eb1c84b91dc73ffc, type: 2}
+  m_vCardEntries:
+  - m_strCardName: Basic_Attack
+    m_iCount: 5
+  - m_strCardName: Basic_Shield
+    m_iCount: 5
+  - m_strCardName: Basic_Power
+    m_iCount: 1
+  - m_strCardName: Pommel_Attack
+    m_iCount: 2

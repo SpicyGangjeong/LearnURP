@@ -1,4 +1,4 @@
-﻿namespace Defines
+namespace Defines
 {
     namespace Enums
     {
@@ -7,6 +7,15 @@
             NONE = -1,
             MAIN_MENU = 0,
             GAME_PLAY = 1,
+            END,
+        }
+        public enum RoomType : int
+        {
+            NONE = -1,
+            COMBAT = 0,
+            SHOP = 1,
+            REST = 2,
+            EVENT = 3,
             END,
         }
         public enum CardPile : int
