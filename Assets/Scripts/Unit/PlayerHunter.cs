@@ -11,6 +11,14 @@ namespace View
         public class PlayerHunter : CPlayable
         {
             Group m_eCurrentGroup = Group.NONE;
+            Animator m_pAnimator = null;
+            private void Awake()
+            {
+                if (null == m_pAnimator)
+                {
+                    m_pAnimator = GetComponent<Animator>();
+                }
+            }
             public override Group CurrentGroup()
             {
                 return m_eCurrentGroup;
@@ -23,10 +31,9 @@ namespace View
                 return m_eCurrentGroup;
             }
 
-            public override ERESULT GetRaycastHit(out RaycastHit hitOut)
+            public override Animator GetAnimator()
             {
-                hitOut = new RaycastHit();
-                return ERESULT.FALSE;
+                return m_pAnimator;
             }
 
             public override GameObject GetTargetObject()

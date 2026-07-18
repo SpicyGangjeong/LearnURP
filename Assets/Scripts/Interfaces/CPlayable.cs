@@ -8,11 +8,12 @@ namespace Logic
     {
         public abstract Group CurrentGroup();
         public abstract Group DeregistGroup();
-        public abstract ERESULT GetRaycastHit(out RaycastHit hitOut);
         public abstract GameObject GetTargetObject();
+        public abstract Animator GetAnimator();
         public abstract TransformHandle GetTransformHandle();
         public abstract void RegisterGroup(Group dstGroup);
         public abstract void Triggered();
         public abstract void Play();
+
     }
 }

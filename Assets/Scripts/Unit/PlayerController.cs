@@ -13,6 +13,7 @@ namespace Controller
         public class PlayerController : MonoBehaviour, IController
         {
             CFSM m_pFSM = null;
+            Animator m_pAnimator = null;
             IUnit m_pPlayer = null;
             void Awake()
             {
@@ -34,6 +35,7 @@ namespace Controller
                 TransformHandle targetHandle = unit.GetTransformHandle();
                 targetHandle.SetParent(transform.transformHandle);
                 m_pPlayer = unit;
+                m_pAnimator = unit.GetAnimator();
                 m_pFSM.Change_State((int)CState_Player.PlayerState.IDLE);
             }
 
@@ -44,12 +46,12 @@ namespace Controller
                     m_pFSM = GetComponent<CFSM>();
                     new CState_Player_Initialize(
                         new STATE_PLAYER_INITIALIZE_DESC(
-                            this, m_pFSM, CGameInstance.Instance
+                            this, m_pFSM, this
                             )
                         );
                     new CState_Player_Idle(
                         new STATE_PLAYER_IDLE_DESC(
-                            this, m_pFSM, CGameInstance.Instance
+                            this, m_pFSM, this
                             )
                         );
                     if (true == m_pFSM.Is_Valid_FSM((int)CState_Player.PlayerState.END))
@@ -61,7 +63,7 @@ namespace Controller
 
             public void Control()
             {
-                throw new System.NotImplementedException();
+                
             }
         }
     }

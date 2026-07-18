@@ -55,7 +55,6 @@ namespace Core
 
                 Defines.Enums.SceneID ePreviousSceneID = m_eCurrentSceneID;
 
-                // Single 로드가 현재 씬을 교체한다. 마지막 씬 Unload는 Unity가 막으므로 하지 않는다.
                 await pSceneAddressable.LoadScene();
 
                 if (Defines.Enums.SceneID.NONE != ePreviousSceneID

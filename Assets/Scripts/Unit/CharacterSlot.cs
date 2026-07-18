@@ -2,37 +2,30 @@ using Defines.Expressions;
 using Logic;
 using UnityEngine;
 
-public class CharacterSlot : MonoBehaviour, ITargettable
+public class CharacterSlot : MonoBehaviour, ISlot
 {
-    public ERESULT GetRaycastHit(out RaycastHit hitOut)
+    IUnit m_pCurrentUnit = null;
+    public IUnit GetCurrentUnit()
     {
-        throw new System.NotImplementedException();
+        return m_pCurrentUnit;
+    }
+    public void SetCurrentUnit(IUnit pUnit)
+    {
+        m_pCurrentUnit = pUnit;
     }
 
     public GameObject GetTargetObject()
     {
-        throw new System.NotImplementedException();
+        return gameObject;
     }
 
     public TransformHandle GetTransformHandle()
     {
-        throw new System.NotImplementedException();
+        return transformHandle;
     }
 
     public void Triggered()
     {
         throw new System.NotImplementedException();
-    }
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 }
