@@ -24,17 +24,32 @@ MonoBehaviour:
   - m_GUID: 1b8567bdd4955a343a3403519273f980
     m_Address: CardCanvas
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - UI
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1d18f2757d70d6546af90938dbbc1d98
+    m_Address: PlayerHunter
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Playable
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 23d31e844e38dd8439f21ff6096b5daf
+    m_Address: Cards
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Cards
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2f827d2a41cfc6b4eb38eeca006ac9a7
-    m_Address: Assets/Scenes/Stage0.unity
+    m_Address: Scene_GamePlay
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Scene
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 99c9720ab356a0642a771bea13969a05
-    m_Address: Assets/Scenes/MainMenu.unity
+    m_Address: Scene_MainMenu
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Scene
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a01717631685d6e4199712f740e3e342
     m_Address: Assets/Local/SO/CardInitialSet0.asset
@@ -46,6 +61,12 @@ MonoBehaviour:
     m_Address: CardDocuments
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bba88a173d99c2a41b3ffe345e18f108
+    m_Address: GamePlayCanvas
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - UI
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fd1e2c0b46a1b0149a312c5961304040
     m_Address: Assets/Local/SO/CardInitialSet2.asset

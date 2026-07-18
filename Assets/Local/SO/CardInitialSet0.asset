@@ -15,11 +15,11 @@ MonoBehaviour:
   m_strCardInitialSetName: Zero Deck
   m_pCardDocumentSO: {fileID: 11400000, guid: ada8f796206790c4eb1c84b91dc73ffc, type: 2}
   m_vCardEntries:
-  - m_strCardName: Basic Attack
+  - m_strCardName: Basic_Attack
     m_iCount: 5
-  - m_strCardName: Basic Defence
+  - m_strCardName: Basic_Shield
     m_iCount: 5
-  - m_strCardName: Basic Magic
-    m_iCount: 2
-  - m_strCardName: Zero Deck
+  - m_strCardName: Basic_Power
     m_iCount: 1
+  - m_strCardName: Pommel_Attack
+    m_iCount: 2

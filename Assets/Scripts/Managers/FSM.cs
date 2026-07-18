@@ -1,92 +1,104 @@
-﻿using System;
+﻿using Logic.State;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CFSM : MonoBehaviour
+namespace Core
 {
-    public Dictionary<int, CState> m_vStates = null;
-    CState m_pCurrState = null;
-    CState m_pPrevState = null;
-    static void EmptyTick() { }
-
-    Action m_pOnFixedUpdateTick = EmptyTick;
-    Action m_pOnUpdateTick = EmptyTick;
-    Action m_pOnLateUpdateTick = EmptyTick;
-
-    public bool IsCurrentState(int iStateID)
+    namespace StateMachine
     {
-        return m_pCurrState != null && m_pCurrState.StateID == iStateID;
-    }
+        [Serializable]
+        public class CFSM : MonoBehaviour
+        {
+            public Dictionary<int, CState> m_vStates = new Dictionary<int, CState>();
 
-    void ResubscribeStateTicks(CState pNext)
-    {
-        m_pOnFixedUpdateTick = EmptyTick;
-        m_pOnUpdateTick = EmptyTick;
-        m_pOnLateUpdateTick = EmptyTick;
-        if (pNext == null)
-            return;
-        m_pOnFixedUpdateTick += pNext.Fixed_Update_State;
-        m_pOnUpdateTick += pNext.Update_State;
-        m_pOnLateUpdateTick += pNext.Late_Update_State;
-    }
+            [SerializeReference] CState m_pCurrState = null;
+            [SerializeReference] CState m_pPrevState = null;
+            static void EmptyTick() { }
 
-    public void Change_State(int iStateID)
-    {
-        if (null != m_pCurrState)
-        {
-            m_pCurrState.Exit();
-            m_pPrevState = m_pCurrState;
-        }
-        if (false == m_vStates.TryGetValue(iStateID, out m_pCurrState))
-        {
-            Debug.LogError($"State not found: {iStateID} {m_vStates.Count}");
-            return;
-        }
-        ResubscribeStateTicks(m_pCurrState);
-        if (null != m_pCurrState)
-        {
-            m_pCurrState.Enter();
-        }
-    }
-    public bool Is_Valid_FSM(int iStateEndID){
-        if (null == m_vStates)
-        {
-            Debug.LogError("FSM is not valid: states is null");
-            return false;
-        }
-        for (int i = 0; i < iStateEndID; i++)
-        {
-            if (false == m_vStates.TryGetValue(i, out CState pState)){
-                Debug.LogError($"FSM is not valid: {i} is not found in states");
-                return false;
+            Action m_pOnFixedUpdateTick = EmptyTick;
+            Action m_pOnUpdateTick = EmptyTick;
+            Action m_pOnLateUpdateTick = EmptyTick;
+
+            public bool IsCurrentState(int eStateID)
+            {
+                return m_pCurrState != null && m_pCurrState.StateID == eStateID;
             }
-        }
-        return true;
-    }
-    public void Fixed_Update_State()
-    {
-        m_pOnFixedUpdateTick();
-    }
 
-    public void Update_State()
-    {
-        m_pOnUpdateTick();
+            void ResubscribeStateTicks(CState pNext)
+            {
+                m_pOnFixedUpdateTick = EmptyTick;
+                m_pOnUpdateTick = EmptyTick;
+                m_pOnLateUpdateTick = EmptyTick;
+                if (pNext == null)
+                    return;
+                m_pOnFixedUpdateTick += pNext.Fixed_Update_State;
+                m_pOnUpdateTick += pNext.Update_State;
+                m_pOnLateUpdateTick += pNext.Late_Update_State;
+            }
+
+            public void Change_State(int eStateID)
+            {
+                if (null != m_pCurrState)
+                {
+                    m_pCurrState.Exit();
+                    m_pPrevState = m_pCurrState;
+                }
+                if (false == m_vStates.TryGetValue(eStateID, out m_pCurrState))
+                {
+                    Debug.LogError($"State not found: {eStateID} {m_vStates.Count}");
+                    return;
+                }
+                ResubscribeStateTicks(m_pCurrState);
+                if (null != m_pCurrState)
+                {
+                    m_pCurrState.Enter();
+                }
+            }
+            public bool Is_Valid_FSM(int eStateEndID)
+            {
+                if (null == m_vStates)
+                {
+                    Debug.LogError("FSM is not valid: states is null");
+                    return false;
+                }
+                for (int i = 0; i < eStateEndID; i++)
+                {
+                    if (false == m_vStates.TryGetValue(i, out CState pState))
+                    {
+                        Debug.LogError($"FSM is not valid: {i} is not found in states");
+                        return false;
+                    }
+                }
+                return true;
+            }
+            public void Fixed_Update_State()
+            {
+                m_pOnFixedUpdateTick();
+            }
+
+            public void Update_State()
+            {
+                m_pOnUpdateTick();
+            }
+            public void Late_Update_State()
+            {
+                m_pOnLateUpdateTick();
+            }
+            public CState Get_PrevState()
+            {
+                return m_pPrevState;
+            }
+            public CState Get_CurrentState()
+            {
+                return m_pCurrState;
+            }
+            void Awake() { }
+            void Start() { }
+            void FixedUpdate() { Fixed_Update_State(); }
+            void Update() { Update_State(); }
+            void LateUpdate() { Late_Update_State(); }
+        }
+
     }
-    public void Late_Update_State()
-    {
-        m_pOnLateUpdateTick();
-    }
-    public CState Get_PrevState()
-    {
-        return m_pPrevState;
-    }
-    public CState Get_CurrentState()
-    {
-        return m_pCurrState;
-    }
-    void Awake() { }
-    void Start() { }
-    void FixedUpdate() { Fixed_Update_State(); }
-    void Update() { Update_State(); }
-    void LateUpdate() { Late_Update_State(); }
 }
