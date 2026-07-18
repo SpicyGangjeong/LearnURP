@@ -1,128 +1,183 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-class CardPileCollection
+namespace Logic
 {
-    readonly Dictionary<DEFINES.ENUMS.CardPile, List<Card>> m_vPiles = new Dictionary<DEFINES.ENUMS.CardPile, List<Card>>();
-    
-    
-    public CardPileCollection()
+    namespace Card
     {
-        for (DEFINES.ENUMS.CardPile ePile = DEFINES.ENUMS.CardPile.NONE + 1; 
-            ePile != DEFINES.ENUMS.CardPile.ALL; ePile++)
+        [Serializable]
+        public class CardPileEntry
         {
-            m_vPiles[ePile] = new List<Card>();
-        }
-    }
-    public List<Card> GetPile(DEFINES.ENUMS.CardPile ePileType)
-    {
-        return m_vPiles[ePileType];
-    }
-
-    public IReadOnlyList<Card> GetCards(DEFINES.ENUMS.CardPile ePileType)
-    {
-        return GetPile(ePileType);
-    }
-
-    public int GetCount(DEFINES.ENUMS.CardPile ePileType)
-    {
-        List<Card> vPile = GetPile(ePileType);
-        if (null == vPile)
-        {
-            return 0;
+            public Defines.Enums.CardPile ePile;
+            public List<CardInstance> vCards = new List<CardInstance>();
         }
 
-        return vPile.Count;
-    }
-
-    public void ClearAll()
-    {
-        foreach (List<Card> vPile in m_vPiles.Values)
+        [Serializable]
+        public class CardPileCollection : ISerializationCallbackReceiver
         {
-            vPile.Clear();
-        }
-    }
+            Dictionary<Defines.Enums.CardPile, List<CardInstance>> m_vPiles = new Dictionary<Defines.Enums.CardPile, List<CardInstance>>();
+            [SerializeField] List<CardPileEntry> m_vPileEntries = null;
 
-    public void Clear(DEFINES.ENUMS.CardPile ePileType)
-    {
-        List<Card> vPile = GetPile(ePileType);
-        if (null != vPile)
-        {
-            vPile.Clear();
-        }
-    }
+            public CardPileCollection()
+            {
+                EnsureAllPiles();
+            }
 
-    public void Add(Card pCard, DEFINES.ENUMS.CardPile ePileType)
-    {
-        List<Card> vPile = GetPile(ePileType);
-        pCard.CardInfo.m_eCurrentPile = ePileType;
+            public List<CardInstance> GetPile(Defines.Enums.CardPile ePileType)
+            {
+                if (false == m_vPiles.TryGetValue(ePileType, out List<CardInstance> vPile))
+                {
+                    return null;
+                }
 
-        if (null != vPile)
-        {
-            vPile.Add(pCard);
-        }
-    }
-    public void AddRange(IEnumerable<Card> vCards, DEFINES.ENUMS.CardPile ePileType)
-    {
-        foreach (Card pCard in vCards)
-        {
-            Add(pCard, ePileType);
-        }
-    }
+                return vPile;
+            }
 
-    public bool Remove(Card pCard)
-    {
-        List<Card> vPile = GetPile(pCard.CardInfo.m_eCurrentPile);
-        if (null == vPile)
-        {
-            pCard.CardInfo.m_eCurrentPile = DEFINES.ENUMS.CardPile.END;
-            return false;
-        }
+            public IReadOnlyList<CardInstance> GetCards(Defines.Enums.CardPile ePileType)
+            {
+                return GetPile(ePileType);
+            }
 
-        return vPile.Remove(pCard);
-    }
+            public int GetCount(Defines.Enums.CardPile ePileType)
+            {
+                List<CardInstance> vPile = GetPile(ePileType);
+                if (null == vPile)
+                {
+                    return 0;
+                }
 
-    public bool Move(Card pCard, DEFINES.ENUMS.CardPile eToPile)
-    {
-        if (false == Remove(pCard))
-        {
-            return false;
-        }
+                return vPile.Count;
+            }
 
-        Add(pCard, eToPile);
-        return true;
-    }
+            public void ClearAll()
+            {
+                foreach (List<CardInstance> vPile in m_vPiles.Values)
+                {
+                    vPile.Clear();
+                }
+            }
 
+            public void Clear(Defines.Enums.CardPile ePileType)
+            {
+                List<CardInstance> vPile = GetPile(ePileType);
+                if (null != vPile)
+                {
+                    vPile.Clear();
+                }
+            }
 
-    public Card GetTopCard(DEFINES.ENUMS.CardPile ePileType)
-    {
-        List<Card> vPile = GetPile(ePileType);
-        if (null == vPile || 0 == vPile.Count)
-        {
-            return null;
-        }
+            public void Add(CardInstance pCard, Defines.Enums.CardPile ePileType)
+            {
+                List<CardInstance> vPile = GetPile(ePileType);
+                pCard.Data.m_eCurrentPile = ePileType;
 
-        return vPile[0];
-    }
+                if (null != vPile)
+                {
+                    vPile.Add(pCard);
+                }
+            }
 
-    public void Shuffle(DEFINES.ENUMS.CardPile ePileType)
-    {
-        List<Card> vPile = GetPile(ePileType);
-        if (null == vPile)
-        {
-            return;
-        }
+            public void AddRange(IEnumerable<CardInstance> vCards, Defines.Enums.CardPile ePileType)
+            {
+                foreach (CardInstance pCard in vCards)
+                {
+                    Add(pCard, ePileType);
+                }
+            }
 
-        for (int i = 0; i < vPile.Count; i++)
-        {
-            int iRandomIndex = Random.Range(0, vPile.Count);
-            Card pTempCard = vPile[i];
-            vPile[i] = vPile[iRandomIndex];
-            vPile[iRandomIndex] = pTempCard;
-        }
-        foreach (Card p in vPile)
-        {
-            p.OnShuffleCard();
+            public bool Remove(CardInstance pCard)
+            {
+                List<CardInstance> vPile = GetPile(pCard.Data.m_eCurrentPile);
+                if (null == vPile)
+                {
+                    pCard.Data.m_eCurrentPile = Defines.Enums.CardPile.END;
+                    return false;
+                }
+
+                return vPile.Remove(pCard);
+            }
+
+            public bool Move(CardInstance pCard, Defines.Enums.CardPile eToPile)
+            {
+                if (false == Remove(pCard))
+                {
+                    return false;
+                }
+
+                Add(pCard, eToPile);
+                return true;
+            }
+
+            public CardInstance GetTopCard(Defines.Enums.CardPile ePileType)
+            {
+                List<CardInstance> vPile = GetPile(ePileType);
+                if (null == vPile || 0 == vPile.Count)
+                {
+                    return null;
+                }
+
+                return vPile[0];
+            }
+
+            public void Shuffle(Defines.Enums.CardPile ePileType)
+            {
+                List<CardInstance> vPile = GetPile(ePileType);
+                if (null == vPile)
+                {
+                    return;
+                }
+
+                for (int i = 0; i < vPile.Count; i++)
+                {
+                    int iRandomIndex = UnityEngine.Random.Range(0, vPile.Count);
+                    CardInstance pTempCard = vPile[i];
+                    vPile[i] = vPile[iRandomIndex];
+                    vPile[iRandomIndex] = pTempCard;
+                }
+                foreach (CardInstance p in vPile)
+                {
+                    p.OnShuffleCard();
+                }
+            }
+
+            public void OnBeforeSerialize()
+            {
+                if (null == m_vPileEntries)
+                {
+                    m_vPileEntries = new List<CardPileEntry>();
+                    foreach (KeyValuePair<Defines.Enums.CardPile, List<CardInstance>> kvp in m_vPiles)
+                    {
+                        CardPileEntry pEntry = new CardPileEntry();
+                        pEntry.ePile = kvp.Key;
+                        pEntry.vCards = GetPile(pEntry.ePile);
+                        m_vPileEntries.Add(pEntry);
+                    }
+                }
+            }
+
+            public void OnAfterDeserialize()
+            {
+                return;
+            }
+
+            void EnsureAllPiles()
+            {
+                if (null == m_vPiles)
+                {
+                    m_vPiles = new Dictionary<Defines.Enums.CardPile, List<CardInstance>>();
+                }
+
+                for (Defines.Enums.CardPile ePile = Defines.Enums.CardPile.NONE + 1;
+                    ePile != Defines.Enums.CardPile.ALL;
+                    ePile++)
+                {
+                    if (false == m_vPiles.ContainsKey(ePile))
+                    {
+                        m_vPiles[ePile] = new List<CardInstance>();
+                    }
+                }
+            }
         }
     }
 }

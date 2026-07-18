@@ -1,217 +1,282 @@
+using Core;
+using Core.Pool;
 using Cysharp.Threading.Tasks;
-using DEFINES;
-using DEFINES.STRUCTURES;
-using System;
-using System.Collections.Generic;
+using Defines;
+using Defines.Structures;
+using Logic.Card;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.U2D;
 using UnityEngine.UI;
 
-interface ICardPointerHandler :
-    IPointerEnterHandler, IPointerExitHandler,
-    IPointerMoveHandler, IPointerUpHandler, IPointerDownHandler,
-    IBeginDragHandler, IDragHandler, IEndDragHandler
+namespace View
 {
-}
-public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
-{
-    private static int s_iCardCanvasPoolID = 0;
-    [SerializeField] TextMeshProUGUI m_pSlotName = null;
-    [SerializeField] TextMeshProUGUI m_pSlotCost = null;
-    [SerializeField] TextMeshProUGUI m_pSlotDescription = null;
-
-    [SerializeField] UnityEngine.UI.Image m_pSlotImage = null;
-    [SerializeField] UnityEngine.UI.Image m_pSlotTypeImage = null;
-    [SerializeField] UnityEngine.UI.Image m_pSlotQualityImage = null;
-    [SerializeField] Outline m_pSlotHighlight = null;
-
-    Card m_pRefCard = null;
-    public bool bHighlighted { get; private set; } = false;
-
-    LerpInfo m_LerpInfo;
-
-    public void StartMove(in LerpInfo lerpInfo)
+    namespace UI
     {
-        m_LerpInfo = lerpInfo;
-    }
-    private void InstantMove(in MoveInfo moveinfo)
-    {
-        m_LerpInfo.SetFinish();
-        HELPERS.ApplyMoveInfo(moveinfo, transform);
-    }
-
-    public void Update()
-    {
-        if (true == m_LerpInfo.IsLerping)
+        interface ICardPointerHandler :
+            IPointerEnterHandler, IPointerExitHandler,
+            IPointerMoveHandler, IPointerUpHandler, IPointerDownHandler,
+            IBeginDragHandler, IDragHandler, IEndDragHandler
         {
-            m_LerpInfo.Progress();
-            HELPERS.ApplyMoveInfo(m_LerpInfo.GetMoveInfo(), transform);
         }
-    }
-    public void BindCard(Card pCard)
-    {
-        m_pRefCard = pCard;
-        if (null == pCard || null == pCard.CardInfo)
+        public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
         {
-            return;
-        }
+            private static int s_iCardCanvasPoolID = 0;
+            [SerializeField] TextMeshProUGUI m_pSlotName = null;
+            [SerializeField] TextMeshProUGUI m_pSlotCost = null;
+            [SerializeField] TextMeshProUGUI m_pSlotDescription = null;
 
-        m_pSlotName.text = pCard.CardInfo.m_strCardName;
-        m_pSlotCost.text = pCard.CardInfo.m_iCardCost.ToString();
-        m_pSlotDescription.text = pCard.CardInfo.m_strCardDescription;
-        // m_pSlotImage.sprite = pCard.CardInfo.sprite;
-        // m_pSlotTypeImage.sprite = pCard.CardInfo.m_iCardType;
-        // m_pSlotQualityImage.sprite = pCard.CardInfo.sprite;
-    }
-    public void StartLinearMove(float fDuration, in MoveInfo pDstMove, LerpModelCallback callback)
-    {
-        HELPERS.ExtractMoveInfo(out MoveInfo pStartMove, transform);
-        StartMove(LerpInfo.Linear(fDuration, in pStartMove, in pDstMove, callback));
-    }
-    public UniTask StartBezierMoveAsync(float fDuration, in MoveInfo pCenterMove, in MoveInfo pDstMove){
-        UniTaskCompletionSource pCompletion = new UniTaskCompletionSource();
-        StartBezierMove(fDuration, in pCenterMove, in pDstMove, () => { pCompletion.TrySetResult(); });
-        return pCompletion.Task;
-    }
-    public void StartBezierMove(float fDuration, in MoveInfo pCenterMove, in MoveInfo pDstMove, LerpModelCallback callback)
-    {
-        HELPERS.ExtractMoveInfo(out MoveInfo pStartMove, transform);
-        StartMove(LerpInfo.Bezier(fDuration, in pStartMove, in pCenterMove, in pDstMove, callback));
-    }
-    public void OnCreate()
-    {
-        gameObject.name = "CardCanvas_" + s_iCardCanvasPoolID++;
-    }
-    public void OnSpawn()
-    {
-    }
-    public void OnDespawn()
-    {
-        CustomFinalize();
-    }
-    public void OnExtinct()
-    {
-        CustomFinalize();
-    }
-    public void OnEnable()
-    {
-        CustomFinalize();
-    }
-    public void OnDisable()
-    {
-        CustomFinalize();
-    }
+            [SerializeField] UnityEngine.UI.Image m_pSlotImage = null;
+            [SerializeField] UnityEngine.UI.Image m_pSlotTypeImage = null;
+            [SerializeField] UnityEngine.UI.Image m_pSlotQualityImage = null;
 
-    public void OnPointerMove(PointerEventData eventData)
-    {
-    }
+            [SerializeField] Outline m_pSlotHighlight = null;
+            [SerializeField] SpriteAtlas m_pImgAtlasPortrait = null;
+            [SerializeField] SpriteAtlas m_pImgAtlasType = null;
+            [SerializeField] SpriteAtlas m_pImgAtlasQuality = null;
 
-    public void OnPointerUp(PointerEventData eventData)
-    {
-    }
+            CardInstance m_pRefCard = null;
+            public bool bHighlighted { get; private set; } = false;
 
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        if (eventData.button == PointerEventData.InputButton.Right)
-        {
-            GamePlayCanvas pController = GamePlayCanvas.Instance;
-            if (null != pController)
+            LerpInfo m_LerpInfo;
+
+            public void StartMove(in LerpInfo lerpInfo)
             {
-                pController.PresentDiscard(m_pRefCard, this);
+                m_LerpInfo = lerpInfo;
             }
-        }
-    }
-
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        OnHighlight();
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        OffHighlight();
-    }
-
-    private void OffHighlight()
-    {
-        if (true == bHighlighted)
-        {
-            bHighlighted = false;
-            m_pSlotHighlight.enabled = bHighlighted;
-        }
-    }
-
-    private void OnHighlight()
-    {
-        if (false == bHighlighted)
-        {
-            bHighlighted = true;
-            m_pSlotHighlight.enabled = bHighlighted;
-            transform.SetAsLastSibling();
-        }
-    }
-    private void CustomFinalize(){
-        m_pRefCard = null;
-        OffHighlight();
-        m_pSlotName.text = string.Empty;
-        m_pSlotCost.text = string.Empty;
-        m_pSlotDescription.text = string.Empty;
-        m_pSlotImage.sprite = null;
-        m_pSlotTypeImage.sprite = null;
-        m_pSlotQualityImage.sprite = null;
-        m_pSlotHighlight.enabled = false;
-    }
-
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        if (eventData.button == PointerEventData.InputButton.Left)
-        {
-            GamePlayCanvas pController = GamePlayCanvas.Instance;
-            if (null != pController && null != pController.HandBoard)
+            private void InstantMove(in MoveInfo moveinfo)
             {
-                pController.HandBoard.OnDragBegin(m_pRefCard);
-            }
-            InstantMove(
-                new MoveInfo(eventData.position, Quaternion.identity)
-                );
-        }
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (eventData.button == PointerEventData.InputButton.Left)
-        {
-            InstantMove(
-                new MoveInfo(eventData.position, Quaternion.identity)
-                );
-            transform.SetAsLastSibling();
-        }
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        if (eventData.button == PointerEventData.InputButton.Left)
-        {
-            GamePlayCanvas pController = GamePlayCanvas.Instance;
-            if (null == pController)
-            {
-                return;
+                m_LerpInfo.SetFinish();
+                Helpers.ApplyMoveInfo(moveinfo, transform);
             }
 
-            RectTransform rectTransform = transform.parent.GetComponent<RectTransform>();
-            Vector3[] vCorners = new Vector3[4];
-            rectTransform.GetWorldCorners(vCorners);
-            if (eventData.position.y > vCorners[1].y)
+            public void Update()
             {
-                pController.PresentPlay(m_pRefCard, this);
-            }
-            else
-            {
-                if (null != pController.HandBoard)
+                if (true == m_LerpInfo.IsLerping)
                 {
-                    pController.HandBoard.OnDragCancel(m_pRefCard, this);
+                    m_LerpInfo.Progress();
+                    Helpers.ApplyMoveInfo(m_LerpInfo.GetMoveInfo(), transform);
+                }
+            }
+            public void BindCard(CardInstance pCard)
+            {
+                m_pRefCard = pCard;
+                if (null == pCard || null == pCard.Data)
+                {
+                    return;
+                }
+                BindCardData(m_pRefCard.Data);
+            }
+            public void BindCardData(in CardData cardData)
+            {
+                m_pSlotName.text = cardData.Name;
+                m_pSlotCost.text = cardData.Cost.ToString();
+                m_pSlotDescription.text = cardData.Description;
+
+                Sprite imgPortrait = null;
+                switch (cardData.Portrait)
+                {
+                    case CardData.CardPortrait.NONE:
+                    case CardData.CardPortrait.END:
+                        break;
+                    default:
+                        imgPortrait = Helpers.RequireAtlasSprite(
+                            m_pImgAtlasPortrait,
+                            cardData.Portrait.ToString(),
+                            "CardPortrait");
+                        break;
+                }
+                m_pSlotImage.sprite = imgPortrait;
+
+                Sprite imgType = null;
+                switch (cardData.Type)
+                {
+                    case CardData.CardType.ATTACK:
+                    case CardData.CardType.DEFENSE:
+                    case CardData.CardType.MAGIC:
+                    case CardData.CardType.ITEM:
+                        imgType = Helpers.RequireAtlasSprite(
+                            m_pImgAtlasType,
+                            cardData.Type.ToString(),
+                            "CardType");
+                        break;
+                    default:
+                        break;
+                }
+                m_pSlotTypeImage.sprite = imgType;
+
+                Sprite imgQuality = null;
+                switch (cardData.Quality)
+                {
+                    case CardData.CardQuality.COMMON:
+                    case CardData.CardQuality.UNCOMMON:
+                    case CardData.CardQuality.RARE:
+                    case CardData.CardQuality.EPIC:
+                    case CardData.CardQuality.LEGEND:
+                        imgQuality = Helpers.RequireAtlasSprite(
+                            m_pImgAtlasQuality,
+                            cardData.Quality.ToString(),
+                            "CardQuality");
+                        break;
+                    default:
+                        break;
+                }
+                m_pSlotQualityImage.sprite = imgQuality;
+            }
+
+
+            public void StartLinearMove(float fDuration, in MoveInfo pDstMove, LerpModelCallback callback)
+            {
+                Helpers.ExtractMoveInfo(out MoveInfo pStartMove, transform);
+                StartMove(LerpInfo.Linear(fDuration, in pStartMove, in pDstMove, callback));
+            }
+            public UniTask StartBezierMoveAsync(float fDuration, in MoveInfo pCenterMove, in MoveInfo pDstMove)
+            {
+                UniTaskCompletionSource pCompletion = new UniTaskCompletionSource();
+                StartBezierMove(fDuration, in pCenterMove, in pDstMove, () => { pCompletion.TrySetResult(); });
+                return pCompletion.Task;
+            }
+            public void StartBezierMove(float fDuration, in MoveInfo pCenterMove, in MoveInfo pDstMove, LerpModelCallback callback)
+            {
+                Helpers.ExtractMoveInfo(out MoveInfo pStartMove, transform);
+                StartMove(LerpInfo.Bezier(fDuration, in pStartMove, in pCenterMove, in pDstMove, callback));
+            }
+            public void OnCreate()
+            {
+                gameObject.name = "CardCanvas_" + s_iCardCanvasPoolID++;
+            }
+            public void OnSpawn()
+            {
+            }
+            public void OnDespawn()
+            {
+                CustomFinalize();
+            }
+            public void OnExtinct()
+            {
+                CustomFinalize();
+            }
+            public void OnEnable()
+            {
+                CustomFinalize();
+            }
+            public void OnDisable()
+            {
+                CustomFinalize();
+            }
+
+            public void OnPointerMove(PointerEventData eventData)
+            {
+            }
+
+            public void OnPointerUp(PointerEventData eventData)
+            {
+            }
+
+            public void OnPointerDown(PointerEventData eventData)
+            {
+                if (eventData.button == PointerEventData.InputButton.Right)
+                {
+                    GamePlayCanvas pController = GamePlayCanvas.Instance;
+                    if (null != pController)
+                    {
+                        pController.PresentDiscard(m_pRefCard, this);
+                    }
+                }
+            }
+
+            public void OnPointerEnter(PointerEventData eventData)
+            {
+                OnHighlight();
+            }
+
+            public void OnPointerExit(PointerEventData eventData)
+            {
+                OffHighlight();
+            }
+
+            private void OffHighlight()
+            {
+                if (true == bHighlighted)
+                {
+                    bHighlighted = false;
+                    m_pSlotHighlight.enabled = bHighlighted;
+                }
+            }
+
+            private void OnHighlight()
+            {
+                if (false == bHighlighted)
+                {
+                    bHighlighted = true;
+                    m_pSlotHighlight.enabled = bHighlighted;
+                    transform.SetAsLastSibling();
+                }
+            }
+            private void CustomFinalize()
+            {
+                m_pRefCard = null;
+                OffHighlight();
+                m_pSlotName.text = string.Empty;
+                m_pSlotCost.text = string.Empty;
+                m_pSlotDescription.text = string.Empty;
+                m_pSlotImage.sprite = null;
+                m_pSlotTypeImage.sprite = null;
+                m_pSlotQualityImage.sprite = null;
+                m_pSlotHighlight.enabled = false;
+            }
+
+            public void OnBeginDrag(PointerEventData eventData)
+            {
+                if (eventData.button == PointerEventData.InputButton.Left)
+                {
+                    GamePlayCanvas pController = GamePlayCanvas.Instance;
+                    if (null != pController && null != pController.HandBoard)
+                    {
+                        pController.HandBoard.OnDragBegin(m_pRefCard);
+                    }
+                    InstantMove(
+                        new MoveInfo(eventData.position, Quaternion.identity)
+                        );
+                }
+            }
+
+            public void OnDrag(PointerEventData eventData)
+            {
+                if (eventData.button == PointerEventData.InputButton.Left)
+                {
+                    InstantMove(
+                        new MoveInfo(eventData.position, Quaternion.identity)
+                        );
+                    transform.SetAsLastSibling();
+                }
+            }
+
+            public void OnEndDrag(PointerEventData eventData)
+            {
+                if (eventData.button == PointerEventData.InputButton.Left)
+                {
+                    GamePlayCanvas pController = GamePlayCanvas.Instance;
+                    if (null == pController)
+                    {
+                        return;
+                    }
+
+                    RectTransform rectTransform = transform.parent.GetComponent<RectTransform>();
+                    Vector3[] vCorners = new Vector3[4];
+                    rectTransform.GetWorldCorners(vCorners);
+                    if (eventData.position.y > vCorners[1].y)
+                    {
+                        pController.PresentPlay(m_pRefCard, this);
+                    }
+                    else
+                    {
+                        if (null != pController.HandBoard)
+                        {
+                            pController.HandBoard.OnDragCancel(m_pRefCard, this);
+                        }
+                    }
                 }
             }
         }

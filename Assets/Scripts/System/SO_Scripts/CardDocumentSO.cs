@@ -1,97 +1,78 @@
+using Defines.Bases;
+using Logic.Card;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-[CreateAssetMenu(fileName = "CardDocumentSO", menuName = "Scriptable Objects/CardDocumentSO")]
-public class CardDocumentSO : ScriptableObject
+namespace SO
 {
-    [SerializeField] List<CardInfo> m_vCardInfos = new List<CardInfo>();
-
-    Dictionary<int, CardInfo> m_vCardLookup = null;
-    Dictionary<string, CardInfo> m_vCardNameLookup = null;
-    [ContextMenu("Rebuild Card Description")]
-    void RebuildCardDescription()
+    [CreateAssetMenu(fileName = "CardDocumentSO", menuName = "Scriptable Objects/CardDocumentSO")]
+    public class CardDocumentSO : ScriptableObjectCloneable<CardDocumentSO>
     {
-        foreach (CardInfo pCardInfo in m_vCardInfos)
+        [SerializeField] List<CardDataSO> m_vCardInfos = new List<CardDataSO>();
+
+        Dictionary<string, CardDataSO> m_vCardLookup = null;
+        [ContextMenu("Rebuild Card Description")]
+        void RebuildCardDescription()
         {
-            pCardInfo.BuildCardDescription();
+            foreach (CardDataSO pCardInfo in m_vCardInfos)
+            {
+                pCardInfo.BuildCardDescription();
+            }
         }
-    }
-    void OnEnable()
-    {
-        BuildLookup();
-    }
-
-    void BuildLookup()
-    {
-        m_vCardLookup = new Dictionary<int, CardInfo>(m_vCardInfos.Count);
-        m_vCardNameLookup = new Dictionary<string, CardInfo>(m_vCardInfos.Count);
-        foreach (CardInfo pCardInfo in m_vCardInfos)
-        {
-            if (m_vCardLookup.ContainsKey(pCardInfo.m_iCardID))
-            {
-                Debug.LogWarning($"Duplicate card ID in CardDocuments: {pCardInfo.m_iCardID}");
-                continue;
-            }
-
-            m_vCardLookup.Add(pCardInfo.m_iCardID, pCardInfo);
-
-            if (string.IsNullOrEmpty(pCardInfo.m_strCardName))
-            {
-                continue;
-            }
-
-            if (m_vCardNameLookup.ContainsKey(pCardInfo.m_strCardName))
-            {
-                Debug.LogWarning($"Duplicate card name in CardDocuments: {pCardInfo.m_strCardName}");
-                continue;
-            }
-
-            m_vCardNameLookup.Add(pCardInfo.m_strCardName, pCardInfo);
-        }
-        RebuildCardDescription();
-    }
-
-    public bool TryGetCard(int iCardID, out CardInfo pCardInfo)
-    {
-        if (null == m_vCardLookup)
+        void OnEnable()
         {
             BuildLookup();
         }
 
-        return m_vCardLookup.TryGetValue(iCardID, out pCardInfo);
-    }
-
-    public CardInfo GetCard(int iCardID)
-    {
-        if (TryGetCard(iCardID, out CardInfo pCardInfo))
+        void BuildLookup()
         {
-            return pCardInfo;
+            m_vCardLookup = new Dictionary<string, CardDataSO>(m_vCardInfos.Count);
+            foreach (CardDataSO pCardInfo in m_vCardInfos)
+            {
+                if (string.IsNullOrEmpty(pCardInfo.m_ScriptedObject.strName))
+                {
+                    continue;
+                }
+
+                if (m_vCardLookup.ContainsKey(pCardInfo.m_ScriptedObject.strName))
+                {
+                    Debug.LogWarning($"Duplicate card name in CardDocuments: {pCardInfo.m_ScriptedObject.strName}");
+                    continue;
+                }
+
+                m_vCardLookup.Add(pCardInfo.m_ScriptedObject.strName, pCardInfo.Clone());
+            }
+            RebuildCardDescription();
         }
 
-        Debug.LogError($"Card not found in CardDocuments: {iCardID}");
-        return null;
-    }
-
-    public bool TryGetCardByName(string strCardName, out CardInfo pCardInfo)
-    {
-        if (null == m_vCardNameLookup)
+        public bool TryGetCardByName(string strCardName, out CardDataSO pCardInfo)
         {
+            if (null == m_vCardLookup)
+            {
+                BuildLookup();
+            }
+
+            if (false == m_vCardLookup.TryGetValue(strCardName, out CardDataSO pOriginal))
+            {
+                pCardInfo = null;
+                return false;
+            }
+
+            pCardInfo = pOriginal.Clone();
+            return true;
+        }
+
+        protected override void CopyFrom(CardDocumentSO pOriginal)
+        {
+            foreach (CardDataSO cardDataSO in pOriginal.m_vCardInfos)
+            {
+                m_vCardInfos.Add(cardDataSO.Clone());
+            }
+            m_vCardLookup = null;
             BuildLookup();
         }
-
-        return m_vCardNameLookup.TryGetValue(strCardName, out pCardInfo);
-    }
-
-    public CardInfo GetCardByName(string strCardName)
-    {
-        if (TryGetCardByName(strCardName, out CardInfo pCardInfo))
-        {
-            return pCardInfo;
-        }
-
-        Debug.LogError($"Card not found in CardDocuments: {strCardName}");
-        return null;
+        private CardDocumentSO() { }
+        private CardDocumentSO(CardDocumentSO pOriginal) { }
     }
 
 }
