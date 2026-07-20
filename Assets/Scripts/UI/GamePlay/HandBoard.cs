@@ -18,18 +18,13 @@ namespace View
             [SerializeField, Defines.Attribute.ReadOnly]
             List<CardInstance> m_vHandCards = null;
             CGameInstance m_pGameInstance = null;
-            GamePlayCanvas m_pGamePlayCanvas = null;
+            [SerializeField] GamePlayCanvas m_pGamePlayCanvas = null;
 
             MoveInfo[] m_vHandMoveInfo = new MoveInfo[s_iMaxHandSlots];
 
             void Start()
             {
                 m_pGameInstance = CGameInstance.Instance;
-                m_pGamePlayCanvas = GamePlayCanvas.Instance;
-                if (null == m_pGamePlayCanvas)
-                {
-                    m_pGamePlayCanvas = FindFirstObjectByType<GamePlayCanvas>();
-                }
                 m_pGameInstance.Deck.m_pOnCardPlayed += OnCardPlayed;
                 m_pGameInstance.Deck.m_pOnCardDiscarded += OnCardDiscarded;
                 m_pGameInstance.Deck.m_pOnTurnEnded += OnTurnEnded;
@@ -154,10 +149,7 @@ namespace View
                 List<KeyValuePair<CardInstance, CardCanvas>> vCapturedCanvases = new List<KeyValuePair<CardInstance, CardCanvas>>(m_vCardCanvases);
                 foreach (KeyValuePair<CardInstance, CardCanvas> pairCard in vCapturedCanvases)
                 {
-                    if (null != m_pGamePlayCanvas)
-                    {
-                        m_pGamePlayCanvas.PresentDiscard(pairCard.Key, pairCard.Value);
-                    }
+                    m_pGamePlayCanvas.PresentDiscard(pairCard.Key, pairCard.Value);
                 }
             }
 

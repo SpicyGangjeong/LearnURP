@@ -135,14 +135,14 @@ namespace Defines
         public static readonly Vector2 TargetMobile = new Vector2(1080, 2400);
 
 
-        public const string s_strCardCanvas = "CardCanvas";
-        public const string s_strGamePlayCanvas = "GamePlayCanvas";
-        public const string s_strRoomRoot = "RoomRoot";
-        public const string s_strRoomCombat01 = "Room_Combat_01";
-        public const string s_strRoomRest01 = "Room_Rest_01";
-        public const string s_strRoomEvent01 = "Room_Event_01";
-        public const string s_strRoomEventChest = "evt_chest";
-        public const string s_strRoomFlagBossGate = "boss_gate";
+        public const string s_strCardCanvas         = "CardCanvas";
+        public const string s_strGamePlayCanvas     = "GamePlayCanvas";
+        public const string s_strRoomRoot           = "RoomRoot";
+        public const string s_strRoomCombat01       = "Room_Combat_01";
+        public const string s_strRoomRest01         = "Room_Rest_01";
+        public const string s_strRoomEvent01        = "Room_Event_01";
+        public const string s_strRoomEventChest     = "evt_chest";
+        public const string s_strRoomFlagBossGate   = "boss_gate";
     }
     public static class Helpers
     {

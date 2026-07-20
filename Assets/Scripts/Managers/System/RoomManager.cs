@@ -408,8 +408,7 @@ namespace Core
                         throw new InvalidOperationException(
                             "RoomManager.ApplySlotPlacement player GameObject is null.");
                     }
-                    TransformHandle hTransform = pPlayerSlot.transformHandle;
-                    pPlayerObject.transform.SetPositionAndRotation(hTransform.position, hTransform.rotation);
+                    pPlayerSlot.SetCurrentUnit(pPlayerUnit);
                 }
 
                 CharacterSlot pCameraSlot = pRoom.CameraSlot;
@@ -418,7 +417,8 @@ namespace Core
                     Camera pCamera = CGameInstance.Instance.Main_Camera;
                     if (null != pCamera)
                     {
-                        TransformHandle hTransform = pCamera.transformHandle;
+                        TransformHandle hTransform = pCameraSlot.transformHandle;
+                        pCamera.transformHandle.SetParent(hTransform);
                         pCamera.transform.SetPositionAndRotation(hTransform.position, hTransform.rotation);
                     }
                 }

@@ -28,31 +28,19 @@ namespace View
             RoomManager m_pRoomManager = null;
             readonly List<RoomButton> m_vButtons = new List<RoomButton>();
 
-            void Start()
+            void Awake()
             {
                 m_pGameInstance = CGameInstance.Instance;
                 m_pRoomManager = m_pGameInstance.Rooms;
-                if (null == m_pRoomManager)
-                {
-                    throw new System.InvalidOperationException("RoomBoard: RoomManager is null.");
-                }
-
                 if (null == m_pRoomRoot)
                 {
                     GameObject pRootObject = GameObject.Find(Defines.Constants.s_strRoomRoot);
                     if (null == pRootObject)
                     {
                         pRootObject = new GameObject(Defines.Constants.s_strRoomRoot);
-                        pRootObject.transform.SetParent(CGameInstance.Instance.transform);
                     }
                     m_pRoomRoot = pRootObject.transform;
                 }
-
-                if (null == m_pButtonParent)
-                {
-                    m_pButtonParent = transform;
-                }
-
                 m_pRoomManager.SetRoomRoot(m_pRoomRoot);
                 m_pRoomManager.m_pOnMapGenerated += OnMapGenerated;
                 m_pRoomManager.m_pOnRoomEntered += OnRoomEntered;
@@ -61,70 +49,27 @@ namespace View
                 m_pRoomManager.m_pOnRoomCompleted += OnRoomCompleted;
 
                 RefreshExitButton();
-                WireExitButton();
-
-                if (0 == m_vRoomDataSOs.Count)
-                {
-                    Debug.LogWarning("RoomBoard: m_vRoomDataSOs is empty. Assign RoomDataSO assets in the inspector.");
-                    return;
-                }
 
                 m_pRoomManager.GenerateMap(m_vRoomDataSOs, m_iStartRoomID);
             }
 
-            void WireExitButton()
-            {
-                if (null == m_pExitButtonRoot)
-                {
-                    return;
-                }
-                Button pExitButton = m_pExitButtonRoot.GetComponent<Button>();
-                if (null == pExitButton)
-                {
-                    pExitButton = m_pExitButtonRoot.GetComponentInChildren<Button>(true);
-                }
-                if (null == pExitButton)
-                {
-                    throw new System.InvalidOperationException("RoomBoard: Exit button root has no Button.");
-                }
-                pExitButton.onClick.RemoveListener(RequestExitRoom);
-                pExitButton.onClick.AddListener(RequestExitRoom);
-            }
-
             void OnDestroy()
             {
-                if (null != m_pRoomManager)
-                {
-                    m_pRoomManager.m_pOnMapGenerated -= OnMapGenerated;
-                    m_pRoomManager.m_pOnRoomEntered -= OnRoomEntered;
-                    m_pRoomManager.m_pOnRoomExited -= OnRoomExited;
-                    m_pRoomManager.m_pOnRoomActivated -= OnRoomActivated;
-                    m_pRoomManager.m_pOnRoomCompleted -= OnRoomCompleted;
-                }
+                m_pRoomManager.m_pOnMapGenerated -= OnMapGenerated;
+                m_pRoomManager.m_pOnRoomEntered -= OnRoomEntered;
+                m_pRoomManager.m_pOnRoomExited -= OnRoomExited;
+                m_pRoomManager.m_pOnRoomActivated -= OnRoomActivated;
+                m_pRoomManager.m_pOnRoomCompleted -= OnRoomCompleted;
                 ClearButtons();
             }
-
             public void RequestExitRoom()
             {
-                if (null == m_pRoomManager)
-                {
-                    return;
-                }
-                if (null == m_pRoomManager.CurrentRoom || false == m_pRoomManager.CurrentRoom.Cleared)
-                {
-                    return;
-                }
                 m_pRoomManager.ExitRoom();
             }
 
             void OnMapGenerated(IReadOnlyList<Logic.Room.Room> vRooms)
             {
                 ClearButtons();
-                if (null == m_pRoomButtonPrefab)
-                {
-                    throw new System.InvalidOperationException("RoomBoard: m_pRoomButtonPrefab is null.");
-                }
-
                 for (int i = 0; i < vRooms.Count; ++i)
                 {
                     RoomButton pButton = Instantiate(m_pRoomButtonPrefab, m_pButtonParent);
@@ -187,18 +132,12 @@ namespace View
 
             public void SetMapVisible(bool bVisible)
             {
-                if (null != m_pButtonParent)
-                {
-                    m_pButtonParent.gameObject.SetActive(bVisible);
-                }
+                m_pButtonParent.gameObject.SetActive(bVisible);
             }
 
             void SetExitVisible(bool bVisible)
             {
-                if (null != m_pExitButtonRoot)
-                {
-                    m_pExitButtonRoot.SetActive(bVisible);
-                }
+                m_pExitButtonRoot.SetActive(bVisible);
             }
 
             public void DebugNotifyAllMonstersDefeated()

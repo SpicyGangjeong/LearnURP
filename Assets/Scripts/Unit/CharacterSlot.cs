@@ -18,8 +18,17 @@ public class CharacterSlot : MonoBehaviour, ISlot
     {
         m_pCurrentUnit = pUnit;
         TransformHandle hTransform = pUnit.GetTransformHandle();
+        CharacterController cct = pUnit.GetTargetObject().GetComponent<CharacterController>();
+        if (null != cct && true == cct.enabled)
+        {
+            cct.enabled = false;
+        }
         hTransform.SetParent(transformHandle);
         hTransform.SetPositionAndRotation(transformHandle.position, transformHandle.rotation);
+        if (null != cct)
+        {
+            cct.enabled = true;
+        }
     }
 
     public GameObject GetTargetObject()

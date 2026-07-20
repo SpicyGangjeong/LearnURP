@@ -537,7 +537,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 1
-  m_AdditionalShaderChannelsFlag: 1
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -595,7 +595,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GamePlayCanvas
   m_pCardDrawTable: {fileID: 7778337174873262243}
-  m_pHandBoard: {fileID: 0}
+  m_pHandBoard: {fileID: 1569803151473786620}
   m_pRoomBoard: {fileID: 3211169108009540172}
   m_pDeckUIRoot: {fileID: 0}
   m_pPvts:
@@ -1411,6 +1411,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HandBoard
   m_vHandCards: []
+  m_pGamePlayCanvas: {fileID: 7565263394670104576}
 --- !u!1001 &1751969916428571143
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1546,6 +1547,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: RoomBoard
       objectReference: {fileID: 0}
+    - target: {fileID: 1744210563388812118, guid: b8c1b4fddf65c3f479e25a4b81a909a4, type: 3}
+      propertyPath: m_TextStyleHashCode
+      value: -1183493901
+      objectReference: {fileID: 0}
     - target: {fileID: 5805860672128031881, guid: b8c1b4fddf65c3f479e25a4b81a909a4, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1637,6 +1642,14 @@ PrefabInstance:
     - target: {fileID: 5805860672128031881, guid: b8c1b4fddf65c3f479e25a4b81a909a4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6138637603978320662, guid: b8c1b4fddf65c3f479e25a4b81a909a4, type: 3}
+      propertyPath: m_TextStyleHashCode
+      value: -1183493901
+      objectReference: {fileID: 0}
+    - target: {fileID: 8598569190760899639, guid: b8c1b4fddf65c3f479e25a4b81a909a4, type: 3}
+      propertyPath: m_TextStyleHashCode
+      value: -1183493901
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 1022115140947869918, guid: b8c1b4fddf65c3f479e25a4b81a909a4, type: 3}

@@ -1,6 +1,5 @@
 ﻿using Core;
 using Defines.Enums;
-using Defines.Expressions;
 using Logic;
 using UnityEngine;
 
@@ -8,7 +7,7 @@ namespace View
 {
     namespace Unit
     {
-        public class PlayerHunter : CPlayable
+        public class CameraUnit : MonoBehaviour, IUnit
         {
             Group m_eCurrentGroup = Group.NONE;
             Animator m_pAnimator = null;
@@ -19,46 +18,43 @@ namespace View
                     m_pAnimator = GetComponent<Animator>();
                 }
             }
-            public override Group CurrentGroup()
+            public Group CurrentGroup()
             {
                 return m_eCurrentGroup;
             }
 
-            public override void RegisterGroup(Group dstGroup)
+            public void RegisterGroup(Group dstGroup)
             {
                 CInfoInstance.Instance.GroupInstance.RegistGroup(this, dstGroup);
                 m_eCurrentGroup = dstGroup;
             }
-            public override Group DeregistGroup()
+            public Group DeregistGroup()
             {
                 CInfoInstance.Instance.GroupInstance.DeregistGroup(this, m_eCurrentGroup);
                 m_eCurrentGroup = Group.NONE;
                 return m_eCurrentGroup;
             }
 
-            public override Animator GetAnimator()
+            public Animator GetAnimator()
             {
                 return m_pAnimator;
             }
 
-            public override GameObject GetTargetObject()
+            public GameObject GetTargetObject()
             {
                 return gameObject;
             }
 
-            public override TransformHandle GetTransformHandle()
+            public TransformHandle GetTransformHandle()
             {
                 return transformHandle;
             }
 
-            public override void Play()
+            public void Triggered()
             {
+                
             }
 
-            public override void Triggered()
-            {
-                throw new System.NotImplementedException();
-            }
         }
     }
 }

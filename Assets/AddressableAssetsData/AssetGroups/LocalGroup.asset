@@ -39,17 +39,35 @@ MonoBehaviour:
     m_SerializedLabels:
     - Cards
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2d3cb6e8384f22c42beb8eff6007bd16
+    m_Address: Room_Event_01
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Rooms
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2f827d2a41cfc6b4eb38eeca006ac9a7
     m_Address: Scene_GamePlay
     m_ReadOnly: 0
     m_SerializedLabels:
     - Scene
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7b37aa5dba8680a4eb261bec32200d11
+    m_Address: Room_Rest_01
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Rooms
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 99c9720ab356a0642a771bea13969a05
     m_Address: Scene_MainMenu
     m_ReadOnly: 0
     m_SerializedLabels:
     - Scene
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9f0ef8095b16f8545877a67b51514718
+    m_Address: Room_Combat_01
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Rooms
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a01717631685d6e4199712f740e3e342
     m_Address: Assets/Local/SO/CardInitialSet0.asset

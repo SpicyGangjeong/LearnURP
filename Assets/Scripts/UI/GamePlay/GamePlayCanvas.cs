@@ -51,18 +51,6 @@ namespace View
             {
                 s_pInstance = this;
                 m_pGameInstance = CGameInstance.Instance;
-                if (null == m_pHandBoard)
-                {
-                    m_pHandBoard = FindFirstObjectByType<HandBoard>();
-                }
-                if (null == m_pRoomBoard)
-                {
-                    m_pRoomBoard = GetComponentInChildren<RoomBoard>(true);
-                    if (null == m_pRoomBoard)
-                    {
-                        m_pRoomBoard = FindFirstObjectByType<RoomBoard>();
-                    }
-                }
                 m_pGameInstance.Deck.m_pOnCardDrawn += PresentDraw;
                 for (int i = 0; i < m_MoveInfos.Length; i++)
                 {
@@ -71,18 +59,14 @@ namespace View
                 m_pTmpDeckPile = m_pPvts[(int)PvtPos.DECK].GetComponent<TextMeshProUGUI>();
                 m_pTmpDiscardPile = m_pPvts[(int)PvtPos.DISCARD].GetComponent<TextMeshProUGUI>();
                 m_pTmpDisappearPile = m_pPvts[(int)PvtPos.DISAPPEAR].GetComponent<TextMeshProUGUI>();
-                DontDestroyOnLoad(this);
             }
 
             void Start()
             {
                 m_pRoomManager = m_pGameInstance.Rooms;
-                if (null != m_pRoomManager)
-                {
-                    m_pRoomManager.m_pOnMapGenerated += OnMapGenerated;
-                    m_pRoomManager.m_pOnRoomEntered += OnRoomEntered;
-                    m_pRoomManager.m_pOnRoomExited += OnRoomExited;
-                }
+                m_pRoomManager.m_pOnMapGenerated += OnMapGenerated;
+                m_pRoomManager.m_pOnRoomEntered += OnRoomEntered;
+                m_pRoomManager.m_pOnRoomExited += OnRoomExited;
                 ShowLobby();
             }
 

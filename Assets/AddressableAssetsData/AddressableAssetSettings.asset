@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 7a1dd22f5f0223c4bbeb160931f245c0
   m_currentHash:
     serializedVersion: 2
-    Hash: 00000000000000000000000000000000
+    Hash: e6c5ee58a167e8fee3c801769dfd002c
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_CatalogRequestsTimeout: 0
@@ -135,6 +135,7 @@ MonoBehaviour:
     - Cards
     - UI
     - Playable
+    - Rooms
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: dc58715593d5d6a4597864d4c1177cf8, type: 2}

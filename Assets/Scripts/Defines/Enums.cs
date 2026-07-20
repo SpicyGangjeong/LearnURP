@@ -35,6 +35,7 @@ namespace Defines
             PLAYER = 0,
             MONSTER = 1,
             PROP = 2,
+            CAMERA = 3,
             END
         }
         namespace TargetRule
