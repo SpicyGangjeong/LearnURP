@@ -15,6 +15,7 @@ namespace Logic
         {
             [SerializeField]
             RoomData m_pData = null;
+            [NonSerialized]
             List<Room> m_vConnectedRooms = new List<Room>();
             bool m_bActive = false;
             bool m_bVisited = false;

@@ -72,7 +72,8 @@ namespace Core
         }
         private void OnDestroy()
         {
-
+            s_pInstance = null;
+            s_pGameInstance = null;
         }
     }
 }

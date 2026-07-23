@@ -217,6 +217,11 @@ namespace Logic
             public CardEffect() { }
             public CardEffect(CardEffect other)
             {
+                if (null == other || null == other.m_Block)
+                {
+                    m_Block = new Block();
+                    return;
+                }
                 m_Block = new Block(other.m_Block);
             }
             public void Triggered()

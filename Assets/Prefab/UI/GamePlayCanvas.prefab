@@ -1551,6 +1551,10 @@ PrefabInstance:
       propertyPath: m_TextStyleHashCode
       value: -1183493901
       objectReference: {fileID: 0}
+    - target: {fileID: 3404807917137685715, guid: b8c1b4fddf65c3f479e25a4b81a909a4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5805860672128031881, guid: b8c1b4fddf65c3f479e25a4b81a909a4, type: 3}
       propertyPath: m_Pivot.x
       value: 0

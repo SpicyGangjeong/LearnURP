@@ -39,7 +39,7 @@ namespace Core
         SO.CardDocumentSO m_pCardDocumentSO = null;
         List<SO.CardInitialSetSO> m_vCardInitialSetSO = new List<SO.CardInitialSetSO>();
         ContentUpdater m_pContentUpdater = null;
-        [SerializeField, Defines.Attribute.ReadOnly] DeckManager m_pDeckManager = null;
+        [SerializeReference, Defines.Attribute.ReadOnly] DeckManager m_pDeckManager = null;
         [SerializeField, Defines.Attribute.ReadOnly] RoomManager m_pRoomManager = null;
         LevelManager m_pLevelManager = null;
         AssetManager m_pAssetManager = null;

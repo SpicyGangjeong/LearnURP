@@ -14,6 +14,10 @@ namespace Logic
 
             public void BuildCardDescription()
             {
+                if (null == m_ScriptedObject.vEffects)
+                {
+                    m_ScriptedObject.vEffects = new CardEffect();
+                }
                 m_ScriptedObject.BuildCardDescription();
             }
 

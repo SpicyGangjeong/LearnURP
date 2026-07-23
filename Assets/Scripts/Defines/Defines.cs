@@ -118,6 +118,11 @@ namespace Defines
                 m_vTimer.x = m_vTimer.y;
                 m_Callback();
             }
+            public void Abort()
+            {
+                m_vTimer.x = m_vTimer.y;
+                m_Callback = Helpers.EmptyEvent;
+            }
         }
     }
     public static class Constants

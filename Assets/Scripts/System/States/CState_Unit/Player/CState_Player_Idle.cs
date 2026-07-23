@@ -1,5 +1,6 @@
 ﻿using Core;
 using Core.StateMachine;
+using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
@@ -35,6 +36,7 @@ namespace Logic
             }
             async public override void Update_State()
             {
+                await UniTask.CompletedTask;
             }
 
             public override void Late_Update_State()

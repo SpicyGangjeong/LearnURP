@@ -1,5 +1,6 @@
 ﻿using Core;
 using Core.StateMachine;
+using Cysharp.Threading.Tasks;
 using Defines.Expressions;
 using System;
 using UnityEngine;
@@ -38,16 +39,12 @@ namespace Logic
                 if (ERESULT.TRUE == GetRaycastHit(out RaycastHit hit))
                 {
                     CPlayable target = hit.transform.GetComponent<CPlayable>();
-                    if (null == target)
+                    if (null != target)
                     {
-                        Debug.Log("Failed To Raycast");
-                    }
-                    else
-                    {
-                        Debug.Log(target.name);
                         CInfoInstance.Instance.PlayerInstance.PlayerRegist(target);
                     }
                 }
+                await UniTask.CompletedTask;
             }
             public ERESULT GetRaycastHit(out RaycastHit hitOut)
             {

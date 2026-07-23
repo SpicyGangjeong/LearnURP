@@ -60,7 +60,6 @@ namespace View
                 m_pTmpDiscardPile = m_pPvts[(int)PvtPos.DISCARD].GetComponent<TextMeshProUGUI>();
                 m_pTmpDisappearPile = m_pPvts[(int)PvtPos.DISAPPEAR].GetComponent<TextMeshProUGUI>();
             }
-
             void Start()
             {
                 m_pRoomManager = m_pGameInstance.Rooms;

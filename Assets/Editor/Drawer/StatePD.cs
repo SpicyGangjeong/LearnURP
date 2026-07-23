@@ -9,8 +9,14 @@ namespace Propertydrawer
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
-            EditorGUI.PropertyField(position, property, label);
-            EditorGUI.LabelField(position, property.managedReferenceFullTypename.Substring(property.managedReferenceFullTypename.LastIndexOf('.')));
+            string strType = property.managedReferenceFullTypename;
+            if (false == string.IsNullOrEmpty(strType))
+            {
+                int iDot = strType.LastIndexOf('.');
+                string strShort = (-1 < iDot) ? strType.Substring(iDot + 1) : strType;
+                label.text = $"{label.text} ({strShort})";
+            }
+            EditorGUI.PropertyField(position, property, label, true);
             EditorGUI.EndProperty();
         }
 

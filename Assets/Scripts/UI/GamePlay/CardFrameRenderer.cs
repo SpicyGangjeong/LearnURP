@@ -111,9 +111,9 @@ namespace View
                         continue;
                     }
 
+                    pCardCanvas.gameObject.SetActive(true);
                     pCardCanvas.BindCard(m_vCards[i]);
                     ApplySlotLayout(pCardCanvas, i);
-                    pCardCanvas.gameObject.SetActive(true);
                 }
             }
 
@@ -197,6 +197,7 @@ namespace View
                 pCardRect.pivot = new Vector2(0.5f, 1f);
                 pCardRect.sizeDelta = m_vCardSlotSize;
                 pCardRect.anchoredPosition = new Vector2(pSlotPosition.x, pSlotPosition.y);
+                pCardRect.rotation = Quaternion.identity;
                 pCardRect.localScale = Vector3.one;
             }
 

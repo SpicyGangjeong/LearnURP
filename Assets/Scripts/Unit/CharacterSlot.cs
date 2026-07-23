@@ -5,10 +5,11 @@ using UnityEngine;
 public class CharacterSlot : MonoBehaviour, ISlot
 {
     IUnit m_pCurrentUnit = null;
-    [ExecuteInEditMode]
+    MeshRenderer m_pRenderer = null;
     private void Awake()
     {
-       GetComponent<MeshRenderer>().enabled = true;
+        m_pRenderer = GetComponent<MeshRenderer>();
+        SetSlotRenderState();
     }
     public IUnit GetCurrentUnit()
     {
@@ -17,6 +18,7 @@ public class CharacterSlot : MonoBehaviour, ISlot
     public void SetCurrentUnit(IUnit pUnit)
     {
         m_pCurrentUnit = pUnit;
+        SetSlotRenderState();
         TransformHandle hTransform = pUnit.GetTransformHandle();
         CharacterController cct = pUnit.GetTargetObject().GetComponent<CharacterController>();
         if (null != cct && true == cct.enabled)
@@ -29,6 +31,10 @@ public class CharacterSlot : MonoBehaviour, ISlot
         {
             cct.enabled = true;
         }
+    }
+    void SetSlotRenderState()
+    {
+        m_pRenderer.enabled = false;//(null == m_pCurrentUnit);
     }
 
     public GameObject GetTargetObject()

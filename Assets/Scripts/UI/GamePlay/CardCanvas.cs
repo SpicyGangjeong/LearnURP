@@ -22,6 +22,10 @@ namespace View
         }
         public class CardCanvas : MonoBehaviour, IPoolable, ICardPointerHandler
         {
+            private static readonly Vector2 s_vDefaultAnchoredPosition = new Vector2(0f, -0.5f);
+            private static readonly Vector2 s_vDefaultAnchor = new Vector2(0.5f, 0.5f);
+            private static readonly Vector2 s_vDefaultPivot = new Vector2(0.5f, 0.5f);
+            private static readonly Vector2 s_vDefaultSizeDelta = new Vector2(255f, 386f);
             private static int s_iCardCanvasPoolID = 0;
             [SerializeField] TextMeshProUGUI m_pSlotName = null;
             [SerializeField] TextMeshProUGUI m_pSlotCost = null;
@@ -157,14 +161,6 @@ namespace View
             {
                 CustomFinalize();
             }
-            public void OnEnable()
-            {
-                CustomFinalize();
-            }
-            public void OnDisable()
-            {
-                CustomFinalize();
-            }
 
             public void OnPointerMove(PointerEventData eventData)
             {
@@ -218,6 +214,8 @@ namespace View
             {
                 m_pRefCard = null;
                 OffHighlight();
+                m_LerpInfo.Abort();
+
                 m_pSlotName.text = string.Empty;
                 m_pSlotCost.text = string.Empty;
                 m_pSlotDescription.text = string.Empty;
@@ -225,6 +223,22 @@ namespace View
                 m_pSlotTypeImage.sprite = null;
                 m_pSlotQualityImage.sprite = null;
                 m_pSlotHighlight.enabled = false;
+                ResetRectTransform();
+            }
+            private void ResetRectTransform()
+            {
+                RectTransform pRect = transform as RectTransform;
+                if (null == pRect)
+                {
+                    return;
+                }
+                pRect.anchorMin = s_vDefaultAnchor;
+                pRect.anchorMax = s_vDefaultAnchor;
+                pRect.pivot = s_vDefaultPivot;
+                pRect.sizeDelta = s_vDefaultSizeDelta;
+                pRect.anchoredPosition = s_vDefaultAnchoredPosition;
+                pRect.localRotation = Quaternion.identity;
+                pRect.localScale = Vector3.one;
             }
 
             public void OnBeginDrag(PointerEventData eventData)
