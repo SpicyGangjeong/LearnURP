@@ -9,27 +9,18 @@ namespace Controller
 {
     namespace Unit
     {
-        [RequireComponent(typeof(CFSM))]
+        [RequireComponent(typeof(FSM))]
         public class PlayerController : MonoBehaviour, IController
         {
-            CFSM m_pFSM = null;
+            FSM m_pFSM = null;
             Animator m_pAnimator = null;
             IUnit m_pPlayer = null;
             void Awake()
             {
                 Ready_FSM();
-                CInfoInstance.Instance.PlayerInstance.BindController(this);
+                InfoInstance.Instance.PlayerInstance.BindController(this);
                 DontDestroyOnLoad(this);
             }
-            void Start()
-            {
-
-            }
-
-            void Update()
-            {
-            }
-
             public void BindUnit(IUnit unit)
             {
                 TransformHandle targetHandle = unit.GetTransformHandle();
@@ -43,7 +34,7 @@ namespace Controller
             {
                 if (null == m_pFSM)
                 {
-                    m_pFSM = GetComponent<CFSM>();
+                    m_pFSM = GetComponent<FSM>();
                     new CState_Player_Initialize(
                         new STATE_PLAYER_INITIALIZE_DESC(
                             this, m_pFSM, this

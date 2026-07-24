@@ -1,7 +1,6 @@
 using Core.Assets;
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Core
@@ -13,7 +12,7 @@ namespace Core
             Dictionary<Defines.Enums.SceneID, SceneAddressable> m_vSceneAddressables = new Dictionary<Defines.Enums.SceneID, SceneAddressable>();
             Defines.Enums.SceneID m_eCurrentSceneID = Defines.Enums.SceneID.NONE;
             Defines.Enums.SceneID m_ePendingSceneID = Defines.Enums.SceneID.NONE;
-            Task m_pChangeSceneTask = Task.CompletedTask;
+            bool m_bChanging = false;
 
             public LevelManager(List<SO.SceneReference> vSceneReferences)
             {
@@ -26,21 +25,26 @@ namespace Core
             public async UniTask ChangeScene(Defines.Enums.SceneID eSceneID)
             {
                 m_ePendingSceneID = eSceneID;
-                if (false == m_pChangeSceneTask.IsCompleted)
+                while (true == m_bChanging)
                 {
-                    await m_pChangeSceneTask;
+                    await UniTask.Yield();
                 }
 
                 if (m_ePendingSceneID != eSceneID)
                 {
                     return;
                 }
-
-                m_pChangeSceneTask = ChangeSceneAsync(eSceneID);
-                await m_pChangeSceneTask;
+                m_bChanging = true;
+                try
+                {
+                    await ChangeSceneAsync(eSceneID);
+                }
+                finally
+                {
+                    m_bChanging = false;
+                }
             }
-
-            async Task ChangeSceneAsync(Defines.Enums.SceneID eSceneID)
+            async UniTask ChangeSceneAsync(Defines.Enums.SceneID eSceneID)
             {
                 if (false == m_vSceneAddressables.TryGetValue(eSceneID, out SceneAddressable pSceneAddressable))
                 {

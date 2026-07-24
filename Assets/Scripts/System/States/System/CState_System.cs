@@ -18,19 +18,19 @@ namespace Logic
                 PLAYING = 2,
                 END = 3,
             }
-            public class STATE_SYSTEM_DESC : CSTATEDESC
+            public class STATE_SYSTEM_DESC : STATE_DESC
             {
-                public STATE_SYSTEM_DESC(int iStateID, MonoBehaviour pOwner, CFSM pFsm, CGameInstance pGameInstance) : base(iStateID, pOwner, pFsm)
+                public STATE_SYSTEM_DESC(int iStateID, MonoBehaviour pOwner, FSM pFsm, GameInstance pGameInstance) : base(iStateID, pOwner, pFsm)
                 {
                     this.GameInstance = pGameInstance;
                 }
-                public CGameInstance GameInstance { get; private set; }
+                public GameInstance GameInstance { get; private set; }
             }
             public CState_System(STATE_SYSTEM_DESC pRefOwner) : base(pRefOwner)
             {
-                GameInstance = pRefOwner.GameInstance;
+                m_pGameInstance = pRefOwner.GameInstance;
             }
-            public CGameInstance GameInstance { get; private set; } = null;
+            public GameInstance m_pGameInstance { get; private set; } = null;
         }
     }
 }

@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.AddressableAssets.ResourceLocators;
 
 namespace Core
 {
@@ -9,42 +11,43 @@ namespace Core
     {
         public class ContentUpdater : MonoBehaviour
         {
-            async void Start()
+            void Start()
             {
-                await Addressables.InitializeAsync().Task;
+                StartAsync().Forget();
+            }
+            async UniTaskVoid StartAsync()
+            {
+                await Addressables.InitializeAsync().ToUniTask();
 
                 AsyncOperationHandle<List<string>> hCheckHandle = Addressables.CheckForCatalogUpdates(false);
-                await hCheckHandle.Task;
-
-                if (hCheckHandle.Status == AsyncOperationStatus.Succeeded)
+                await hCheckHandle.ToUniTask();
+                if (AsyncOperationStatus.Succeeded == hCheckHandle.Status)
                 {
                     List<string> vCatalogsToUpdate = hCheckHandle.Result;
-                    if (vCatalogsToUpdate != null && vCatalogsToUpdate.Count > 0)
+                    if (null != vCatalogsToUpdate && 0 < vCatalogsToUpdate.Count)
                     {
-                        Debug.Log($"Catalog updates found: {vCatalogsToUpdate.Count} catalogs need updating.");
+                        Debug.Log($"ContentUpdater: Catalog updates found: {vCatalogsToUpdate.Count} catalogs need updating.");
 
-                        AsyncOperationHandle<List<UnityEngine.AddressableAssets.ResourceLocators
-                            .IResourceLocator>> hUpdateHandle = Addressables.UpdateCatalogs(vCatalogsToUpdate, false);
-                        await hUpdateHandle.Task;
+                        AsyncOperationHandle<List<IResourceLocator>> hUpdateHandle = Addressables.UpdateCatalogs(vCatalogsToUpdate, false);
+                        await hUpdateHandle.ToUniTask();
 
-                        if (hUpdateHandle.Status == AsyncOperationStatus.Succeeded)
+                        if (AsyncOperationStatus.Succeeded == hUpdateHandle.Status)
                         {
-                            List<UnityEngine.AddressableAssets.ResourceLocators
-                                .IResourceLocator> vUpdatedLocators = hUpdateHandle.Result;
-                            Debug.Log($"Catalogs updated successfully: {vUpdatedLocators.Count} catalogs updated.");
+                            List<IResourceLocator> vUpdatedLocators = hUpdateHandle.Result;
+                            Debug.Log($"ContentUpdater: Catalogs updated successfully: {vUpdatedLocators.Count} catalogs updated.");
                         }
                         else
                         {
-                            Debug.LogError("Failed to update catalogs.");
+                            Debug.LogError("ContentUpdater: Failed to update catalogs.");
                         }
-
                     }
                     else
                     {
-                        Debug.Log("no updates available.");
+                        Debug.Log("ContentUpdater: No updates available.");
                     }
                     Addressables.Release(hCheckHandle);
                 }
+
             }
         }
     }

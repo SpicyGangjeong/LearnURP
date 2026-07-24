@@ -8,11 +8,11 @@ namespace Logic
     namespace State
     {
         [Serializable]
-        public class CState_System_Idle : CState_System
+        public sealed class CState_System_Idle : CState_System
         {
             public class STATE_SYSTEM_IDLE_DESC : STATE_SYSTEM_DESC
             {
-                public STATE_SYSTEM_IDLE_DESC(MonoBehaviour pOwner, CFSM pFsm, CGameInstance pGameInstance)
+                public STATE_SYSTEM_IDLE_DESC(MonoBehaviour pOwner, FSM pFsm, GameInstance pGameInstance)
                     : base((int)SystemState.IDLE, pOwner, pFsm, pGameInstance)
                 {
                 }

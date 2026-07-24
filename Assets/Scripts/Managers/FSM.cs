@@ -8,7 +8,7 @@ namespace Core
     namespace StateMachine
     {
         [Serializable]
-        public class CFSM : MonoBehaviour
+        public class FSM : MonoBehaviour
         {
             public Dictionary<int, CState> m_vStates = new Dictionary<int, CState>();
 
@@ -93,8 +93,8 @@ namespace Core
             {
                 return m_pCurrState;
             }
-            void Awake() { }
-            void Start() { }
+            //void Awake() { }
+            //void Start() { }
             void FixedUpdate() { Fixed_Update_State(); }
             void Update() { Update_State(); }
             void LateUpdate() { Late_Update_State(); }

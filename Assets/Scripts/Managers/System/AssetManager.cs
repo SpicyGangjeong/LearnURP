@@ -1,5 +1,5 @@
+using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -19,7 +19,7 @@ namespace Core
             {
                 return m_vAssetHandles[strAssetName];
             }
-            public async Task<AsyncOperationHandle<Object>> LoadAddressAssetAsync(string strAssetName)
+            public async UniTask<AsyncOperationHandle<Object>> LoadAddressAssetAsync(string strAssetName)
             {
                 if (m_vAssetHandles.ContainsKey(strAssetName))
                 {
@@ -27,7 +27,7 @@ namespace Core
                 }
 
                 AsyncOperationHandle<Object> hHandle = Addressables.LoadAssetAsync<Object>(strAssetName);
-                await hHandle.Task;
+                await hHandle.ToUniTask();
 
                 if (hHandle.Status == AsyncOperationStatus.Succeeded)
                 {
@@ -44,7 +44,7 @@ namespace Core
                     return default;
                 }
             }
-            public async Task<AsyncOperationHandle<IList<Object>>> LoadLabelAssetsAsync(string strAssetLabelName)
+            public async UniTask<AsyncOperationHandle<IList<Object>>> LoadLabelAssetsAsync(string strAssetLabelName)
             {
                 if (m_vAssetLabelHandles.ContainsKey(strAssetLabelName))
                 {
@@ -56,7 +56,7 @@ namespace Core
                     null,
                     Addressables.MergeMode.Union);
 
-                await hHandle.Task;
+                await hHandle.ToUniTask();
 
                 if (hHandle.Status == AsyncOperationStatus.Succeeded)
                 {

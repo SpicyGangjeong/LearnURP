@@ -25,12 +25,12 @@ namespace View
 
             public void RegisterGroup(Group dstGroup)
             {
-                CInfoInstance.Instance.GroupInstance.RegistGroup(this, dstGroup);
+                InfoInstance.Instance.GroupInstance.RegistGroup(this, dstGroup);
                 m_eCurrentGroup = dstGroup;
             }
             public Group DeregistGroup()
             {
-                CInfoInstance.Instance.GroupInstance.DeregistGroup(this, m_eCurrentGroup);
+                InfoInstance.Instance.GroupInstance.DeregistGroup(this, m_eCurrentGroup);
                 m_eCurrentGroup = Group.NONE;
                 return m_eCurrentGroup;
             }

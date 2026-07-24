@@ -73,20 +73,20 @@ namespace Core
                 m_pPiles.ClearAll();
             }
 
-            public void StartGame()
+            public void OpenningTurn()
             {
                 m_pPiles.ClearAll();
                 m_pPiles.AddRange(m_vDeckOriginal, Defines.Enums.CardPile.DECK);
                 ShuffleDeck();
-                JobQueueManager pJobQueue = CGameInstance.Instance.JobQueues;
+                JobQueueManager pJobQueue = GameInstance.Instance.JobQueues;
                 pJobQueue.State = Defines.Helpers.BIT.Set(pJobQueue.State, Job.JobBase.JobStates.JOB_END_TURN);
-                CGameInstance.Instance.JobQueues.EnqueueJob(
+                GameInstance.Instance.JobQueues.EnqueueJob(
                     new JobDeferredCallback(async () => { await StartTurn(); }, "Starting_Turn"));
             }
 
             public async UniTask EndTurn()
             {
-                JobQueueManager pJobQueue = CGameInstance.Instance.JobQueues;
+                JobQueueManager pJobQueue = GameInstance.Instance.JobQueues;
                 if (true == Defines.Helpers.BIT.Has(pJobQueue.State, Job.JobBase.JobStates.JOB_END_TURN))
                 {
                     // Debug.LogError("EndTurn is already in progress.");
@@ -99,26 +99,26 @@ namespace Core
             }
             public async UniTask AwaitingEnd()
             {
-                JobQueueManager pJobQueue = CGameInstance.Instance.JobQueues;
+                JobQueueManager pJobQueue = GameInstance.Instance.JobQueues;
                 Assert.IsTrue(Defines.Helpers.BIT.Has(pJobQueue.State, Job.JobBase.JobStates.JOB_END_TURN));
 
 
                 if (true == Defines.Helpers.BIT.Has(pJobQueue.State, Job.JobBase.JobStates.JOB_END_TURN) &&
                     0 == pJobQueue.JobCount)
                 {// Awaiting Done;
-                    CGameInstance.Instance.JobQueues.EnqueueJob(
+                    GameInstance.Instance.JobQueues.EnqueueJob(
                         new JobDeferredCallback(async () => { await StartTurn(); }, "Starting_Turn"));
                 }
                 else
                 {// Awaiting
-                    CGameInstance.Instance.JobQueues.EnqueueJob(
+                    GameInstance.Instance.JobQueues.EnqueueJob(
                         new JobDeferredCallback(async () => { await AwaitingEnd(); }, "Awaiting_End"));
                 }
                 await UniTask.CompletedTask;
             }
             public async UniTask StartTurn()
             {
-                JobQueueManager pJobQueue = CGameInstance.Instance.JobQueues;
+                JobQueueManager pJobQueue = GameInstance.Instance.JobQueues;
                 if (false == Defines.Helpers.BIT.Has(pJobQueue.State, Job.JobBase.JobStates.JOB_END_TURN))
                 {
                     // Debug.LogError("StartTurn is called without EndTurn.");

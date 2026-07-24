@@ -11,11 +11,11 @@ namespace Logic
     namespace State
     {
         [Serializable]
-        public class CState_System_Playing : CState_System
+        public sealed class CState_System_Playing : CState_System
         {
             public class STATE_SYSTEM_PLAYING_DESC : STATE_SYSTEM_DESC
             {
-                public STATE_SYSTEM_PLAYING_DESC(MonoBehaviour pOwner, CFSM pFsm, CGameInstance pGameInstance)
+                public STATE_SYSTEM_PLAYING_DESC(MonoBehaviour pOwner, FSM pFsm, GameInstance pGameInstance)
                     : base((int)SystemState.PLAYING, pOwner, pFsm, pGameInstance)
                 {
                 }
@@ -34,12 +34,12 @@ namespace Logic
             {
                 JobDeferredCallback callback = new JobDeferredCallback(
                     async () => { 
-                        await GameInstance.ChangeScene(Defines.Enums.SceneID.GAME_PLAY);
-                        GamePlayCanvas pPlayCanvas = GameInstance.LoadInstance<GamePlayCanvas>(Defines.Constants.s_strGamePlayCanvas);
+                        await m_pGameInstance.ChangeScene(Defines.Enums.SceneID.GAME_PLAY);
+                        GamePlayCanvas pPlayCanvas = m_pGameInstance.LoadInstance<GamePlayCanvas>(Defines.Constants.s_strGamePlayCanvas);
                         pPlayCanvas.gameObject.name = Defines.Constants.s_strGamePlayCanvas;
                     }, 
                     "Changing_Scene" );
-                GameInstance.EnqueueJob(callback);
+                m_pGameInstance.EnqueueJob(callback);
             }
             public override void Update_State()
             {
@@ -48,9 +48,9 @@ namespace Logic
             public override void Exit()
             {
                 JobDeferredCallback callback = new JobDeferredCallback(
-                    () => GameInstance.ChangeScene(Defines.Enums.SceneID.MAIN_MENU), "Changing_Scene"
+                    () => m_pGameInstance.ChangeScene(Defines.Enums.SceneID.MAIN_MENU), "Changing_Scene"
                     );
-                GameInstance.EnqueueJob(callback);
+                m_pGameInstance.EnqueueJob(callback);
             }
         }
     }

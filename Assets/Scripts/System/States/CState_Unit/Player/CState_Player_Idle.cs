@@ -10,11 +10,11 @@ namespace Logic
     namespace State
     {
         [Serializable]
-        public class CState_Player_Idle : CState_Player
+        public sealed class CState_Player_Idle : CState_Player
         {
             public class STATE_PLAYER_IDLE_DESC : STATE_PLAYER_DESC
             {
-                public STATE_PLAYER_IDLE_DESC(MonoBehaviour pOwner, CFSM pFsm, IController controller)
+                public STATE_PLAYER_IDLE_DESC(MonoBehaviour pOwner, FSM pFsm, IController controller)
                     : base((int)PlayerState.IDLE, pOwner, pFsm, controller)
                 {
 

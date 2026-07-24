@@ -18,7 +18,7 @@ namespace View
             TextMeshProUGUI m_pLabel = null;
 
             Logic.Room.Room m_pRoom = null;
-            CGameInstance m_pGameInstance = null;
+            GameInstance m_pGameInstance = null;
 
             void Awake()
             {
@@ -48,7 +48,7 @@ namespace View
                     throw new System.ArgumentNullException(nameof(pRoom));
                 }
                 m_pRoom = pRoom;
-                m_pGameInstance = CGameInstance.Instance;
+                m_pGameInstance = GameInstance.Instance;
                 Refresh();
             }
 

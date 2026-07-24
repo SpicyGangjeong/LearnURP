@@ -7,19 +7,16 @@ namespace View
     {
         public class MainMenuCanvas : MonoBehaviour
         {
-            CGameInstance m_pGameInstance = null;
+            GameInstance m_pGameInstance = null;
 
             void Start()
             {
-                m_pGameInstance = CGameInstance.Instance;
+                m_pGameInstance = GameInstance.Instance;
             }
 
-            void Update()
+            public void StartFieldLevel(int i)
             {
-            }
-            public void StartDeck(int i)
-            {
-                m_pGameInstance.StartGame(i);
+                m_pGameInstance.StartFieldLevel(i);
             }
         }
 

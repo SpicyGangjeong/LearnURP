@@ -18,7 +18,7 @@ namespace Logic
             }
             public class STATE_PLAYER_DESC : STATE_UNIT_DESC
             {
-                public STATE_PLAYER_DESC(int iStateID, MonoBehaviour pOwner, CFSM pFsm, IController controller) : base(iStateID, pOwner, pFsm, controller)
+                public STATE_PLAYER_DESC(int iStateID, MonoBehaviour pOwner, FSM pFsm, IController controller) : base(iStateID, pOwner, pFsm, controller)
                 {
 
                 }

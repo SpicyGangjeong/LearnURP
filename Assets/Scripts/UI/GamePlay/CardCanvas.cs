@@ -44,15 +44,33 @@ namespace View
             public bool bHighlighted { get; private set; } = false;
 
             LerpInfo m_LerpInfo;
+            UniTaskCompletionSource m_pMoveCompletion = null;
 
             public void StartMove(in LerpInfo lerpInfo)
             {
+                AbortCurrentMove();
                 m_LerpInfo = lerpInfo;
             }
             private void InstantMove(in MoveInfo moveinfo)
             {
                 m_LerpInfo.SetFinish();
+                ClearMoveCompletion();
                 Helpers.ApplyMoveInfo(moveinfo, transform);
+            }
+            private void AbortCurrentMove()
+            {
+                m_LerpInfo.Abort();
+                ClearMoveCompletion();
+            }
+            private void ClearMoveCompletion()
+            {
+                if (null == m_pMoveCompletion)
+                {
+                    return;
+                }
+                UniTaskCompletionSource pCompletion = m_pMoveCompletion;
+                m_pMoveCompletion = null;
+                pCompletion.TrySetResult();
             }
 
             public void Update()
@@ -138,7 +156,15 @@ namespace View
             public UniTask StartBezierMoveAsync(float fDuration, in MoveInfo pCenterMove, in MoveInfo pDstMove)
             {
                 UniTaskCompletionSource pCompletion = new UniTaskCompletionSource();
-                StartBezierMove(fDuration, in pCenterMove, in pDstMove, () => { pCompletion.TrySetResult(); });
+                StartBezierMove(fDuration, in pCenterMove, in pDstMove, () =>
+                {
+                    if (m_pMoveCompletion == pCompletion)
+                    {
+                        m_pMoveCompletion = null;
+                    }
+                    pCompletion.TrySetResult();
+                });
+                m_pMoveCompletion = pCompletion;
                 return pCompletion.Task;
             }
             public void StartBezierMove(float fDuration, in MoveInfo pCenterMove, in MoveInfo pDstMove, LerpModelCallback callback)
@@ -198,6 +224,8 @@ namespace View
                 {
                     bHighlighted = false;
                     m_pSlotHighlight.enabled = bHighlighted;
+                    GamePlayCanvas pController = GamePlayCanvas.Instance;
+                    pController.HandBoard.UpdateHandLayout();
                 }
             }
 
@@ -214,7 +242,7 @@ namespace View
             {
                 m_pRefCard = null;
                 OffHighlight();
-                m_LerpInfo.Abort();
+                AbortCurrentMove();
 
                 m_pSlotName.text = string.Empty;
                 m_pSlotCost.text = string.Empty;
@@ -296,6 +324,12 @@ namespace View
                         }
                     }
                 }
+            }
+            
+            [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+            private static void ReloadOnLoad()
+            {
+                s_iCardCanvasPoolID = 0;
             }
         }
     }

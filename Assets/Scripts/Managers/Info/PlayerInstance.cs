@@ -22,7 +22,7 @@ namespace Core
                 m_pPlayerUnit.RegisterGroup(Defines.Enums.Group.PLAYER);
                 return ERESULT.TRUE;
             }
-            public ERESULT StartGame()
+            public ERESULT StartFieldLevel()
             {
                 if (null != m_pPlayerUnit || null != m_pPlayerController)
                 {

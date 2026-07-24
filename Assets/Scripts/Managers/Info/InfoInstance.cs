@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace Core
 {
-    public class CInfoInstance : MonoBehaviour
+    public class InfoInstance : MonoBehaviour
     {
-        static CInfoInstance s_pInstance = null;
-        static CGameInstance s_pGameInstance = null;
-        public static CInfoInstance Instance { get { Init(); return s_pInstance; } }
+        static InfoInstance s_pInstance = null;
+        static GameInstance s_pGameInstance = null;
+        public static InfoInstance Instance { get { Init(); return s_pInstance; } }
         PlayerInstance m_pPlayerInstance = null;
         GroupInstance m_groupInstance = null;
         public PlayerInstance PlayerInstance => m_pPlayerInstance;
@@ -28,17 +28,17 @@ namespace Core
                 if (null == pGameObject)
                 {
                     pGameObject = new GameObject(strInstance);
-                    pGameObject.AddComponent<CInfoInstance>();
+                    pGameObject.AddComponent<InfoInstance>();
                 }
                 DontDestroyOnLoad(pGameObject);
-                s_pInstance = pGameObject.GetComponent<CInfoInstance>();
+                s_pInstance = pGameObject.GetComponent<InfoInstance>();
                 if (ERESULT.TRUE == s_pInstance.Initialize())
                 {
 
                 }
                 if (null == s_pGameInstance)
                 {
-                    s_pGameInstance = CGameInstance.Instance;
+                    s_pGameInstance = GameInstance.Instance;
                 }
             }
         }
@@ -48,14 +48,14 @@ namespace Core
             m_groupInstance = new GroupInstance();
             return ERESULT.TRUE;
         }
-        public ERESULT StartGame()
+        public ERESULT StartFieldLevel()
         {
-            if (ERESULT.FALSE == GroupInstance.StartGame(out IUnit outPlayer))
+            if (ERESULT.FALSE == GroupInstance.StartFieldLevel(out IUnit outPlayer))
             {
                 Debug.LogError("Start Failed");
                 return ERESULT.FALSE;
             }
-            if (ERESULT.FALSE == PlayerInstance.StartGame())
+            if (ERESULT.FALSE == PlayerInstance.StartFieldLevel())
             {
                 //GroupInstance.
                 Debug.LogError("Start Failed");
@@ -71,6 +71,12 @@ namespace Core
             b = a;
         }
         private void OnDestroy()
+        {
+            s_pInstance = null;
+            s_pGameInstance = null;
+        }
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ReloadOnLoad()
         {
             s_pInstance = null;
             s_pGameInstance = null;

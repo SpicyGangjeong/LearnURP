@@ -116,7 +116,12 @@ namespace Defines
             public void SetFinish()
             {
                 m_vTimer.x = m_vTimer.y;
-                m_Callback();
+                LerpModelCallback pCallback = m_Callback;
+                m_Callback = Helpers.EmptyEvent;
+                if (null != pCallback)
+                {
+                    pCallback();
+                }
             }
             public void Abort()
             {

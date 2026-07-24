@@ -8,10 +8,10 @@ namespace Logic
         [Serializable]
         public abstract class CState_Unit : CState
         {
-            public class STATE_UNIT_DESC : CSTATEDESC
+            public class STATE_UNIT_DESC : STATE_DESC
             {
                 public IController pController = null;
-                public STATE_UNIT_DESC(int iStateID, MonoBehaviour pOwner, CFSM pFsm, IController controller) : base(iStateID, pOwner, pFsm)
+                public STATE_UNIT_DESC(int iStateID, MonoBehaviour pOwner, FSM pFsm, IController controller) : base(iStateID, pOwner, pFsm)
                 {
                     pController = controller;
                 }

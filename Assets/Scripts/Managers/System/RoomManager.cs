@@ -144,7 +144,7 @@ namespace Core
                     throw new InvalidOperationException($"RoomManager.EnterRoom room {pRoom.Data.ID} has empty PrefabKey.");
                 }
 
-                UnityEngine.Object pPrototype = await CGameInstance.Instance.LoadAddressAssetAsync(strPrefabKey);
+                UnityEngine.Object pPrototype = await GameInstance.Instance.LoadAddressAssetAsync(strPrefabKey);
                 if (null == pPrototype)
                 {
                     throw new InvalidOperationException($"RoomManager.EnterRoom failed to load prefab '{strPrefabKey}'.");
@@ -399,7 +399,7 @@ namespace Core
                         $"RoomManager.ApplySlotPlacement room {pRoom.Data.ID} has no PlayerSlot.");
                 }
 
-                CPlayable pPlayerUnit = CInfoInstance.Instance.PlayerInstance.PlayerUnit;
+                CPlayable pPlayerUnit = InfoInstance.Instance.PlayerInstance.PlayerUnit;
                 if (null != pPlayerUnit)
                 {
                     GameObject pPlayerObject = pPlayerUnit.GetTargetObject();
@@ -414,7 +414,7 @@ namespace Core
                 CharacterSlot pCameraSlot = pRoom.CameraSlot;
                 if (null != pCameraSlot)
                 {
-                    Camera pCamera = CGameInstance.Instance.Main_Camera;
+                    Camera pCamera = GameInstance.Instance.Main_Camera;
                     if (null != pCamera)
                     {
                         TransformHandle hTransform = pCameraSlot.transformHandle;

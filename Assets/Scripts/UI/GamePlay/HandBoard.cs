@@ -17,14 +17,14 @@ namespace View
             readonly List<KeyValuePair<CardInstance, CardCanvas>> m_vCardCanvases = new List<KeyValuePair<CardInstance, CardCanvas>>();
             [SerializeField, Defines.Attribute.ReadOnly]
             List<CardInstance> m_vHandCards = null;
-            CGameInstance m_pGameInstance = null;
+            GameInstance m_pGameInstance = null;
             [SerializeField] GamePlayCanvas m_pGamePlayCanvas = null;
 
             MoveInfo[] m_vHandMoveInfo = new MoveInfo[s_iMaxHandSlots];
 
             void Start()
             {
-                m_pGameInstance = CGameInstance.Instance;
+                m_pGameInstance = GameInstance.Instance;
                 m_pGameInstance.Deck.m_pOnCardPlayed += OnCardPlayed;
                 m_pGameInstance.Deck.m_pOnCardDiscarded += OnCardDiscarded;
                 m_pGameInstance.Deck.m_pOnTurnEnded += OnTurnEnded;
@@ -97,7 +97,7 @@ namespace View
                     Vector3 pEndPos = Vector3.Lerp(vCorners[3], vCorners[2], 0.25f);
                     Vector3 pCentralPos = Vector3.Lerp(pStartPos, pEndPos, 0.5f) + Vector3.up * s_fCurveHeight;
 
-                    float fSlotStep = 1f / Mathf.Max(1, s_iMaxHandSlots - 1);
+                    float fSlotStep = 1f / Mathf.Max(1, iActiveCardCount + 2 - 1);
                     float fSpan = fSlotStep * (iActiveCardCount - 1);
                     float fStartT = 0.5f - fSpan * 0.5f;
 

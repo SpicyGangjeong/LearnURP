@@ -5,12 +5,12 @@ public class LobbyManager : MonoBehaviour
 {
     [SerializeField] CharacterSlot m_pWaitingSlot = null;
     [SerializeField] CharacterSlot m_pCameraSlot = null;
-    CInfoInstance InfoInstance = null;
-    CGameInstance GameInstance = null;
+    InfoInstance InfoInstance = null;
+    GameInstance GameInstance = null;
     private void Awake()
     {
-        InfoInstance = CInfoInstance.Instance;
-        GameInstance = CGameInstance.Instance;
+        InfoInstance = InfoInstance.Instance;
+        GameInstance = GameInstance.Instance;
         GameInstance.Rooms.m_pOnRoomExited += EnterLobby;
         EnterLobby();
     }
@@ -19,16 +19,6 @@ public class LobbyManager : MonoBehaviour
         GameInstance.Rooms.m_pOnRoomExited -= EnterLobby;
     }
 
-
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-
-    }
     public void EnterLobby(Logic.Room.Room fromRoom)
     {
         EnterLobby();

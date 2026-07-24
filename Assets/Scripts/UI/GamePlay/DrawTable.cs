@@ -10,7 +10,7 @@ namespace View
         public class DrawTable : MonoBehaviour
         {
             float2 vShowTime;
-            CGameInstance m_pGameInstance;
+            GameInstance m_pGameInstance;
             [SerializeField]
             CardFrameRenderer m_pCardFrameRenderer;
 
@@ -18,8 +18,8 @@ namespace View
             private void Awake()
             {
                 vShowTime.x = 0;
-                vShowTime.y = 1.0f;
-                m_pGameInstance = CGameInstance.Instance;
+                vShowTime.y = 2.0f;
+                m_pGameInstance = GameInstance.Instance;
             }
             void Start()
             {

@@ -30,13 +30,19 @@ namespace Core
                     return;
                 }
                 m_bProcessing = true;
-                while (0 != m_vJobLane.Count)
+                try
                 {
-                    JobBase pJob = m_vJobLane[0];
-                    m_vJobLane.RemoveAt(0);
-                    await pJob.Run();
+                    while (0 != m_vJobLane.Count)
+                    {
+                        JobBase pJob = m_vJobLane[0];
+                        m_vJobLane.RemoveAt(0);
+                        await pJob.Run();
+                    }
                 }
-                m_bProcessing = false;
+                finally
+                {
+                    m_bProcessing = false;
+                }
             }
 
             public void EnqueueJob(JobBase pJob)

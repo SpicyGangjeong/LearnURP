@@ -10,11 +10,11 @@ namespace Logic
     namespace State
     {
         [Serializable]
-        public class CState_Player_Initialize : CState_Player
+        public sealed class CState_Player_Initialize : CState_Player
         {
             public class STATE_PLAYER_INITIALIZE_DESC : STATE_PLAYER_DESC
             {
-                public STATE_PLAYER_INITIALIZE_DESC(MonoBehaviour pOwner, CFSM pFsm, IController controller)
+                public STATE_PLAYER_INITIALIZE_DESC(MonoBehaviour pOwner, FSM pFsm, IController controller)
                     : base((int)PlayerState.INITIALIZE, pOwner, pFsm, controller)
                 {
 
@@ -41,15 +41,15 @@ namespace Logic
                     CPlayable target = hit.transform.GetComponent<CPlayable>();
                     if (null != target)
                     {
-                        CInfoInstance.Instance.PlayerInstance.PlayerRegist(target);
+                        InfoInstance.Instance.PlayerInstance.PlayerRegist(target);
                     }
                 }
                 await UniTask.CompletedTask;
             }
             public ERESULT GetRaycastHit(out RaycastHit hitOut)
             {
-                Vector3 vMousePos = CGameInstance.Instance.Mouse_Pos;
-                Camera currentCamera = CGameInstance.Instance.Main_Camera;
+                Vector3 vMousePos = GameInstance.Instance.Mouse_Pos;
+                Camera currentCamera = GameInstance.Instance.Main_Camera;
                 Ray ray = currentCamera.ScreenPointToRay(vMousePos);
                 if (true == Physics.Raycast(ray, out hitOut))
                 {

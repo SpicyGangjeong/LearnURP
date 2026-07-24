@@ -40,7 +40,7 @@ namespace View
             RoomBoard m_pRoomBoard = null;
             [SerializeField]
             GameObject m_pDeckUIRoot = null;
-            CGameInstance m_pGameInstance = null;
+            GameInstance m_pGameInstance = null;
             RoomManager m_pRoomManager = null;
 
             [SerializeField]
@@ -50,7 +50,7 @@ namespace View
             void Awake()
             {
                 s_pInstance = this;
-                m_pGameInstance = CGameInstance.Instance;
+                m_pGameInstance = GameInstance.Instance;
                 m_pGameInstance.Deck.m_pOnCardDrawn += PresentDraw;
                 for (int i = 0; i < m_MoveInfos.Length; i++)
                 {
@@ -298,6 +298,11 @@ namespace View
                     m_pGameInstance.ReleasePooled<CardCanvas>(Defines.Constants.s_strCardCanvas, pCardCanvas);
                 }, "Discarding_Card");
                 m_pGameInstance.EnqueueJob(jobDiscard);
+            }
+            [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+            private static void ReloadOnLoad()
+            {
+                s_pInstance = null;
             }
         }
 

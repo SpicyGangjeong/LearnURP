@@ -1,3 +1,4 @@
+using Core;
 using Defines;
 using System;
 using System.Collections.Generic;
@@ -105,6 +106,10 @@ namespace Logic
             public void OnRoomEnter()
             {
                 m_pOnRoomEnter.Invoke(this);
+                if (0 != m_vMonsterSlots.Count)
+                {
+                    GameInstance.Instance.OpenningTurn();
+                }
             }
 
             public void OnRoomExit()

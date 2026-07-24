@@ -1,8 +1,8 @@
 using Core;
 using Core.Job;
 using Core.StateMachine;
+using Cysharp.Threading.Tasks;
 using System;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Logic
@@ -10,24 +10,23 @@ namespace Logic
     namespace State
     {
         [Serializable]
-        public class CState_System_Initialize : CState_System
+        public sealed class CState_System_Initialize : CState_System
         {
-            public delegate Task BootstrapAsyncDelegate();
             public class STATE_SYSTEM_INITIALIZE_DESC : STATE_SYSTEM_DESC
             {
-                public STATE_SYSTEM_INITIALIZE_DESC(MonoBehaviour pOwner, CFSM pFsm, CGameInstance pGameInstance,
-                BootstrapAsyncDelegate pDelegateBootstrapAsync)
+                public STATE_SYSTEM_INITIALIZE_DESC(MonoBehaviour pOwner, FSM pFsm, GameInstance pGameInstance,
+                Func<UniTask> pBootstrapAsync)
                     : base((int)SystemState.INITIALIZE, pOwner, pFsm, pGameInstance)
                 {
-                    this.delegateBootstrapAsync = pDelegateBootstrapAsync;
+                    this.BootstrapAsync = pBootstrapAsync;
                 }
-                public BootstrapAsyncDelegate delegateBootstrapAsync { get; private set; } = null;
+                public Func<UniTask> BootstrapAsync { get; private set; } = null;
             }
             public CState_System_Initialize(STATE_SYSTEM_INITIALIZE_DESC pRefOwner) : base(pRefOwner)
             {
-                m_pDelegateBootstrapAsync = pRefOwner.delegateBootstrapAsync;
+                m_pBootstrapAsync = pRefOwner.BootstrapAsync;
             }
-            BootstrapAsyncDelegate m_pDelegateBootstrapAsync = null;
+            Func<UniTask> m_pBootstrapAsync = null;
             bool m_bIsLoading = false;
 
 
@@ -40,18 +39,21 @@ namespace Logic
             {
 
             }
-            async public override void Update_State()
+            public override void Update_State()
             {
-                if (null != m_pDelegateBootstrapAsync)
+                if (null == m_pBootstrapAsync || true == m_bIsLoading)
                 {
-                    if (false == m_bIsLoading)
-                    {
-                        m_bIsLoading = true;
-                        await m_pDelegateBootstrapAsync.Invoke();
-                        m_bIsLoading = false;
-                        m_pDelegateBootstrapAsync = null;
-                        FSM.Change_State((int)SystemState.IDLE);
-                    }
+                    return;
+                }
+                RunBootstrapAsync().Forget();
+
+                async UniTaskVoid RunBootstrapAsync()
+                {
+                    m_bIsLoading = true;
+                    await m_pBootstrapAsync.Invoke();
+                    m_bIsLoading = false;
+                    m_pBootstrapAsync = null;
+                    FSM.Change_State((int)SystemState.IDLE);
                 }
             }
 
@@ -65,9 +67,9 @@ namespace Logic
             {
                 Debug.Log("CState_Sys_Initialize Exit");
                 JobDeferredCallback callback = new JobDeferredCallback(
-                    () => GameInstance.ChangeScene(Defines.Enums.SceneID.MAIN_MENU), "Exiting_Initialize"
+                    () => m_pGameInstance.ChangeScene(Defines.Enums.SceneID.MAIN_MENU), "Exiting_Initialize"
                     );
-                GameInstance.EnqueueJob(callback);
+                m_pGameInstance.EnqueueJob(callback);
             }
         }
     }

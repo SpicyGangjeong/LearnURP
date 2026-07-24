@@ -15,7 +15,7 @@ namespace View
             [SerializeField] Vector2 m_vCardSlotSize = new Vector2(200f, 280f);
             [SerializeField] float m_fSlotSpacing = 12f;
 
-            CGameInstance m_pGameInstance = null;
+            GameInstance m_pGameInstance = null;
             IReadOnlyList<CardInstance> m_vCards = null;
             CardCanvas[] m_vCardCanvasSlots = null;
             float3[] m_vCardSlotPositions = null;
@@ -35,7 +35,7 @@ namespace View
 
             void Awake()
             {
-                m_pGameInstance = CGameInstance.Instance;
+                m_pGameInstance = GameInstance.Instance;
                 EnsureContentRect();
             }
 

@@ -24,13 +24,13 @@ namespace View
             [SerializeField]
             GameObject m_pExitButtonRoot = null;
 
-            CGameInstance m_pGameInstance = null;
+            GameInstance m_pGameInstance = null;
             RoomManager m_pRoomManager = null;
             readonly List<RoomButton> m_vButtons = new List<RoomButton>();
 
             void Awake()
             {
-                m_pGameInstance = CGameInstance.Instance;
+                m_pGameInstance = GameInstance.Instance;
                 m_pRoomManager = m_pGameInstance.Rooms;
                 if (null == m_pRoomRoot)
                 {
@@ -140,37 +140,37 @@ namespace View
                 m_pExitButtonRoot.SetActive(bVisible);
             }
 
-            public void DebugNotifyAllMonstersDefeated()
-            {
-                if (null == m_pRoomManager)
-                {
-                    return;
-                }
-                m_pRoomManager.NotifyAllMonstersDefeated();
-            }
+            //public void DebugNotifyAllMonstersDefeated()
+            //{
+            //    if (null == m_pRoomManager)
+            //    {
+            //        return;
+            //    }
+            //    m_pRoomManager.NotifyAllMonstersDefeated();
+            //}
 
-            public void DebugNotifyChestEvent()
-            {
-                if (null == m_pRoomManager)
-                {
-                    return;
-                }
-                m_pRoomManager.NotifySpecialEvent(Defines.Constants.s_strRoomEventChest);
-                // TODO: EVENT_TRIGGER 등 — 호출부에서 TryCompleteRoom(CurrentRoom) 연결
-                if (null != m_pRoomManager.CurrentRoom)
-                {
-                    m_pRoomManager.TryCompleteRoom(m_pRoomManager.CurrentRoom);
-                }
-            }
+            //public void DebugNotifyChestEvent()
+            //{
+            //    if (null == m_pRoomManager)
+            //    {
+            //        return;
+            //    }
+            //    m_pRoomManager.NotifySpecialEvent(Defines.Constants.s_strRoomEventChest);
+            //    // TODO: EVENT_TRIGGER 등 — 호출부에서 TryCompleteRoom(CurrentRoom) 연결
+            //    if (null != m_pRoomManager.CurrentRoom)
+            //    {
+            //        m_pRoomManager.TryCompleteRoom(m_pRoomManager.CurrentRoom);
+            //    }
+            //}
 
-            public void DebugNotifyBossGateFlag()
-            {
-                if (null == m_pRoomManager)
-                {
-                    return;
-                }
-                m_pRoomManager.NotifyFlag(Defines.Constants.s_strRoomFlagBossGate);
-            }
+            //public void DebugNotifyBossGateFlag()
+            //{
+            //    if (null == m_pRoomManager)
+            //    {
+            //        return;
+            //    }
+            //    m_pRoomManager.NotifyFlag(Defines.Constants.s_strRoomFlagBossGate);
+            //}
 
 //#if UNITY_EDITOR
 //            void OnGUI()

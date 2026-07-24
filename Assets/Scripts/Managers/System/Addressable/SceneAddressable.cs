@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -30,7 +30,7 @@ namespace Core
                 m_pSceneRef = pSceneRef;
             }
 
-            public async Task LoadScene()
+            public async UniTask LoadScene()
             {
                 if (false == m_pSceneRef.RuntimeKeyIsValid())
                 {
@@ -44,7 +44,7 @@ namespace Core
                 }
 
                 m_hSceneLoadHandle = Addressables.LoadSceneAsync(m_pSceneRef, m_iLoadSceneMode);
-                await m_hSceneLoadHandle.Task;
+                await m_hSceneLoadHandle.ToUniTask();
 
                 if (AsyncOperationStatus.Succeeded == m_hSceneLoadHandle.Status)
                 {
@@ -63,7 +63,7 @@ namespace Core
                 m_hSceneLoadHandle = default;
             }
 
-            public async Task UnloadScene()
+            public async UniTask UnloadScene()
             {
                 if (false == m_hSceneLoadHandle.IsValid())
                 {
@@ -84,7 +84,7 @@ namespace Core
                     m_hSceneLoadHandle,
                     UnloadSceneOptions.None,
                     false);
-                await hUnloadHandle.Task;
+                await hUnloadHandle.ToUniTask();
 
                 if (AsyncOperationStatus.Succeeded == hUnloadHandle.Status)
                 {

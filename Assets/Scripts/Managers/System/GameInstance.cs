@@ -10,7 +10,6 @@ using Cysharp.Threading.Tasks;
 using Logic.State;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -29,11 +28,11 @@ namespace Core
     public delegate void LerpModelCallback();
 
 
-    public class CGameInstance : MonoBehaviour
+    public class GameInstance : MonoBehaviour
     {
-        static CGameInstance s_pInstance = null;
-        static CInfoInstance s_pInfoInstance = null;
-        public static CGameInstance Instance { get { Init(); return s_pInstance; } }
+        static GameInstance s_pInstance = null;
+        static InfoInstance s_pInfoInstance = null;
+        public static GameInstance Instance { get { Init(); return s_pInstance; } }
 
         [SerializeField] SO.SceneSO m_pSceneSO = null;
         SO.CardDocumentSO m_pCardDocumentSO = null;
@@ -55,7 +54,7 @@ namespace Core
         public Camera Main_Camera => Camera.main;
         public Vector2 Mouse_Pos => Mouse.current.position.ReadValue();
 
-        CFSM m_pFSM = null;
+        FSM m_pFSM = null;
         public SO.CardDocumentSO CardDocuments => m_pCardDocumentSO;
 
         public void EnqueueJob(Job.JobBase pJob)
@@ -76,16 +75,16 @@ namespace Core
                 if (null == pGameObject)
                 {
                     pGameObject = new GameObject(strInstance);
-                    pGameObject.AddComponent<CGameInstance>();
+                    pGameObject.AddComponent<GameInstance>();
                 }
                 DontDestroyOnLoad(pGameObject);
                 DontDestroyOnLoad(EventSystem.current);
-                s_pInstance = pGameObject.GetComponent<CGameInstance>();
-                s_pInstance.m_pFSM = pGameObject.AddComponent<CFSM>();
+                s_pInstance = pGameObject.GetComponent<GameInstance>();
+                s_pInstance.m_pFSM = pGameObject.AddComponent<FSM>();
                 s_pInstance.Initialize();
                 if (null == s_pInfoInstance)
                 {
-                    s_pInfoInstance = CInfoInstance.Instance;
+                    s_pInfoInstance = InfoInstance.Instance;
                 }
             }
         }
@@ -114,7 +113,7 @@ namespace Core
             m_pSceneSO = m_pSceneSO.Clone() as SO.SceneSO;
             m_pLevelManager = new LevelManager(m_pSceneSO.m_vSceneReferences);
             m_pJobQueueManager = new JobQueueManager();
-            m_pFSM = gameObject.GetComponent<CFSM>();
+            m_pFSM = gameObject.GetComponent<FSM>();
             m_pPoolRoot = EnsurePoolRoot(gameObject.transform);
             m_pObjectPoolManager = new ObjectPoolManager(m_pPoolRoot);
             if (null == m_pContentUpdater ||
@@ -172,15 +171,18 @@ namespace Core
 
             m_pObjectPoolManager.Release(strKey, pInstance);
         }
-        public void StartGame(int iInitialSetIndex)
+        public void StartFieldLevel(int iInitialSetIndex)
         {
             if (m_pFSM.IsCurrentState((int)CState_System.SystemState.IDLE))
             {
                 m_pFSM.Change_State((int)CState_System.SystemState.PLAYING);
-                CInfoInstance.Instance.StartGame();
+                InfoInstance.Instance.StartFieldLevel();
                 m_pDeckManager.Initialize(m_vCardInitialSetSO[iInitialSetIndex]);
-                m_pDeckManager.StartGame();
             }
+        }
+        public void OpenningTurn()
+        {
+            m_pDeckManager.OpenningTurn();
         }
         public _Ty LoadInstance<_Ty>(string strAssetName) where _Ty : Object
         {
@@ -188,12 +190,12 @@ namespace Core
             _Ty pInstance = Object.Instantiate(pPrototype).GetComponent<_Ty>();
             return pInstance;
         }
-        public async Task<Object> LoadAddressAssetAsync(string strAssetName)
+        public async UniTask<Object> LoadAddressAssetAsync(string strAssetName)
         {
             AsyncOperationHandle<Object> hHandle = await m_pAssetManager.LoadAddressAssetAsync(strAssetName);
             return hHandle.Result;
         }
-        private async Task LoadPrototypesAsync()
+        private async UniTask LoadPrototypesAsync()
         {
             bool flowControl = true;
             flowControl = await ReadyPrototypeAsync(Defines.Constants.s_strGamePlayCanvas);
@@ -206,12 +208,12 @@ namespace Core
             {
                 return;
             }
-            async Task<bool> ReadyPrototypeAsync(string ProtoTypeKey)
+            async UniTask<bool> ReadyPrototypeAsync(string ProtoTypeKey)
             {
                 AsyncOperationHandle<Object> hGamePlayCanvasHandle = await m_pAssetManager.LoadAddressAssetAsync(ProtoTypeKey);
                 return hGamePlayCanvasHandle.Result;
             }
-            async Task<bool> ReadyPrototypePoolAsync<_Ty>(string ProtoTypeKey, int iPoolCount, int iMaxPoolCount) where _Ty : Component
+            async UniTask<bool> ReadyPrototypePoolAsync<_Ty>(string ProtoTypeKey, int iPoolCount, int iMaxPoolCount) where _Ty : Component
             {
                 AsyncOperationHandle<Object> hGamePlayCanvasHandle = await m_pAssetManager.LoadAddressAssetAsync(ProtoTypeKey);
                 GameObject pPrefab = hGamePlayCanvasHandle.Result as GameObject;
@@ -225,7 +227,7 @@ namespace Core
                 return true;
             }
         }
-        private async Task LoadCardDocumentsAsync()
+        private async UniTask LoadCardDocumentsAsync()
         {
             if (null != m_pCardDocumentSO)
             {
@@ -235,7 +237,7 @@ namespace Core
             AsyncOperationHandle<Object> hCardDocumentsHandle = await m_pAssetManager.LoadAddressAssetAsync("CardDocuments");
             m_pCardDocumentSO = (hCardDocumentsHandle.Result as SO.CardDocumentSO).Clone();
         }
-        private async Task LoadCardInitialSetAsync()
+        private async UniTask LoadCardInitialSetAsync()
         {
             if (0 != m_vCardInitialSetSO.Count)
             {
@@ -262,7 +264,7 @@ namespace Core
         {
             await m_pLevelManager.ChangeScene(eSceneID);
         }
-        public async Task BootstrapAsync()
+        public async UniTask BootstrapAsync()
         {
             await LoadPrototypesAsync();
             await LoadCardDocumentsAsync();
@@ -276,6 +278,12 @@ namespace Core
             }
 
             m_pAssetManager.ReleaseAssets();
+        }
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ReloadOnLoad()
+        {
+            s_pInstance = null;
+            s_pInfoInstance = null;
         }
     }
 

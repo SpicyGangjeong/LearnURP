@@ -50,7 +50,7 @@ namespace Core
                 content.RegisterGroup(Dst);
                 return ERESULT.TRUE;
             }
-            public ERESULT StartGame(out IUnit outPlayer)
+            public ERESULT StartFieldLevel(out IUnit outPlayer)
             {
                 int iCount = Groups[(int)Group.PLAYER].Count;
                 if (iCount <= 0 || iCount > 1)
